@@ -1,0 +1,2501 @@
+Patient ID,Test Name,Value,Units
+565882e8,Basophil Count,0.17,10⁹/L
+565882e8,Eosinophil Count,0.12,10⁹/L
+565882e8,HbA1C,35.43,mmol/mol
+565882e8,Haematocrit (HCT),44.53,%
+565882e8,Haemoglobin,140.16,g/L
+734f26a5,Basophil Count,0.18,10⁹/L
+734f26a5,Eosinophil Count,0.09,10⁹/L
+734f26a5,HbA1C,37.8,mmol/mol
+734f26a5,Haematocrit (HCT),36.22,%
+734f26a5,Haemoglobin,166.59,g/L
+d2200597,Basophil Count,0.25,10⁹/L
+d2200597,Eosinophil Count,0.31,10⁹/L
+d2200597,HbA1C,23.95,mmol/mol
+d2200597,Haematocrit (HCT),35.93,%
+d2200597,Haemoglobin,164.94,g/L
+de6e0716,Basophil Count,0.28,10⁹/L
+de6e0716,Eosinophil Count,0.29,10⁹/L
+de6e0716,HbA1C,30.5,mmol/mol
+de6e0716,Haematocrit (HCT),44.58,%
+de6e0716,Haemoglobin,152.82,g/L
+31b23417,Basophil Count,0.01,10⁹/L
+31b23417,Eosinophil Count,0.23,10⁹/L
+31b23417,HbA1C,25.61,mmol/mol
+31b23417,Haematocrit (HCT),49.31,%
+31b23417,Haemoglobin,128.31,g/L
+e4236a8f,Basophil Count,0.12,10⁹/L
+e4236a8f,Eosinophil Count,0.24,10⁹/L
+e4236a8f,HbA1C,38.59,mmol/mol
+e4236a8f,Haematocrit (HCT),44.31,%
+e4236a8f,Haemoglobin,139.43,g/L
+5bc26d05,Basophil Count,0.1,10⁹/L
+5bc26d05,Eosinophil Count,0.13,10⁹/L
+5bc26d05,HbA1C,30.4,mmol/mol
+5bc26d05,Haematocrit (HCT),39.55,%
+5bc26d05,Haemoglobin,144.25,g/L
+1dbee490,Basophil Count,0.18,10⁹/L
+1dbee490,Eosinophil Count,0.11,10⁹/L
+1dbee490,HbA1C,20.9,mmol/mol
+1dbee490,Haematocrit (HCT),48.43,%
+1dbee490,Haemoglobin,166.21,g/L
+63dbacbe,Basophil Count,0.25,10⁹/L
+63dbacbe,Eosinophil Count,0.35,10⁹/L
+63dbacbe,HbA1C,34.01,mmol/mol
+63dbacbe,Haematocrit (HCT),45.75,%
+63dbacbe,Haemoglobin,166.52,g/L
+6f424192,Basophil Count,0.09,10⁹/L
+6f424192,Eosinophil Count,0.39,10⁹/L
+6f424192,HbA1C,41.95,mmol/mol
+6f424192,Haematocrit (HCT),35.16,%
+6f424192,Haemoglobin,138.7,g/L
+489970bc,Basophil Count,0.11,10⁹/L
+489970bc,Eosinophil Count,0.47,10⁹/L
+489970bc,HbA1C,39.25,mmol/mol
+489970bc,Haematocrit (HCT),47.46,%
+489970bc,Haemoglobin,149.38,g/L
+fbd09e24,Basophil Count,0.26,10⁹/L
+fbd09e24,Eosinophil Count,0.34,10⁹/L
+fbd09e24,HbA1C,21.55,mmol/mol
+fbd09e24,Haematocrit (HCT),42.91,%
+fbd09e24,Haemoglobin,132.36,g/L
+378c6ded,Basophil Count,0.26,10⁹/L
+378c6ded,Eosinophil Count,0.32,10⁹/L
+378c6ded,HbA1C,40.47,mmol/mol
+378c6ded,Haematocrit (HCT),46.75,%
+378c6ded,Haemoglobin,159.26,g/L
+a5820746,Basophil Count,0.06,10⁹/L
+a5820746,Eosinophil Count,0.3,10⁹/L
+a5820746,HbA1C,33.33,mmol/mol
+a5820746,Haematocrit (HCT),38.49,%
+a5820746,Haemoglobin,144.58,g/L
+dd15a08f,Basophil Count,0.15,10⁹/L
+dd15a08f,Eosinophil Count,0.4,10⁹/L
+dd15a08f,HbA1C,42.03,mmol/mol
+dd15a08f,Haematocrit (HCT),36.03,%
+dd15a08f,Haemoglobin,156.11,g/L
+10f2a458,Basophil Count,0.12,10⁹/L
+10f2a458,Eosinophil Count,0.22,10⁹/L
+10f2a458,HbA1C,29.65,mmol/mol
+10f2a458,Haematocrit (HCT),41.62,%
+10f2a458,Haemoglobin,130.72,g/L
+892c9a06,Basophil Count,0.17,10⁹/L
+892c9a06,Eosinophil Count,0.34,10⁹/L
+892c9a06,HbA1C,29.9,mmol/mol
+892c9a06,Haematocrit (HCT),39.59,%
+892c9a06,Haemoglobin,159.08,g/L
+74d05943,Basophil Count,0.03,10⁹/L
+74d05943,Eosinophil Count,0.39,10⁹/L
+74d05943,HbA1C,27.08,mmol/mol
+74d05943,Haematocrit (HCT),38.04,%
+74d05943,Haemoglobin,123.0,g/L
+3213face,Basophil Count,0.17,10⁹/L
+3213face,Eosinophil Count,0.43,10⁹/L
+3213face,HbA1C,31.22,mmol/mol
+3213face,Haematocrit (HCT),37.8,%
+3213face,Haemoglobin,168.23,g/L
+3e8de5b5,Basophil Count,0.17,10⁹/L
+3e8de5b5,Eosinophil Count,0.03,10⁹/L
+3e8de5b5,HbA1C,42.93,mmol/mol
+3e8de5b5,Haematocrit (HCT),36.73,%
+3e8de5b5,Haemoglobin,121.01,g/L
+94250308,Basophil Count,0.11,10⁹/L
+94250308,Eosinophil Count,0.4,10⁹/L
+94250308,HbA1C,36.82,mmol/mol
+94250308,Haematocrit (HCT),49.21,%
+94250308,Haemoglobin,140.8,g/L
+60108aff,Basophil Count,0.21,10⁹/L
+60108aff,Eosinophil Count,0.34,10⁹/L
+60108aff,HbA1C,35.51,mmol/mol
+60108aff,Haematocrit (HCT),38.78,%
+60108aff,Haemoglobin,149.77,g/L
+abce7acd,Basophil Count,0.29,10⁹/L
+abce7acd,Eosinophil Count,0.33,10⁹/L
+abce7acd,HbA1C,33.2,mmol/mol
+abce7acd,Haematocrit (HCT),35.49,%
+abce7acd,Haemoglobin,131.39,g/L
+7cecc471,Basophil Count,0.24,10⁹/L
+7cecc471,Eosinophil Count,0.05,10⁹/L
+7cecc471,HbA1C,36.67,mmol/mol
+7cecc471,Haematocrit (HCT),46.68,%
+7cecc471,Haemoglobin,130.48,g/L
+b4c99eba,Basophil Count,0.02,10⁹/L
+b4c99eba,Eosinophil Count,0.14,10⁹/L
+b4c99eba,HbA1C,39.0,mmol/mol
+b4c99eba,Haematocrit (HCT),37.23,%
+b4c99eba,Haemoglobin,137.39,g/L
+c6c56e77,Basophil Count,0.03,10⁹/L
+c6c56e77,Eosinophil Count,0.4,10⁹/L
+c6c56e77,HbA1C,24.28,mmol/mol
+c6c56e77,Haematocrit (HCT),37.05,%
+c6c56e77,Haemoglobin,156.72,g/L
+fd80fe66,Basophil Count,0.07,10⁹/L
+fd80fe66,Eosinophil Count,0.24,10⁹/L
+fd80fe66,HbA1C,27.24,mmol/mol
+fd80fe66,Haematocrit (HCT),49.18,%
+fd80fe66,Haemoglobin,141.53,g/L
+168276d1,Basophil Count,0.27,10⁹/L
+168276d1,Eosinophil Count,0.43,10⁹/L
+168276d1,HbA1C,26.53,mmol/mol
+168276d1,Haematocrit (HCT),37.99,%
+168276d1,Haemoglobin,144.74,g/L
+a202b5b7,Basophil Count,0.09,10⁹/L
+a202b5b7,Eosinophil Count,0.46,10⁹/L
+a202b5b7,HbA1C,28.73,mmol/mol
+a202b5b7,Haematocrit (HCT),48.46,%
+a202b5b7,Haemoglobin,137.96,g/L
+90c0d888,Basophil Count,0.13,10⁹/L
+90c0d888,Eosinophil Count,0.32,10⁹/L
+90c0d888,HbA1C,29.5,mmol/mol
+90c0d888,Haematocrit (HCT),43.32,%
+90c0d888,Haemoglobin,166.75,g/L
+25195003,Basophil Count,0.06,10⁹/L
+25195003,Eosinophil Count,0.15,10⁹/L
+25195003,HbA1C,20.92,mmol/mol
+25195003,Haematocrit (HCT),48.98,%
+25195003,Haemoglobin,150.9,g/L
+40eaa5eb,Basophil Count,0.05,10⁹/L
+40eaa5eb,Eosinophil Count,0.31,10⁹/L
+40eaa5eb,HbA1C,43.14,mmol/mol
+40eaa5eb,Haematocrit (HCT),44.9,%
+40eaa5eb,Haemoglobin,140.72,g/L
+feb8d91f,Basophil Count,0.3,10⁹/L
+feb8d91f,Eosinophil Count,0.29,10⁹/L
+feb8d91f,HbA1C,30.02,mmol/mol
+feb8d91f,Haematocrit (HCT),43.47,%
+feb8d91f,Haemoglobin,124.65,g/L
+5d07a553,Basophil Count,0.08,10⁹/L
+5d07a553,Eosinophil Count,0.05,10⁹/L
+5d07a553,HbA1C,27.45,mmol/mol
+5d07a553,Haematocrit (HCT),35.52,%
+5d07a553,Haemoglobin,140.09,g/L
+15d0b9fa,Basophil Count,0.23,10⁹/L
+15d0b9fa,Eosinophil Count,0.1,10⁹/L
+15d0b9fa,HbA1C,23.08,mmol/mol
+15d0b9fa,Haematocrit (HCT),49.1,%
+15d0b9fa,Haemoglobin,131.78,g/L
+3b262202,Basophil Count,0.27,10⁹/L
+3b262202,Eosinophil Count,0.03,10⁹/L
+3b262202,HbA1C,26.63,mmol/mol
+3b262202,Haematocrit (HCT),45.3,%
+3b262202,Haemoglobin,129.7,g/L
+c71724d3,Basophil Count,0.06,10⁹/L
+c71724d3,Eosinophil Count,0.25,10⁹/L
+c71724d3,HbA1C,21.85,mmol/mol
+c71724d3,Haematocrit (HCT),41.88,%
+c71724d3,Haemoglobin,130.44,g/L
+595d5546,Basophil Count,0.28,10⁹/L
+595d5546,Eosinophil Count,0.07,10⁹/L
+595d5546,HbA1C,22.66,mmol/mol
+595d5546,Haematocrit (HCT),44.14,%
+595d5546,Haemoglobin,156.5,g/L
+943e129c,Basophil Count,0.25,10⁹/L
+943e129c,Eosinophil Count,0.11,10⁹/L
+943e129c,HbA1C,37.59,mmol/mol
+943e129c,Haematocrit (HCT),47.05,%
+943e129c,Haemoglobin,153.32,g/L
+1512476c,Basophil Count,0.27,10⁹/L
+1512476c,Eosinophil Count,0.11,10⁹/L
+1512476c,HbA1C,24.89,mmol/mol
+1512476c,Haematocrit (HCT),36.96,%
+1512476c,Haemoglobin,151.09,g/L
+d7df7cff,Basophil Count,0.1,10⁹/L
+d7df7cff,Eosinophil Count,0.34,10⁹/L
+d7df7cff,HbA1C,22.89,mmol/mol
+d7df7cff,Haematocrit (HCT),48.76,%
+d7df7cff,Haemoglobin,153.65,g/L
+f3a646be,Basophil Count,0.14,10⁹/L
+f3a646be,Eosinophil Count,0.42,10⁹/L
+f3a646be,HbA1C,23.93,mmol/mol
+f3a646be,Haematocrit (HCT),39.35,%
+f3a646be,Haemoglobin,148.01,g/L
+bcf4e4c1,Basophil Count,0.15,10⁹/L
+bcf4e4c1,Eosinophil Count,0.26,10⁹/L
+bcf4e4c1,HbA1C,33.36,mmol/mol
+bcf4e4c1,Haematocrit (HCT),35.11,%
+bcf4e4c1,Haemoglobin,156.94,g/L
+db2123d9,Basophil Count,0.05,10⁹/L
+db2123d9,Eosinophil Count,0.2,10⁹/L
+db2123d9,HbA1C,36.73,mmol/mol
+db2123d9,Haematocrit (HCT),39.23,%
+db2123d9,Haemoglobin,123.24,g/L
+9640e86f,Basophil Count,0.19,10⁹/L
+9640e86f,Eosinophil Count,0.18,10⁹/L
+9640e86f,HbA1C,26.68,mmol/mol
+9640e86f,Haematocrit (HCT),41.28,%
+9640e86f,Haemoglobin,165.52,g/L
+e758db4b,Basophil Count,0.16,10⁹/L
+e758db4b,Eosinophil Count,0.31,10⁹/L
+e758db4b,HbA1C,21.02,mmol/mol
+e758db4b,Haematocrit (HCT),38.71,%
+e758db4b,Haemoglobin,158.46,g/L
+e4b3f82c,Basophil Count,0.25,10⁹/L
+e4b3f82c,Eosinophil Count,0.32,10⁹/L
+e4b3f82c,HbA1C,37.09,mmol/mol
+e4b3f82c,Haematocrit (HCT),37.87,%
+e4b3f82c,Haemoglobin,141.94,g/L
+8098660e,Basophil Count,0.29,10⁹/L
+8098660e,Eosinophil Count,0.06,10⁹/L
+8098660e,HbA1C,34.84,mmol/mol
+8098660e,Haematocrit (HCT),42.15,%
+8098660e,Haemoglobin,124.81,g/L
+88840f95,Basophil Count,0.25,10⁹/L
+88840f95,Eosinophil Count,0.22,10⁹/L
+88840f95,HbA1C,25.83,mmol/mol
+88840f95,Haematocrit (HCT),47.25,%
+88840f95,Haemoglobin,128.21,g/L
+4f144a2a,Basophil Count,0.3,10⁹/L
+4f144a2a,Eosinophil Count,0.35,10⁹/L
+4f144a2a,HbA1C,44.33,mmol/mol
+4f144a2a,Haematocrit (HCT),40.45,%
+4f144a2a,Haemoglobin,136.5,g/L
+90b76770,Basophil Count,0.07,10⁹/L
+90b76770,Eosinophil Count,0.19,10⁹/L
+90b76770,HbA1C,21.88,mmol/mol
+90b76770,Haematocrit (HCT),47.6,%
+90b76770,Haemoglobin,166.9,g/L
+f53cecc9,Basophil Count,0.02,10⁹/L
+f53cecc9,Eosinophil Count,0.25,10⁹/L
+f53cecc9,HbA1C,37.45,mmol/mol
+f53cecc9,Haematocrit (HCT),41.24,%
+f53cecc9,Haemoglobin,133.03,g/L
+0df8d92f,Basophil Count,0.12,10⁹/L
+0df8d92f,Eosinophil Count,0.46,10⁹/L
+0df8d92f,HbA1C,43.13,mmol/mol
+0df8d92f,Haematocrit (HCT),39.46,%
+0df8d92f,Haemoglobin,126.14,g/L
+b8d3be81,Basophil Count,0.03,10⁹/L
+b8d3be81,Eosinophil Count,0.17,10⁹/L
+b8d3be81,HbA1C,20.3,mmol/mol
+b8d3be81,Haematocrit (HCT),43.86,%
+b8d3be81,Haemoglobin,160.95,g/L
+c2326d03,Basophil Count,0.05,10⁹/L
+c2326d03,Eosinophil Count,0.24,10⁹/L
+c2326d03,HbA1C,27.76,mmol/mol
+c2326d03,Haematocrit (HCT),43.95,%
+c2326d03,Haemoglobin,122.46,g/L
+15c4f996,Basophil Count,0.06,10⁹/L
+15c4f996,Eosinophil Count,0.4,10⁹/L
+15c4f996,HbA1C,23.67,mmol/mol
+15c4f996,Haematocrit (HCT),44.84,%
+15c4f996,Haemoglobin,163.41,g/L
+d8cbcaad,Basophil Count,0.09,10⁹/L
+d8cbcaad,Eosinophil Count,0.33,10⁹/L
+d8cbcaad,HbA1C,30.61,mmol/mol
+d8cbcaad,Haematocrit (HCT),42.17,%
+d8cbcaad,Haemoglobin,132.31,g/L
+dbc39757,Basophil Count,0.21,10⁹/L
+dbc39757,Eosinophil Count,0.23,10⁹/L
+dbc39757,HbA1C,23.82,mmol/mol
+dbc39757,Haematocrit (HCT),44.37,%
+dbc39757,Haemoglobin,140.06,g/L
+ced96f06,Basophil Count,0.12,10⁹/L
+ced96f06,Eosinophil Count,0.35,10⁹/L
+ced96f06,HbA1C,22.74,mmol/mol
+ced96f06,Haematocrit (HCT),38.92,%
+ced96f06,Haemoglobin,137.3,g/L
+228ccf81,Basophil Count,0.29,10⁹/L
+228ccf81,Eosinophil Count,0.09,10⁹/L
+228ccf81,HbA1C,23.48,mmol/mol
+228ccf81,Haematocrit (HCT),45.55,%
+228ccf81,Haemoglobin,155.23,g/L
+653dc2f0,Basophil Count,0.03,10⁹/L
+653dc2f0,Eosinophil Count,0.15,10⁹/L
+653dc2f0,HbA1C,43.44,mmol/mol
+653dc2f0,Haematocrit (HCT),47.61,%
+653dc2f0,Haemoglobin,169.42,g/L
+a8c16a91,Basophil Count,0.12,10⁹/L
+a8c16a91,Eosinophil Count,0.14,10⁹/L
+a8c16a91,HbA1C,43.08,mmol/mol
+a8c16a91,Haematocrit (HCT),45.21,%
+a8c16a91,Haemoglobin,142.17,g/L
+c5529194,Basophil Count,0.21,10⁹/L
+c5529194,Eosinophil Count,0.45,10⁹/L
+c5529194,HbA1C,20.81,mmol/mol
+c5529194,Haematocrit (HCT),48.59,%
+c5529194,Haemoglobin,134.31,g/L
+fd1e989d,Basophil Count,0.21,10⁹/L
+fd1e989d,Eosinophil Count,0.05,10⁹/L
+fd1e989d,HbA1C,40.41,mmol/mol
+fd1e989d,Haematocrit (HCT),41.77,%
+fd1e989d,Haemoglobin,145.21,g/L
+6e479f72,Basophil Count,0.2,10⁹/L
+6e479f72,Eosinophil Count,0.31,10⁹/L
+6e479f72,HbA1C,23.43,mmol/mol
+6e479f72,Haematocrit (HCT),38.44,%
+6e479f72,Haemoglobin,161.49,g/L
+dbbcd7fd,Basophil Count,0.06,10⁹/L
+dbbcd7fd,Eosinophil Count,0.22,10⁹/L
+dbbcd7fd,HbA1C,37.93,mmol/mol
+dbbcd7fd,Haematocrit (HCT),44.67,%
+dbbcd7fd,Haemoglobin,143.13,g/L
+5e1405ae,Basophil Count,0.16,10⁹/L
+5e1405ae,Eosinophil Count,0.36,10⁹/L
+5e1405ae,HbA1C,24.87,mmol/mol
+5e1405ae,Haematocrit (HCT),35.06,%
+5e1405ae,Haemoglobin,142.62,g/L
+9f8c91a6,Basophil Count,0.21,10⁹/L
+9f8c91a6,Eosinophil Count,0.41,10⁹/L
+9f8c91a6,HbA1C,29.03,mmol/mol
+9f8c91a6,Haematocrit (HCT),47.14,%
+9f8c91a6,Haemoglobin,134.61,g/L
+6256a43f,Basophil Count,0.2,10⁹/L
+6256a43f,Eosinophil Count,0.28,10⁹/L
+6256a43f,HbA1C,30.47,mmol/mol
+6256a43f,Haematocrit (HCT),36.83,%
+6256a43f,Haemoglobin,135.34,g/L
+74f4f5da,Basophil Count,0.12,10⁹/L
+74f4f5da,Eosinophil Count,0.03,10⁹/L
+74f4f5da,HbA1C,41.26,mmol/mol
+74f4f5da,Haematocrit (HCT),36.23,%
+74f4f5da,Haemoglobin,162.24,g/L
+9780419c,Basophil Count,0.06,10⁹/L
+9780419c,Eosinophil Count,0.06,10⁹/L
+9780419c,HbA1C,44.17,mmol/mol
+9780419c,Haematocrit (HCT),40.98,%
+9780419c,Haemoglobin,143.74,g/L
+726f0688,Basophil Count,0.05,10⁹/L
+726f0688,Eosinophil Count,0.27,10⁹/L
+726f0688,HbA1C,40.46,mmol/mol
+726f0688,Haematocrit (HCT),43.18,%
+726f0688,Haemoglobin,120.42,g/L
+1bc14d7f,Basophil Count,0.08,10⁹/L
+1bc14d7f,Eosinophil Count,0.36,10⁹/L
+1bc14d7f,HbA1C,44.96,mmol/mol
+1bc14d7f,Haematocrit (HCT),48.45,%
+1bc14d7f,Haemoglobin,146.58,g/L
+41efd08d,Basophil Count,0.21,10⁹/L
+41efd08d,Eosinophil Count,0.27,10⁹/L
+41efd08d,HbA1C,31.75,mmol/mol
+41efd08d,Haematocrit (HCT),46.43,%
+41efd08d,Haemoglobin,139.62,g/L
+bc3a24ce,Basophil Count,0.21,10⁹/L
+bc3a24ce,Eosinophil Count,0.28,10⁹/L
+bc3a24ce,HbA1C,34.32,mmol/mol
+bc3a24ce,Haematocrit (HCT),35.95,%
+bc3a24ce,Haemoglobin,155.2,g/L
+a616f4df,Basophil Count,0.17,10⁹/L
+a616f4df,Eosinophil Count,0.49,10⁹/L
+a616f4df,HbA1C,34.94,mmol/mol
+a616f4df,Haematocrit (HCT),37.63,%
+a616f4df,Haemoglobin,138.53,g/L
+61875426,Basophil Count,0.21,10⁹/L
+61875426,Eosinophil Count,0.47,10⁹/L
+61875426,HbA1C,32.58,mmol/mol
+61875426,Haematocrit (HCT),40.15,%
+61875426,Haemoglobin,156.79,g/L
+50718844,Basophil Count,0.21,10⁹/L
+50718844,Eosinophil Count,0.26,10⁹/L
+50718844,HbA1C,25.96,mmol/mol
+50718844,Haematocrit (HCT),46.42,%
+50718844,Haemoglobin,150.07,g/L
+99e45a3b,Basophil Count,0.07,10⁹/L
+99e45a3b,Eosinophil Count,0.42,10⁹/L
+99e45a3b,HbA1C,34.92,mmol/mol
+99e45a3b,Haematocrit (HCT),44.13,%
+99e45a3b,Haemoglobin,127.34,g/L
+1abae370,Basophil Count,0.28,10⁹/L
+1abae370,Eosinophil Count,0.2,10⁹/L
+1abae370,HbA1C,34.95,mmol/mol
+1abae370,Haematocrit (HCT),36.13,%
+1abae370,Haemoglobin,125.63,g/L
+2686d962,Basophil Count,0.04,10⁹/L
+2686d962,Eosinophil Count,0.22,10⁹/L
+2686d962,HbA1C,28.4,mmol/mol
+2686d962,Haematocrit (HCT),43.62,%
+2686d962,Haemoglobin,125.55,g/L
+3450c04d,Basophil Count,0.15,10⁹/L
+3450c04d,Eosinophil Count,0.45,10⁹/L
+3450c04d,HbA1C,20.78,mmol/mol
+3450c04d,Haematocrit (HCT),47.23,%
+3450c04d,Haemoglobin,149.91,g/L
+3f317e77,Basophil Count,0.12,10⁹/L
+3f317e77,Eosinophil Count,0.09,10⁹/L
+3f317e77,HbA1C,29.72,mmol/mol
+3f317e77,Haematocrit (HCT),42.75,%
+3f317e77,Haemoglobin,134.0,g/L
+a8a7097b,Basophil Count,0.12,10⁹/L
+a8a7097b,Eosinophil Count,0.47,10⁹/L
+a8a7097b,HbA1C,43.52,mmol/mol
+a8a7097b,Haematocrit (HCT),39.4,%
+a8a7097b,Haemoglobin,126.06,g/L
+340151bd,Basophil Count,0.25,10⁹/L
+340151bd,Eosinophil Count,0.43,10⁹/L
+340151bd,HbA1C,25.01,mmol/mol
+340151bd,Haematocrit (HCT),45.46,%
+340151bd,Haemoglobin,133.38,g/L
+78d4bb9d,Basophil Count,0.24,10⁹/L
+78d4bb9d,Eosinophil Count,0.45,10⁹/L
+78d4bb9d,HbA1C,36.39,mmol/mol
+78d4bb9d,Haematocrit (HCT),46.46,%
+78d4bb9d,Haemoglobin,132.78,g/L
+d8f0566d,Basophil Count,0.04,10⁹/L
+d8f0566d,Eosinophil Count,0.16,10⁹/L
+d8f0566d,HbA1C,31.86,mmol/mol
+d8f0566d,Haematocrit (HCT),40.21,%
+d8f0566d,Haemoglobin,155.55,g/L
+4ca335f8,Basophil Count,0.25,10⁹/L
+4ca335f8,Eosinophil Count,0.45,10⁹/L
+4ca335f8,HbA1C,38.03,mmol/mol
+4ca335f8,Haematocrit (HCT),46.12,%
+4ca335f8,Haemoglobin,163.75,g/L
+2f96b4b6,Basophil Count,0.28,10⁹/L
+2f96b4b6,Eosinophil Count,0.19,10⁹/L
+2f96b4b6,HbA1C,21.38,mmol/mol
+2f96b4b6,Haematocrit (HCT),45.79,%
+2f96b4b6,Haemoglobin,139.44,g/L
+c6183ae1,Basophil Count,0.03,10⁹/L
+c6183ae1,Eosinophil Count,0.1,10⁹/L
+c6183ae1,HbA1C,42.33,mmol/mol
+c6183ae1,Haematocrit (HCT),44.51,%
+c6183ae1,Haemoglobin,153.3,g/L
+9c6fe45a,Basophil Count,0.29,10⁹/L
+9c6fe45a,Eosinophil Count,0.48,10⁹/L
+9c6fe45a,HbA1C,26.47,mmol/mol
+9c6fe45a,Haematocrit (HCT),36.25,%
+9c6fe45a,Haemoglobin,120.53,g/L
+784076a4,Basophil Count,0.13,10⁹/L
+784076a4,Eosinophil Count,0.05,10⁹/L
+784076a4,HbA1C,22.93,mmol/mol
+784076a4,Haematocrit (HCT),43.37,%
+784076a4,Haemoglobin,157.53,g/L
+aa6b8159,Basophil Count,0.24,10⁹/L
+aa6b8159,Eosinophil Count,0.48,10⁹/L
+aa6b8159,HbA1C,44.92,mmol/mol
+aa6b8159,Haematocrit (HCT),47.28,%
+aa6b8159,Haemoglobin,142.99,g/L
+fe87ff7c,Basophil Count,0.22,10⁹/L
+fe87ff7c,Eosinophil Count,0.45,10⁹/L
+fe87ff7c,HbA1C,30.71,mmol/mol
+fe87ff7c,Haematocrit (HCT),39.77,%
+fe87ff7c,Haemoglobin,143.71,g/L
+8ca860b9,Basophil Count,0.18,10⁹/L
+8ca860b9,Eosinophil Count,0.13,10⁹/L
+8ca860b9,HbA1C,26.27,mmol/mol
+8ca860b9,Haematocrit (HCT),43.95,%
+8ca860b9,Haemoglobin,134.4,g/L
+8ca4f477,Basophil Count,0.09,10⁹/L
+8ca4f477,Eosinophil Count,0.19,10⁹/L
+8ca4f477,HbA1C,35.57,mmol/mol
+8ca4f477,Haematocrit (HCT),47.4,%
+8ca4f477,Haemoglobin,149.44,g/L
+d9874af9,Basophil Count,0.12,10⁹/L
+d9874af9,Eosinophil Count,0.44,10⁹/L
+d9874af9,HbA1C,36.2,mmol/mol
+d9874af9,Haematocrit (HCT),48.83,%
+d9874af9,Haemoglobin,163.97,g/L
+d919c7f1,Basophil Count,0.07,10⁹/L
+d919c7f1,Eosinophil Count,0.11,10⁹/L
+d919c7f1,HbA1C,30.64,mmol/mol
+d919c7f1,Haematocrit (HCT),41.74,%
+d919c7f1,Haemoglobin,120.5,g/L
+f51d55c3,Basophil Count,0.12,10⁹/L
+f51d55c3,Eosinophil Count,0.17,10⁹/L
+f51d55c3,HbA1C,27.11,mmol/mol
+f51d55c3,Haematocrit (HCT),47.13,%
+f51d55c3,Haemoglobin,123.94,g/L
+45ed9229,Basophil Count,0.28,10⁹/L
+45ed9229,Eosinophil Count,0.37,10⁹/L
+45ed9229,HbA1C,37.95,mmol/mol
+45ed9229,Haematocrit (HCT),45.5,%
+45ed9229,Haemoglobin,134.67,g/L
+d7956f1c,Basophil Count,0.22,10⁹/L
+d7956f1c,Eosinophil Count,0.27,10⁹/L
+d7956f1c,HbA1C,40.71,mmol/mol
+d7956f1c,Haematocrit (HCT),40.69,%
+d7956f1c,Haemoglobin,165.87,g/L
+ea378044,Basophil Count,0.02,10⁹/L
+ea378044,Eosinophil Count,0.39,10⁹/L
+ea378044,HbA1C,23.89,mmol/mol
+ea378044,Haematocrit (HCT),46.25,%
+ea378044,Haemoglobin,124.71,g/L
+e66df743,Basophil Count,0.09,10⁹/L
+e66df743,Eosinophil Count,0.36,10⁹/L
+e66df743,HbA1C,33.96,mmol/mol
+e66df743,Haematocrit (HCT),48.27,%
+e66df743,Haemoglobin,135.58,g/L
+25399797,Basophil Count,0.09,10⁹/L
+25399797,Eosinophil Count,0.21,10⁹/L
+25399797,HbA1C,31.57,mmol/mol
+25399797,Haematocrit (HCT),40.42,%
+25399797,Haemoglobin,148.63,g/L
+de2783ef,Basophil Count,0.3,10⁹/L
+de2783ef,Eosinophil Count,0.09,10⁹/L
+de2783ef,HbA1C,23.34,mmol/mol
+de2783ef,Haematocrit (HCT),47.75,%
+de2783ef,Haemoglobin,151.73,g/L
+8195c298,Basophil Count,0.05,10⁹/L
+8195c298,Eosinophil Count,0.21,10⁹/L
+8195c298,HbA1C,34.99,mmol/mol
+8195c298,Haematocrit (HCT),38.15,%
+8195c298,Haemoglobin,155.02,g/L
+def82d61,Basophil Count,0.09,10⁹/L
+def82d61,Eosinophil Count,0.33,10⁹/L
+def82d61,HbA1C,29.68,mmol/mol
+def82d61,Haematocrit (HCT),46.17,%
+def82d61,Haemoglobin,134.61,g/L
+40c06157,Basophil Count,0.07,10⁹/L
+40c06157,Eosinophil Count,0.29,10⁹/L
+40c06157,HbA1C,23.04,mmol/mol
+40c06157,Haematocrit (HCT),43.77,%
+40c06157,Haemoglobin,144.63,g/L
+5b4f482a,Basophil Count,0.15,10⁹/L
+5b4f482a,Eosinophil Count,0.42,10⁹/L
+5b4f482a,HbA1C,31.09,mmol/mol
+5b4f482a,Haematocrit (HCT),37.26,%
+5b4f482a,Haemoglobin,157.77,g/L
+b93338fc,Basophil Count,0.2,10⁹/L
+b93338fc,Eosinophil Count,0.11,10⁹/L
+b93338fc,HbA1C,37.21,mmol/mol
+b93338fc,Haematocrit (HCT),46.79,%
+b93338fc,Haemoglobin,158.18,g/L
+7055b1fd,Basophil Count,0.11,10⁹/L
+7055b1fd,Eosinophil Count,0.19,10⁹/L
+7055b1fd,HbA1C,25.63,mmol/mol
+7055b1fd,Haematocrit (HCT),49.21,%
+7055b1fd,Haemoglobin,154.49,g/L
+7d9d0a3e,Basophil Count,0.16,10⁹/L
+7d9d0a3e,Eosinophil Count,0.11,10⁹/L
+7d9d0a3e,HbA1C,29.96,mmol/mol
+7d9d0a3e,Haematocrit (HCT),41.24,%
+7d9d0a3e,Haemoglobin,160.41,g/L
+330e207c,Basophil Count,0.21,10⁹/L
+330e207c,Eosinophil Count,0.09,10⁹/L
+330e207c,HbA1C,25.21,mmol/mol
+330e207c,Haematocrit (HCT),44.76,%
+330e207c,Haemoglobin,163.73,g/L
+f4668602,Basophil Count,0.23,10⁹/L
+f4668602,Eosinophil Count,0.23,10⁹/L
+f4668602,HbA1C,28.86,mmol/mol
+f4668602,Haematocrit (HCT),47.09,%
+f4668602,Haemoglobin,166.65,g/L
+41f57eb8,Basophil Count,0.23,10⁹/L
+41f57eb8,Eosinophil Count,0.45,10⁹/L
+41f57eb8,HbA1C,33.66,mmol/mol
+41f57eb8,Haematocrit (HCT),44.7,%
+41f57eb8,Haemoglobin,140.81,g/L
+0a51b302,Basophil Count,0.01,10⁹/L
+0a51b302,Eosinophil Count,0.38,10⁹/L
+0a51b302,HbA1C,32.52,mmol/mol
+0a51b302,Haematocrit (HCT),38.58,%
+0a51b302,Haemoglobin,161.18,g/L
+3fe25e99,Basophil Count,0.03,10⁹/L
+3fe25e99,Eosinophil Count,0.43,10⁹/L
+3fe25e99,HbA1C,31.81,mmol/mol
+3fe25e99,Haematocrit (HCT),36.51,%
+3fe25e99,Haemoglobin,137.23,g/L
+e80cfe30,Basophil Count,0.05,10⁹/L
+e80cfe30,Eosinophil Count,0.41,10⁹/L
+e80cfe30,HbA1C,22.94,mmol/mol
+e80cfe30,Haematocrit (HCT),36.11,%
+e80cfe30,Haemoglobin,122.5,g/L
+00898064,Basophil Count,0.09,10⁹/L
+00898064,Eosinophil Count,0.09,10⁹/L
+00898064,HbA1C,37.93,mmol/mol
+00898064,Haematocrit (HCT),48.63,%
+00898064,Haemoglobin,164.68,g/L
+eafcd688,Basophil Count,0.23,10⁹/L
+eafcd688,Eosinophil Count,0.16,10⁹/L
+eafcd688,HbA1C,24.1,mmol/mol
+eafcd688,Haematocrit (HCT),38.99,%
+eafcd688,Haemoglobin,134.01,g/L
+57091016,Basophil Count,0.06,10⁹/L
+57091016,Eosinophil Count,0.22,10⁹/L
+57091016,HbA1C,30.0,mmol/mol
+57091016,Haematocrit (HCT),42.53,%
+57091016,Haemoglobin,168.16,g/L
+c533ff33,Basophil Count,0.2,10⁹/L
+c533ff33,Eosinophil Count,0.47,10⁹/L
+c533ff33,HbA1C,27.26,mmol/mol
+c533ff33,Haematocrit (HCT),42.27,%
+c533ff33,Haemoglobin,166.46,g/L
+e109e17a,Basophil Count,0.03,10⁹/L
+e109e17a,Eosinophil Count,0.21,10⁹/L
+e109e17a,HbA1C,39.52,mmol/mol
+e109e17a,Haematocrit (HCT),41.54,%
+e109e17a,Haemoglobin,141.56,g/L
+7ccf93af,Basophil Count,0.08,10⁹/L
+7ccf93af,Eosinophil Count,0.25,10⁹/L
+7ccf93af,HbA1C,28.74,mmol/mol
+7ccf93af,Haematocrit (HCT),43.54,%
+7ccf93af,Haemoglobin,163.02,g/L
+5bc064bb,Basophil Count,0.27,10⁹/L
+5bc064bb,Eosinophil Count,0.31,10⁹/L
+5bc064bb,HbA1C,34.69,mmol/mol
+5bc064bb,Haematocrit (HCT),42.09,%
+5bc064bb,Haemoglobin,149.07,g/L
+5c0e4753,Basophil Count,0.11,10⁹/L
+5c0e4753,Eosinophil Count,0.18,10⁹/L
+5c0e4753,HbA1C,43.81,mmol/mol
+5c0e4753,Haematocrit (HCT),44.35,%
+5c0e4753,Haemoglobin,127.17,g/L
+096ae796,Basophil Count,0.17,10⁹/L
+096ae796,Eosinophil Count,0.33,10⁹/L
+096ae796,HbA1C,37.86,mmol/mol
+096ae796,Haematocrit (HCT),48.72,%
+096ae796,Haemoglobin,169.39,g/L
+115f6cfd,Basophil Count,0.23,10⁹/L
+115f6cfd,Eosinophil Count,0.43,10⁹/L
+115f6cfd,HbA1C,24.63,mmol/mol
+115f6cfd,Haematocrit (HCT),40.26,%
+115f6cfd,Haemoglobin,135.56,g/L
+6ebf6f61,Basophil Count,0.08,10⁹/L
+6ebf6f61,Eosinophil Count,0.27,10⁹/L
+6ebf6f61,HbA1C,31.23,mmol/mol
+6ebf6f61,Haematocrit (HCT),43.62,%
+6ebf6f61,Haemoglobin,146.25,g/L
+1e024b9b,Basophil Count,0.11,10⁹/L
+1e024b9b,Eosinophil Count,0.08,10⁹/L
+1e024b9b,HbA1C,22.28,mmol/mol
+1e024b9b,Haematocrit (HCT),36.72,%
+1e024b9b,Haemoglobin,152.77,g/L
+8ff92ae1,Basophil Count,0.15,10⁹/L
+8ff92ae1,Eosinophil Count,0.44,10⁹/L
+8ff92ae1,HbA1C,36.26,mmol/mol
+8ff92ae1,Haematocrit (HCT),37.59,%
+8ff92ae1,Haemoglobin,130.11,g/L
+bbd9144d,Basophil Count,0.07,10⁹/L
+bbd9144d,Eosinophil Count,0.05,10⁹/L
+bbd9144d,HbA1C,21.83,mmol/mol
+bbd9144d,Haematocrit (HCT),48.94,%
+bbd9144d,Haemoglobin,141.43,g/L
+6c333682,Basophil Count,0.17,10⁹/L
+6c333682,Eosinophil Count,0.23,10⁹/L
+6c333682,HbA1C,20.28,mmol/mol
+6c333682,Haematocrit (HCT),35.07,%
+6c333682,Haemoglobin,143.49,g/L
+729a27b7,Basophil Count,0.1,10⁹/L
+729a27b7,Eosinophil Count,0.07,10⁹/L
+729a27b7,HbA1C,44.69,mmol/mol
+729a27b7,Haematocrit (HCT),43.79,%
+729a27b7,Haemoglobin,135.07,g/L
+40bd08f5,Basophil Count,0.14,10⁹/L
+40bd08f5,Eosinophil Count,0.19,10⁹/L
+40bd08f5,HbA1C,25.65,mmol/mol
+40bd08f5,Haematocrit (HCT),46.44,%
+40bd08f5,Haemoglobin,159.84,g/L
+c8a1416d,Basophil Count,0.29,10⁹/L
+c8a1416d,Eosinophil Count,0.1,10⁹/L
+c8a1416d,HbA1C,24.82,mmol/mol
+c8a1416d,Haematocrit (HCT),49.35,%
+c8a1416d,Haemoglobin,155.55,g/L
+afd2bc0a,Basophil Count,0.21,10⁹/L
+afd2bc0a,Eosinophil Count,0.21,10⁹/L
+afd2bc0a,HbA1C,25.09,mmol/mol
+afd2bc0a,Haematocrit (HCT),39.23,%
+afd2bc0a,Haemoglobin,142.97,g/L
+79d4d57a,Basophil Count,0.11,10⁹/L
+79d4d57a,Eosinophil Count,0.24,10⁹/L
+79d4d57a,HbA1C,41.6,mmol/mol
+79d4d57a,Haematocrit (HCT),43.93,%
+79d4d57a,Haemoglobin,140.08,g/L
+fccadb27,Basophil Count,0.22,10⁹/L
+fccadb27,Eosinophil Count,0.47,10⁹/L
+fccadb27,HbA1C,38.81,mmol/mol
+fccadb27,Haematocrit (HCT),38.42,%
+fccadb27,Haemoglobin,154.81,g/L
+5dd6568b,Basophil Count,0.17,10⁹/L
+5dd6568b,Eosinophil Count,0.35,10⁹/L
+5dd6568b,HbA1C,33.71,mmol/mol
+5dd6568b,Haematocrit (HCT),44.89,%
+5dd6568b,Haemoglobin,152.24,g/L
+0b09e50d,Basophil Count,0.27,10⁹/L
+0b09e50d,Eosinophil Count,0.44,10⁹/L
+0b09e50d,HbA1C,35.18,mmol/mol
+0b09e50d,Haematocrit (HCT),39.46,%
+0b09e50d,Haemoglobin,138.11,g/L
+49447268,Basophil Count,0.19,10⁹/L
+49447268,Eosinophil Count,0.42,10⁹/L
+49447268,HbA1C,42.6,mmol/mol
+49447268,Haematocrit (HCT),47.94,%
+49447268,Haemoglobin,139.54,g/L
+480759cb,Basophil Count,0.07,10⁹/L
+480759cb,Eosinophil Count,0.35,10⁹/L
+480759cb,HbA1C,24.45,mmol/mol
+480759cb,Haematocrit (HCT),38.04,%
+480759cb,Haemoglobin,131.09,g/L
+aba60d8e,Basophil Count,0.22,10⁹/L
+aba60d8e,Eosinophil Count,0.4,10⁹/L
+aba60d8e,HbA1C,38.76,mmol/mol
+aba60d8e,Haematocrit (HCT),39.88,%
+aba60d8e,Haemoglobin,137.39,g/L
+e6563101,Basophil Count,0.13,10⁹/L
+e6563101,Eosinophil Count,0.24,10⁹/L
+e6563101,HbA1C,23.91,mmol/mol
+e6563101,Haematocrit (HCT),47.01,%
+e6563101,Haemoglobin,151.22,g/L
+d530a1e2,Basophil Count,0.15,10⁹/L
+d530a1e2,Eosinophil Count,0.28,10⁹/L
+d530a1e2,HbA1C,24.35,mmol/mol
+d530a1e2,Haematocrit (HCT),43.94,%
+d530a1e2,Haemoglobin,142.63,g/L
+c067ff46,Basophil Count,0.14,10⁹/L
+c067ff46,Eosinophil Count,0.22,10⁹/L
+c067ff46,HbA1C,41.43,mmol/mol
+c067ff46,Haematocrit (HCT),35.59,%
+c067ff46,Haemoglobin,169.19,g/L
+aafcc21d,Basophil Count,0.05,10⁹/L
+aafcc21d,Eosinophil Count,0.04,10⁹/L
+aafcc21d,HbA1C,43.66,mmol/mol
+aafcc21d,Haematocrit (HCT),48.61,%
+aafcc21d,Haemoglobin,141.53,g/L
+95a60864,Basophil Count,0.17,10⁹/L
+95a60864,Eosinophil Count,0.22,10⁹/L
+95a60864,HbA1C,36.1,mmol/mol
+95a60864,Haematocrit (HCT),46.27,%
+95a60864,Haemoglobin,141.16,g/L
+e236b70c,Basophil Count,0.24,10⁹/L
+e236b70c,Eosinophil Count,0.31,10⁹/L
+e236b70c,HbA1C,39.64,mmol/mol
+e236b70c,Haematocrit (HCT),49.05,%
+e236b70c,Haemoglobin,125.74,g/L
+0d97219b,Basophil Count,0.3,10⁹/L
+0d97219b,Eosinophil Count,0.31,10⁹/L
+0d97219b,HbA1C,41.29,mmol/mol
+0d97219b,Haematocrit (HCT),45.09,%
+0d97219b,Haemoglobin,129.49,g/L
+dfcd8d25,Basophil Count,0.04,10⁹/L
+dfcd8d25,Eosinophil Count,0.26,10⁹/L
+dfcd8d25,HbA1C,37.55,mmol/mol
+dfcd8d25,Haematocrit (HCT),48.57,%
+dfcd8d25,Haemoglobin,127.05,g/L
+df2dff56,Basophil Count,0.13,10⁹/L
+df2dff56,Eosinophil Count,0.47,10⁹/L
+df2dff56,HbA1C,26.78,mmol/mol
+df2dff56,Haematocrit (HCT),44.91,%
+df2dff56,Haemoglobin,140.32,g/L
+fe80f75c,Basophil Count,0.13,10⁹/L
+fe80f75c,Eosinophil Count,0.36,10⁹/L
+fe80f75c,HbA1C,36.59,mmol/mol
+fe80f75c,Haematocrit (HCT),37.31,%
+fe80f75c,Haemoglobin,120.51,g/L
+279ea4bc,Basophil Count,0.13,10⁹/L
+279ea4bc,Eosinophil Count,0.44,10⁹/L
+279ea4bc,HbA1C,36.8,mmol/mol
+279ea4bc,Haematocrit (HCT),42.26,%
+279ea4bc,Haemoglobin,127.01,g/L
+67ff9e31,Basophil Count,0.14,10⁹/L
+67ff9e31,Eosinophil Count,0.17,10⁹/L
+67ff9e31,HbA1C,31.76,mmol/mol
+67ff9e31,Haematocrit (HCT),45.28,%
+67ff9e31,Haemoglobin,155.21,g/L
+1bbb594e,Basophil Count,0.25,10⁹/L
+1bbb594e,Eosinophil Count,0.3,10⁹/L
+1bbb594e,HbA1C,39.15,mmol/mol
+1bbb594e,Haematocrit (HCT),38.33,%
+1bbb594e,Haemoglobin,149.78,g/L
+c6ce755f,Basophil Count,0.03,10⁹/L
+c6ce755f,Eosinophil Count,0.4,10⁹/L
+c6ce755f,HbA1C,43.78,mmol/mol
+c6ce755f,Haematocrit (HCT),41.01,%
+c6ce755f,Haemoglobin,127.87,g/L
+5468c340,Basophil Count,0.28,10⁹/L
+5468c340,Eosinophil Count,0.02,10⁹/L
+5468c340,HbA1C,38.23,mmol/mol
+5468c340,Haematocrit (HCT),35.18,%
+5468c340,Haemoglobin,153.35,g/L
+7c730187,Basophil Count,0.24,10⁹/L
+7c730187,Eosinophil Count,0.36,10⁹/L
+7c730187,HbA1C,23.87,mmol/mol
+7c730187,Haematocrit (HCT),39.99,%
+7c730187,Haemoglobin,145.29,g/L
+1782b799,Basophil Count,0.04,10⁹/L
+1782b799,Eosinophil Count,0.4,10⁹/L
+1782b799,HbA1C,37.87,mmol/mol
+1782b799,Haematocrit (HCT),47.38,%
+1782b799,Haemoglobin,129.35,g/L
+420b2b3f,Basophil Count,0.15,10⁹/L
+420b2b3f,Eosinophil Count,0.09,10⁹/L
+420b2b3f,HbA1C,39.67,mmol/mol
+420b2b3f,Haematocrit (HCT),48.78,%
+420b2b3f,Haemoglobin,154.64,g/L
+8b182ce1,Basophil Count,0.16,10⁹/L
+8b182ce1,Eosinophil Count,0.1,10⁹/L
+8b182ce1,HbA1C,31.97,mmol/mol
+8b182ce1,Haematocrit (HCT),47.98,%
+8b182ce1,Haemoglobin,135.96,g/L
+0869c019,Basophil Count,0.28,10⁹/L
+0869c019,Eosinophil Count,0.15,10⁹/L
+0869c019,HbA1C,39.86,mmol/mol
+0869c019,Haematocrit (HCT),43.72,%
+0869c019,Haemoglobin,151.58,g/L
+3d4bf5f6,Basophil Count,0.08,10⁹/L
+3d4bf5f6,Eosinophil Count,0.45,10⁹/L
+3d4bf5f6,HbA1C,32.99,mmol/mol
+3d4bf5f6,Haematocrit (HCT),39.72,%
+3d4bf5f6,Haemoglobin,134.17,g/L
+c19e095e,Basophil Count,0.17,10⁹/L
+c19e095e,Eosinophil Count,0.41,10⁹/L
+c19e095e,HbA1C,24.08,mmol/mol
+c19e095e,Haematocrit (HCT),45.52,%
+c19e095e,Haemoglobin,147.24,g/L
+77f51f77,Basophil Count,0.05,10⁹/L
+77f51f77,Eosinophil Count,0.24,10⁹/L
+77f51f77,HbA1C,21.62,mmol/mol
+77f51f77,Haematocrit (HCT),45.96,%
+77f51f77,Haemoglobin,134.77,g/L
+76f28014,Basophil Count,0.29,10⁹/L
+76f28014,Eosinophil Count,0.47,10⁹/L
+76f28014,HbA1C,23.45,mmol/mol
+76f28014,Haematocrit (HCT),39.43,%
+76f28014,Haemoglobin,139.49,g/L
+d9eb74a5,Basophil Count,0.07,10⁹/L
+d9eb74a5,Eosinophil Count,0.18,10⁹/L
+d9eb74a5,HbA1C,24.0,mmol/mol
+d9eb74a5,Haematocrit (HCT),41.14,%
+d9eb74a5,Haemoglobin,147.9,g/L
+8e9ce7f2,Basophil Count,0.12,10⁹/L
+8e9ce7f2,Eosinophil Count,0.22,10⁹/L
+8e9ce7f2,HbA1C,23.52,mmol/mol
+8e9ce7f2,Haematocrit (HCT),38.22,%
+8e9ce7f2,Haemoglobin,131.54,g/L
+c8f39cc1,Basophil Count,0.08,10⁹/L
+c8f39cc1,Eosinophil Count,0.05,10⁹/L
+c8f39cc1,HbA1C,24.83,mmol/mol
+c8f39cc1,Haematocrit (HCT),42.02,%
+c8f39cc1,Haemoglobin,133.49,g/L
+e7ccd031,Basophil Count,0.26,10⁹/L
+e7ccd031,Eosinophil Count,0.32,10⁹/L
+e7ccd031,HbA1C,20.55,mmol/mol
+e7ccd031,Haematocrit (HCT),42.44,%
+e7ccd031,Haemoglobin,142.73,g/L
+3f4ca90e,Basophil Count,0.23,10⁹/L
+3f4ca90e,Eosinophil Count,0.29,10⁹/L
+3f4ca90e,HbA1C,31.51,mmol/mol
+3f4ca90e,Haematocrit (HCT),39.83,%
+3f4ca90e,Haemoglobin,133.58,g/L
+3afd3b56,Basophil Count,0.14,10⁹/L
+3afd3b56,Eosinophil Count,0.4,10⁹/L
+3afd3b56,HbA1C,32.03,mmol/mol
+3afd3b56,Haematocrit (HCT),42.02,%
+3afd3b56,Haemoglobin,156.18,g/L
+98c7c506,Basophil Count,0.29,10⁹/L
+98c7c506,Eosinophil Count,0.41,10⁹/L
+98c7c506,HbA1C,35.82,mmol/mol
+98c7c506,Haematocrit (HCT),38.93,%
+98c7c506,Haemoglobin,146.93,g/L
+28ed5fc6,Basophil Count,0.12,10⁹/L
+28ed5fc6,Eosinophil Count,0.36,10⁹/L
+28ed5fc6,HbA1C,43.35,mmol/mol
+28ed5fc6,Haematocrit (HCT),49.1,%
+28ed5fc6,Haemoglobin,128.66,g/L
+ace9c5eb,Basophil Count,0.14,10⁹/L
+ace9c5eb,Eosinophil Count,0.05,10⁹/L
+ace9c5eb,HbA1C,28.32,mmol/mol
+ace9c5eb,Haematocrit (HCT),39.45,%
+ace9c5eb,Haemoglobin,151.92,g/L
+9e8101f9,Basophil Count,0.02,10⁹/L
+9e8101f9,Eosinophil Count,0.38,10⁹/L
+9e8101f9,HbA1C,33.35,mmol/mol
+9e8101f9,Haematocrit (HCT),48.07,%
+9e8101f9,Haemoglobin,145.1,g/L
+8f6f079d,Basophil Count,0.17,10⁹/L
+8f6f079d,Eosinophil Count,0.06,10⁹/L
+8f6f079d,HbA1C,41.62,mmol/mol
+8f6f079d,Haematocrit (HCT),49.81,%
+8f6f079d,Haemoglobin,152.14,g/L
+c33722d2,Basophil Count,0.17,10⁹/L
+c33722d2,Eosinophil Count,0.41,10⁹/L
+c33722d2,HbA1C,23.14,mmol/mol
+c33722d2,Haematocrit (HCT),48.01,%
+c33722d2,Haemoglobin,127.79,g/L
+b22bdcaa,Basophil Count,0.08,10⁹/L
+b22bdcaa,Eosinophil Count,0.26,10⁹/L
+b22bdcaa,HbA1C,28.22,mmol/mol
+b22bdcaa,Haematocrit (HCT),43.48,%
+b22bdcaa,Haemoglobin,123.38,g/L
+5ea23a08,Basophil Count,0.19,10⁹/L
+5ea23a08,Eosinophil Count,0.29,10⁹/L
+5ea23a08,HbA1C,44.43,mmol/mol
+5ea23a08,Haematocrit (HCT),36.35,%
+5ea23a08,Haemoglobin,160.54,g/L
+518f36e4,Basophil Count,0.08,10⁹/L
+518f36e4,Eosinophil Count,0.43,10⁹/L
+518f36e4,HbA1C,39.37,mmol/mol
+518f36e4,Haematocrit (HCT),39.92,%
+518f36e4,Haemoglobin,165.13,g/L
+090c59c2,Basophil Count,0.05,10⁹/L
+090c59c2,Eosinophil Count,0.15,10⁹/L
+090c59c2,HbA1C,41.25,mmol/mol
+090c59c2,Haematocrit (HCT),40.72,%
+090c59c2,Haemoglobin,166.82,g/L
+61fffe6f,Basophil Count,0.08,10⁹/L
+61fffe6f,Eosinophil Count,0.12,10⁹/L
+61fffe6f,HbA1C,32.57,mmol/mol
+61fffe6f,Haematocrit (HCT),39.2,%
+61fffe6f,Haemoglobin,140.34,g/L
+ba662157,Basophil Count,0.04,10⁹/L
+ba662157,Eosinophil Count,0.45,10⁹/L
+ba662157,HbA1C,39.49,mmol/mol
+ba662157,Haematocrit (HCT),43.11,%
+ba662157,Haemoglobin,168.23,g/L
+31040eed,Basophil Count,0.01,10⁹/L
+31040eed,Eosinophil Count,0.37,10⁹/L
+31040eed,HbA1C,38.6,mmol/mol
+31040eed,Haematocrit (HCT),38.57,%
+31040eed,Haemoglobin,137.99,g/L
+85259a0c,Basophil Count,0.21,10⁹/L
+85259a0c,Eosinophil Count,0.21,10⁹/L
+85259a0c,HbA1C,40.65,mmol/mol
+85259a0c,Haematocrit (HCT),45.08,%
+85259a0c,Haemoglobin,126.47,g/L
+4db49237,Basophil Count,0.13,10⁹/L
+4db49237,Eosinophil Count,0.44,10⁹/L
+4db49237,HbA1C,39.26,mmol/mol
+4db49237,Haematocrit (HCT),44.13,%
+4db49237,Haemoglobin,141.3,g/L
+bb06f00a,Basophil Count,0.16,10⁹/L
+bb06f00a,Eosinophil Count,0.29,10⁹/L
+bb06f00a,HbA1C,44.56,mmol/mol
+bb06f00a,Haematocrit (HCT),39.75,%
+bb06f00a,Haemoglobin,169.36,g/L
+37ca3a7a,Basophil Count,0.14,10⁹/L
+37ca3a7a,Eosinophil Count,0.18,10⁹/L
+37ca3a7a,HbA1C,31.44,mmol/mol
+37ca3a7a,Haematocrit (HCT),38.03,%
+37ca3a7a,Haemoglobin,163.09,g/L
+6d21b2e7,Basophil Count,0.08,10⁹/L
+6d21b2e7,Eosinophil Count,0.32,10⁹/L
+6d21b2e7,HbA1C,38.78,mmol/mol
+6d21b2e7,Haematocrit (HCT),38.42,%
+6d21b2e7,Haemoglobin,155.91,g/L
+247e8f6e,Basophil Count,0.17,10⁹/L
+247e8f6e,Eosinophil Count,0.46,10⁹/L
+247e8f6e,HbA1C,20.76,mmol/mol
+247e8f6e,Haematocrit (HCT),45.82,%
+247e8f6e,Haemoglobin,141.67,g/L
+13d8706c,Basophil Count,0.26,10⁹/L
+13d8706c,Eosinophil Count,0.34,10⁹/L
+13d8706c,HbA1C,31.98,mmol/mol
+13d8706c,Haematocrit (HCT),35.98,%
+13d8706c,Haemoglobin,139.56,g/L
+79325edb,Basophil Count,0.02,10⁹/L
+79325edb,Eosinophil Count,0.34,10⁹/L
+79325edb,HbA1C,22.38,mmol/mol
+79325edb,Haematocrit (HCT),40.9,%
+79325edb,Haemoglobin,139.37,g/L
+48f5b1d1,Basophil Count,0.23,10⁹/L
+48f5b1d1,Eosinophil Count,0.07,10⁹/L
+48f5b1d1,HbA1C,26.02,mmol/mol
+48f5b1d1,Haematocrit (HCT),39.09,%
+48f5b1d1,Haemoglobin,165.74,g/L
+e1a62761,Basophil Count,0.18,10⁹/L
+e1a62761,Eosinophil Count,0.31,10⁹/L
+e1a62761,HbA1C,24.62,mmol/mol
+e1a62761,Haematocrit (HCT),49.4,%
+e1a62761,Haemoglobin,132.59,g/L
+789c544a,Basophil Count,0.11,10⁹/L
+789c544a,Eosinophil Count,0.07,10⁹/L
+789c544a,HbA1C,39.54,mmol/mol
+789c544a,Haematocrit (HCT),35.88,%
+789c544a,Haemoglobin,152.54,g/L
+e0c2a29d,Basophil Count,0.2,10⁹/L
+e0c2a29d,Eosinophil Count,0.5,10⁹/L
+e0c2a29d,HbA1C,44.65,mmol/mol
+e0c2a29d,Haematocrit (HCT),42.02,%
+e0c2a29d,Haemoglobin,166.14,g/L
+ea718950,Basophil Count,0.04,10⁹/L
+ea718950,Eosinophil Count,0.26,10⁹/L
+ea718950,HbA1C,25.33,mmol/mol
+ea718950,Haematocrit (HCT),40.09,%
+ea718950,Haemoglobin,156.24,g/L
+89705e5b,Basophil Count,0.16,10⁹/L
+89705e5b,Eosinophil Count,0.11,10⁹/L
+89705e5b,HbA1C,21.14,mmol/mol
+89705e5b,Haematocrit (HCT),38.57,%
+89705e5b,Haemoglobin,157.54,g/L
+540f6a9d,Basophil Count,0.29,10⁹/L
+540f6a9d,Eosinophil Count,0.45,10⁹/L
+540f6a9d,HbA1C,23.84,mmol/mol
+540f6a9d,Haematocrit (HCT),43.89,%
+540f6a9d,Haemoglobin,162.26,g/L
+7a4ff148,Basophil Count,0.02,10⁹/L
+7a4ff148,Eosinophil Count,0.47,10⁹/L
+7a4ff148,HbA1C,22.99,mmol/mol
+7a4ff148,Haematocrit (HCT),47.07,%
+7a4ff148,Haemoglobin,131.79,g/L
+345ed6bd,Basophil Count,0.08,10⁹/L
+345ed6bd,Eosinophil Count,0.35,10⁹/L
+345ed6bd,HbA1C,29.56,mmol/mol
+345ed6bd,Haematocrit (HCT),36.91,%
+345ed6bd,Haemoglobin,134.36,g/L
+566aafca,Basophil Count,0.06,10⁹/L
+566aafca,Eosinophil Count,0.47,10⁹/L
+566aafca,HbA1C,23.58,mmol/mol
+566aafca,Haematocrit (HCT),49.46,%
+566aafca,Haemoglobin,161.3,g/L
+535cb296,Basophil Count,0.18,10⁹/L
+535cb296,Eosinophil Count,0.47,10⁹/L
+535cb296,HbA1C,27.79,mmol/mol
+535cb296,Haematocrit (HCT),49.33,%
+535cb296,Haemoglobin,128.39,g/L
+9a7c89d0,Basophil Count,0.24,10⁹/L
+9a7c89d0,Eosinophil Count,0.18,10⁹/L
+9a7c89d0,HbA1C,20.18,mmol/mol
+9a7c89d0,Haematocrit (HCT),48.56,%
+9a7c89d0,Haemoglobin,121.88,g/L
+1691874b,Basophil Count,0.21,10⁹/L
+1691874b,Eosinophil Count,0.46,10⁹/L
+1691874b,HbA1C,21.17,mmol/mol
+1691874b,Haematocrit (HCT),45.87,%
+1691874b,Haemoglobin,145.56,g/L
+c8efe399,Basophil Count,0.19,10⁹/L
+c8efe399,Eosinophil Count,0.41,10⁹/L
+c8efe399,HbA1C,36.16,mmol/mol
+c8efe399,Haematocrit (HCT),48.32,%
+c8efe399,Haemoglobin,158.41,g/L
+4193dbbe,Basophil Count,0.03,10⁹/L
+4193dbbe,Eosinophil Count,0.13,10⁹/L
+4193dbbe,HbA1C,31.32,mmol/mol
+4193dbbe,Haematocrit (HCT),40.2,%
+4193dbbe,Haemoglobin,139.13,g/L
+2d697144,Basophil Count,0.02,10⁹/L
+2d697144,Eosinophil Count,0.06,10⁹/L
+2d697144,HbA1C,29.34,mmol/mol
+2d697144,Haematocrit (HCT),47.88,%
+2d697144,Haemoglobin,137.98,g/L
+85e751d6,Basophil Count,0.1,10⁹/L
+85e751d6,Eosinophil Count,0.11,10⁹/L
+85e751d6,HbA1C,21.42,mmol/mol
+85e751d6,Haematocrit (HCT),48.49,%
+85e751d6,Haemoglobin,162.71,g/L
+3d086b7c,Basophil Count,0.11,10⁹/L
+3d086b7c,Eosinophil Count,0.45,10⁹/L
+3d086b7c,HbA1C,25.09,mmol/mol
+3d086b7c,Haematocrit (HCT),42.09,%
+3d086b7c,Haemoglobin,141.03,g/L
+ff61c5c1,Basophil Count,0.09,10⁹/L
+ff61c5c1,Eosinophil Count,0.31,10⁹/L
+ff61c5c1,HbA1C,43.9,mmol/mol
+ff61c5c1,Haematocrit (HCT),42.44,%
+ff61c5c1,Haemoglobin,124.63,g/L
+a31e3ff9,Basophil Count,0.07,10⁹/L
+a31e3ff9,Eosinophil Count,0.08,10⁹/L
+a31e3ff9,HbA1C,27.97,mmol/mol
+a31e3ff9,Haematocrit (HCT),43.75,%
+a31e3ff9,Haemoglobin,161.43,g/L
+89bd8bdd,Basophil Count,0.14,10⁹/L
+89bd8bdd,Eosinophil Count,0.41,10⁹/L
+89bd8bdd,HbA1C,31.69,mmol/mol
+89bd8bdd,Haematocrit (HCT),45.3,%
+89bd8bdd,Haemoglobin,141.29,g/L
+f961a918,Basophil Count,0.06,10⁹/L
+f961a918,Eosinophil Count,0.36,10⁹/L
+f961a918,HbA1C,22.04,mmol/mol
+f961a918,Haematocrit (HCT),38.0,%
+f961a918,Haemoglobin,126.35,g/L
+354d5bf7,Basophil Count,0.06,10⁹/L
+354d5bf7,Eosinophil Count,0.49,10⁹/L
+354d5bf7,HbA1C,31.79,mmol/mol
+354d5bf7,Haematocrit (HCT),36.29,%
+354d5bf7,Haemoglobin,142.66,g/L
+e3b609d8,Basophil Count,0.09,10⁹/L
+e3b609d8,Eosinophil Count,0.33,10⁹/L
+e3b609d8,HbA1C,31.3,mmol/mol
+e3b609d8,Haematocrit (HCT),45.68,%
+e3b609d8,Haemoglobin,152.85,g/L
+9c8b8537,Basophil Count,0.13,10⁹/L
+9c8b8537,Eosinophil Count,0.46,10⁹/L
+9c8b8537,HbA1C,24.62,mmol/mol
+9c8b8537,Haematocrit (HCT),48.5,%
+9c8b8537,Haemoglobin,130.09,g/L
+ea67198e,Basophil Count,0.22,10⁹/L
+ea67198e,Eosinophil Count,0.39,10⁹/L
+ea67198e,HbA1C,36.43,mmol/mol
+ea67198e,Haematocrit (HCT),46.63,%
+ea67198e,Haemoglobin,157.39,g/L
+d35c251b,Basophil Count,0.05,10⁹/L
+d35c251b,Eosinophil Count,0.19,10⁹/L
+d35c251b,HbA1C,42.53,mmol/mol
+d35c251b,Haematocrit (HCT),46.87,%
+d35c251b,Haemoglobin,161.78,g/L
+7e3e79f8,Basophil Count,0.07,10⁹/L
+7e3e79f8,Eosinophil Count,0.17,10⁹/L
+7e3e79f8,HbA1C,41.31,mmol/mol
+7e3e79f8,Haematocrit (HCT),43.0,%
+7e3e79f8,Haemoglobin,157.7,g/L
+20c52322,Basophil Count,0.25,10⁹/L
+20c52322,Eosinophil Count,0.2,10⁹/L
+20c52322,HbA1C,23.81,mmol/mol
+20c52322,Haematocrit (HCT),41.82,%
+20c52322,Haemoglobin,126.42,g/L
+253e7cc0,Basophil Count,0.22,10⁹/L
+253e7cc0,Eosinophil Count,0.12,10⁹/L
+253e7cc0,HbA1C,39.56,mmol/mol
+253e7cc0,Haematocrit (HCT),40.0,%
+253e7cc0,Haemoglobin,154.94,g/L
+fbe1c01d,Basophil Count,0.07,10⁹/L
+fbe1c01d,Eosinophil Count,0.3,10⁹/L
+fbe1c01d,HbA1C,39.74,mmol/mol
+fbe1c01d,Haematocrit (HCT),36.53,%
+fbe1c01d,Haemoglobin,141.39,g/L
+3b7898d9,Basophil Count,0.12,10⁹/L
+3b7898d9,Eosinophil Count,0.43,10⁹/L
+3b7898d9,HbA1C,33.7,mmol/mol
+3b7898d9,Haematocrit (HCT),37.0,%
+3b7898d9,Haemoglobin,128.69,g/L
+ed06d4dc,Basophil Count,0.15,10⁹/L
+ed06d4dc,Eosinophil Count,0.37,10⁹/L
+ed06d4dc,HbA1C,23.72,mmol/mol
+ed06d4dc,Haematocrit (HCT),47.08,%
+ed06d4dc,Haemoglobin,144.81,g/L
+56323f82,Basophil Count,0.18,10⁹/L
+56323f82,Eosinophil Count,0.23,10⁹/L
+56323f82,HbA1C,42.27,mmol/mol
+56323f82,Haematocrit (HCT),37.99,%
+56323f82,Haemoglobin,154.79,g/L
+b759c833,Basophil Count,0.26,10⁹/L
+b759c833,Eosinophil Count,0.5,10⁹/L
+b759c833,HbA1C,21.42,mmol/mol
+b759c833,Haematocrit (HCT),47.85,%
+b759c833,Haemoglobin,150.42,g/L
+695692de,Basophil Count,0.17,10⁹/L
+695692de,Eosinophil Count,0.45,10⁹/L
+695692de,HbA1C,34.53,mmol/mol
+695692de,Haematocrit (HCT),49.62,%
+695692de,Haemoglobin,140.79,g/L
+df857640,Basophil Count,0.17,10⁹/L
+df857640,Eosinophil Count,0.08,10⁹/L
+df857640,HbA1C,40.21,mmol/mol
+df857640,Haematocrit (HCT),48.13,%
+df857640,Haemoglobin,145.27,g/L
+50db070e,Basophil Count,0.12,10⁹/L
+50db070e,Eosinophil Count,0.39,10⁹/L
+50db070e,HbA1C,32.09,mmol/mol
+50db070e,Haematocrit (HCT),45.31,%
+50db070e,Haemoglobin,120.49,g/L
+ca40fa7a,Basophil Count,0.07,10⁹/L
+ca40fa7a,Eosinophil Count,0.42,10⁹/L
+ca40fa7a,HbA1C,43.68,mmol/mol
+ca40fa7a,Haematocrit (HCT),35.07,%
+ca40fa7a,Haemoglobin,137.36,g/L
+c622bd11,Basophil Count,0.2,10⁹/L
+c622bd11,Eosinophil Count,0.47,10⁹/L
+c622bd11,HbA1C,24.97,mmol/mol
+c622bd11,Haematocrit (HCT),38.7,%
+c622bd11,Haemoglobin,158.54,g/L
+e196d1df,Basophil Count,0.19,10⁹/L
+e196d1df,Eosinophil Count,0.46,10⁹/L
+e196d1df,HbA1C,36.41,mmol/mol
+e196d1df,Haematocrit (HCT),43.42,%
+e196d1df,Haemoglobin,141.86,g/L
+d36a2104,Basophil Count,0.18,10⁹/L
+d36a2104,Eosinophil Count,0.12,10⁹/L
+d36a2104,HbA1C,39.52,mmol/mol
+d36a2104,Haematocrit (HCT),46.23,%
+d36a2104,Haemoglobin,133.18,g/L
+7535ea06,Basophil Count,0.12,10⁹/L
+7535ea06,Eosinophil Count,0.21,10⁹/L
+7535ea06,HbA1C,39.09,mmol/mol
+7535ea06,Haematocrit (HCT),40.01,%
+7535ea06,Haemoglobin,156.99,g/L
+a2108e59,Basophil Count,0.19,10⁹/L
+a2108e59,Eosinophil Count,0.5,10⁹/L
+a2108e59,HbA1C,37.98,mmol/mol
+a2108e59,Haematocrit (HCT),43.67,%
+a2108e59,Haemoglobin,122.25,g/L
+cd99e17f,Basophil Count,0.18,10⁹/L
+cd99e17f,Eosinophil Count,0.41,10⁹/L
+cd99e17f,HbA1C,20.8,mmol/mol
+cd99e17f,Haematocrit (HCT),47.81,%
+cd99e17f,Haemoglobin,145.4,g/L
+33206912,Basophil Count,0.13,10⁹/L
+33206912,Eosinophil Count,0.29,10⁹/L
+33206912,HbA1C,35.08,mmol/mol
+33206912,Haematocrit (HCT),41.23,%
+33206912,Haemoglobin,165.71,g/L
+39161be0,Basophil Count,0.29,10⁹/L
+39161be0,Eosinophil Count,0.49,10⁹/L
+39161be0,HbA1C,21.01,mmol/mol
+39161be0,Haematocrit (HCT),39.97,%
+39161be0,Haemoglobin,154.52,g/L
+9ae216b7,Basophil Count,0.04,10⁹/L
+9ae216b7,Eosinophil Count,0.07,10⁹/L
+9ae216b7,HbA1C,32.42,mmol/mol
+9ae216b7,Haematocrit (HCT),46.81,%
+9ae216b7,Haemoglobin,134.99,g/L
+41cd9574,Basophil Count,0.27,10⁹/L
+41cd9574,Eosinophil Count,0.04,10⁹/L
+41cd9574,HbA1C,21.03,mmol/mol
+41cd9574,Haematocrit (HCT),42.6,%
+41cd9574,Haemoglobin,146.54,g/L
+6b31019f,Basophil Count,0.04,10⁹/L
+6b31019f,Eosinophil Count,0.29,10⁹/L
+6b31019f,HbA1C,32.54,mmol/mol
+6b31019f,Haematocrit (HCT),38.56,%
+6b31019f,Haemoglobin,142.96,g/L
+80e17550,Basophil Count,0.2,10⁹/L
+80e17550,Eosinophil Count,0.15,10⁹/L
+80e17550,HbA1C,25.97,mmol/mol
+80e17550,Haematocrit (HCT),42.28,%
+80e17550,Haemoglobin,169.82,g/L
+a29a56bc,Basophil Count,0.15,10⁹/L
+a29a56bc,Eosinophil Count,0.14,10⁹/L
+a29a56bc,HbA1C,21.37,mmol/mol
+a29a56bc,Haematocrit (HCT),43.2,%
+a29a56bc,Haemoglobin,141.92,g/L
+268ece85,Basophil Count,0.21,10⁹/L
+268ece85,Eosinophil Count,0.42,10⁹/L
+268ece85,HbA1C,21.61,mmol/mol
+268ece85,Haematocrit (HCT),41.12,%
+268ece85,Haemoglobin,145.92,g/L
+d4171cbd,Basophil Count,0.23,10⁹/L
+d4171cbd,Eosinophil Count,0.07,10⁹/L
+d4171cbd,HbA1C,40.96,mmol/mol
+d4171cbd,Haematocrit (HCT),37.15,%
+d4171cbd,Haemoglobin,120.64,g/L
+aa092e8e,Basophil Count,0.06,10⁹/L
+aa092e8e,Eosinophil Count,0.31,10⁹/L
+aa092e8e,HbA1C,34.88,mmol/mol
+aa092e8e,Haematocrit (HCT),49.42,%
+aa092e8e,Haemoglobin,151.64,g/L
+a6ce2696,Basophil Count,0.27,10⁹/L
+a6ce2696,Eosinophil Count,0.31,10⁹/L
+a6ce2696,HbA1C,21.93,mmol/mol
+a6ce2696,Haematocrit (HCT),36.38,%
+a6ce2696,Haemoglobin,142.15,g/L
+667d2d93,Basophil Count,0.21,10⁹/L
+667d2d93,Eosinophil Count,0.34,10⁹/L
+667d2d93,HbA1C,43.01,mmol/mol
+667d2d93,Haematocrit (HCT),46.95,%
+667d2d93,Haemoglobin,154.66,g/L
+f4ac340f,Basophil Count,0.23,10⁹/L
+f4ac340f,Eosinophil Count,0.07,10⁹/L
+f4ac340f,HbA1C,40.66,mmol/mol
+f4ac340f,Haematocrit (HCT),42.27,%
+f4ac340f,Haemoglobin,120.21,g/L
+e5903579,Basophil Count,0.16,10⁹/L
+e5903579,Eosinophil Count,0.34,10⁹/L
+e5903579,HbA1C,37.09,mmol/mol
+e5903579,Haematocrit (HCT),38.95,%
+e5903579,Haemoglobin,145.39,g/L
+24e96268,Basophil Count,0.23,10⁹/L
+24e96268,Eosinophil Count,0.23,10⁹/L
+24e96268,HbA1C,32.28,mmol/mol
+24e96268,Haematocrit (HCT),43.48,%
+24e96268,Haemoglobin,125.77,g/L
+b3e88a63,Basophil Count,0.03,10⁹/L
+b3e88a63,Eosinophil Count,0.04,10⁹/L
+b3e88a63,HbA1C,22.67,mmol/mol
+b3e88a63,Haematocrit (HCT),47.37,%
+b3e88a63,Haemoglobin,145.84,g/L
+e59ff89b,Basophil Count,0.25,10⁹/L
+e59ff89b,Eosinophil Count,0.17,10⁹/L
+e59ff89b,HbA1C,43.53,mmol/mol
+e59ff89b,Haematocrit (HCT),46.35,%
+e59ff89b,Haemoglobin,135.24,g/L
+d3b08cac,Basophil Count,0.04,10⁹/L
+d3b08cac,Eosinophil Count,0.15,10⁹/L
+d3b08cac,HbA1C,24.8,mmol/mol
+d3b08cac,Haematocrit (HCT),35.28,%
+d3b08cac,Haemoglobin,121.61,g/L
+4f102e4f,Basophil Count,0.04,10⁹/L
+4f102e4f,Eosinophil Count,0.16,10⁹/L
+4f102e4f,HbA1C,37.89,mmol/mol
+4f102e4f,Haematocrit (HCT),39.56,%
+4f102e4f,Haemoglobin,140.26,g/L
+9c63a8b1,Basophil Count,0.07,10⁹/L
+9c63a8b1,Eosinophil Count,0.21,10⁹/L
+9c63a8b1,HbA1C,29.52,mmol/mol
+9c63a8b1,Haematocrit (HCT),36.73,%
+9c63a8b1,Haemoglobin,142.76,g/L
+2fe6a046,Basophil Count,0.24,10⁹/L
+2fe6a046,Eosinophil Count,0.23,10⁹/L
+2fe6a046,HbA1C,39.74,mmol/mol
+2fe6a046,Haematocrit (HCT),44.44,%
+2fe6a046,Haemoglobin,134.27,g/L
+165b8de9,Basophil Count,0.2,10⁹/L
+165b8de9,Eosinophil Count,0.37,10⁹/L
+165b8de9,HbA1C,34.95,mmol/mol
+165b8de9,Haematocrit (HCT),40.18,%
+165b8de9,Haemoglobin,134.56,g/L
+7dadc537,Basophil Count,0.3,10⁹/L
+7dadc537,Eosinophil Count,0.37,10⁹/L
+7dadc537,HbA1C,40.7,mmol/mol
+7dadc537,Haematocrit (HCT),40.67,%
+7dadc537,Haemoglobin,146.95,g/L
+73cd5905,Basophil Count,0.11,10⁹/L
+73cd5905,Eosinophil Count,0.21,10⁹/L
+73cd5905,HbA1C,35.41,mmol/mol
+73cd5905,Haematocrit (HCT),47.53,%
+73cd5905,Haemoglobin,167.53,g/L
+8f7821f3,Basophil Count,0.05,10⁹/L
+8f7821f3,Eosinophil Count,0.48,10⁹/L
+8f7821f3,HbA1C,32.87,mmol/mol
+8f7821f3,Haematocrit (HCT),42.29,%
+8f7821f3,Haemoglobin,133.37,g/L
+e67c883f,Basophil Count,0.15,10⁹/L
+e67c883f,Eosinophil Count,0.28,10⁹/L
+e67c883f,HbA1C,43.56,mmol/mol
+e67c883f,Haematocrit (HCT),47.68,%
+e67c883f,Haemoglobin,157.42,g/L
+37f8e5cd,Basophil Count,0.18,10⁹/L
+37f8e5cd,Eosinophil Count,0.07,10⁹/L
+37f8e5cd,HbA1C,37.49,mmol/mol
+37f8e5cd,Haematocrit (HCT),46.58,%
+37f8e5cd,Haemoglobin,134.48,g/L
+80ae816a,Basophil Count,0.12,10⁹/L
+80ae816a,Eosinophil Count,0.3,10⁹/L
+80ae816a,HbA1C,44.63,mmol/mol
+80ae816a,Haematocrit (HCT),46.41,%
+80ae816a,Haemoglobin,140.39,g/L
+9d13de3c,Basophil Count,0.2,10⁹/L
+9d13de3c,Eosinophil Count,0.2,10⁹/L
+9d13de3c,HbA1C,32.92,mmol/mol
+9d13de3c,Haematocrit (HCT),45.45,%
+9d13de3c,Haemoglobin,154.52,g/L
+5b6e852c,Basophil Count,0.13,10⁹/L
+5b6e852c,Eosinophil Count,0.05,10⁹/L
+5b6e852c,HbA1C,39.2,mmol/mol
+5b6e852c,Haematocrit (HCT),42.81,%
+5b6e852c,Haemoglobin,157.63,g/L
+dd12a08f,Basophil Count,0.11,10⁹/L
+dd12a08f,Eosinophil Count,0.42,10⁹/L
+dd12a08f,HbA1C,23.85,mmol/mol
+dd12a08f,Haematocrit (HCT),37.0,%
+dd12a08f,Haemoglobin,154.92,g/L
+712a1c42,Basophil Count,0.23,10⁹/L
+712a1c42,Eosinophil Count,0.08,10⁹/L
+712a1c42,HbA1C,35.71,mmol/mol
+712a1c42,Haematocrit (HCT),48.77,%
+712a1c42,Haemoglobin,146.6,g/L
+6c117d58,Basophil Count,0.25,10⁹/L
+6c117d58,Eosinophil Count,0.47,10⁹/L
+6c117d58,HbA1C,31.91,mmol/mol
+6c117d58,Haematocrit (HCT),36.78,%
+6c117d58,Haemoglobin,138.6,g/L
+1fec6aef,Basophil Count,0.12,10⁹/L
+1fec6aef,Eosinophil Count,0.04,10⁹/L
+1fec6aef,HbA1C,36.08,mmol/mol
+1fec6aef,Haematocrit (HCT),38.81,%
+1fec6aef,Haemoglobin,157.62,g/L
+d9bca1f6,Basophil Count,0.03,10⁹/L
+d9bca1f6,Eosinophil Count,0.41,10⁹/L
+d9bca1f6,HbA1C,32.68,mmol/mol
+d9bca1f6,Haematocrit (HCT),47.85,%
+d9bca1f6,Haemoglobin,142.65,g/L
+6048c856,Basophil Count,0.14,10⁹/L
+6048c856,Eosinophil Count,0.33,10⁹/L
+6048c856,HbA1C,35.02,mmol/mol
+6048c856,Haematocrit (HCT),35.12,%
+6048c856,Haemoglobin,131.27,g/L
+7cca27e0,Basophil Count,0.07,10⁹/L
+7cca27e0,Eosinophil Count,0.1,10⁹/L
+7cca27e0,HbA1C,43.11,mmol/mol
+7cca27e0,Haematocrit (HCT),36.39,%
+7cca27e0,Haemoglobin,143.76,g/L
+1f0b3e46,Basophil Count,0.2,10⁹/L
+1f0b3e46,Eosinophil Count,0.47,10⁹/L
+1f0b3e46,HbA1C,36.86,mmol/mol
+1f0b3e46,Haematocrit (HCT),48.33,%
+1f0b3e46,Haemoglobin,138.61,g/L
+584a205e,Basophil Count,0.06,10⁹/L
+584a205e,Eosinophil Count,0.48,10⁹/L
+584a205e,HbA1C,42.95,mmol/mol
+584a205e,Haematocrit (HCT),44.16,%
+584a205e,Haemoglobin,124.04,g/L
+5e1b09b0,Basophil Count,0.18,10⁹/L
+5e1b09b0,Eosinophil Count,0.42,10⁹/L
+5e1b09b0,HbA1C,40.82,mmol/mol
+5e1b09b0,Haematocrit (HCT),41.31,%
+5e1b09b0,Haemoglobin,120.06,g/L
+4df208b3,Basophil Count,0.07,10⁹/L
+4df208b3,Eosinophil Count,0.26,10⁹/L
+4df208b3,HbA1C,39.18,mmol/mol
+4df208b3,Haematocrit (HCT),47.66,%
+4df208b3,Haemoglobin,157.79,g/L
+c05f7c5f,Basophil Count,0.14,10⁹/L
+c05f7c5f,Eosinophil Count,0.46,10⁹/L
+c05f7c5f,HbA1C,30.57,mmol/mol
+c05f7c5f,Haematocrit (HCT),46.87,%
+c05f7c5f,Haemoglobin,158.55,g/L
+5bbad6af,Basophil Count,0.28,10⁹/L
+5bbad6af,Eosinophil Count,0.5,10⁹/L
+5bbad6af,HbA1C,20.2,mmol/mol
+5bbad6af,Haematocrit (HCT),35.88,%
+5bbad6af,Haemoglobin,124.6,g/L
+55a2cadd,Basophil Count,0.27,10⁹/L
+55a2cadd,Eosinophil Count,0.41,10⁹/L
+55a2cadd,HbA1C,39.35,mmol/mol
+55a2cadd,Haematocrit (HCT),38.39,%
+55a2cadd,Haemoglobin,147.54,g/L
+58706dc8,Basophil Count,0.03,10⁹/L
+58706dc8,Eosinophil Count,0.16,10⁹/L
+58706dc8,HbA1C,24.52,mmol/mol
+58706dc8,Haematocrit (HCT),47.58,%
+58706dc8,Haemoglobin,125.82,g/L
+1089f825,Basophil Count,0.03,10⁹/L
+1089f825,Eosinophil Count,0.39,10⁹/L
+1089f825,HbA1C,22.13,mmol/mol
+1089f825,Haematocrit (HCT),36.28,%
+1089f825,Haemoglobin,149.04,g/L
+56a2647f,Basophil Count,0.12,10⁹/L
+56a2647f,Eosinophil Count,0.11,10⁹/L
+56a2647f,HbA1C,26.48,mmol/mol
+56a2647f,Haematocrit (HCT),39.63,%
+56a2647f,Haemoglobin,140.09,g/L
+ec4e7245,Basophil Count,0.2,10⁹/L
+ec4e7245,Eosinophil Count,0.26,10⁹/L
+ec4e7245,HbA1C,34.97,mmol/mol
+ec4e7245,Haematocrit (HCT),36.34,%
+ec4e7245,Haemoglobin,164.56,g/L
+0a0c18af,Basophil Count,0.02,10⁹/L
+0a0c18af,Eosinophil Count,0.48,10⁹/L
+0a0c18af,HbA1C,32.23,mmol/mol
+0a0c18af,Haematocrit (HCT),35.06,%
+0a0c18af,Haemoglobin,121.42,g/L
+a2c9e3c7,Basophil Count,0.15,10⁹/L
+a2c9e3c7,Eosinophil Count,0.49,10⁹/L
+a2c9e3c7,HbA1C,31.41,mmol/mol
+a2c9e3c7,Haematocrit (HCT),36.23,%
+a2c9e3c7,Haemoglobin,141.47,g/L
+83d52ca7,Basophil Count,0.14,10⁹/L
+83d52ca7,Eosinophil Count,0.04,10⁹/L
+83d52ca7,HbA1C,39.78,mmol/mol
+83d52ca7,Haematocrit (HCT),36.17,%
+83d52ca7,Haemoglobin,162.11,g/L
+f2e6a9f8,Basophil Count,0.12,10⁹/L
+f2e6a9f8,Eosinophil Count,0.11,10⁹/L
+f2e6a9f8,HbA1C,43.08,mmol/mol
+f2e6a9f8,Haematocrit (HCT),36.12,%
+f2e6a9f8,Haemoglobin,145.06,g/L
+a3290e3b,Basophil Count,0.04,10⁹/L
+a3290e3b,Eosinophil Count,0.06,10⁹/L
+a3290e3b,HbA1C,39.4,mmol/mol
+a3290e3b,Haematocrit (HCT),45.62,%
+a3290e3b,Haemoglobin,160.2,g/L
+feac9d93,Basophil Count,0.07,10⁹/L
+feac9d93,Eosinophil Count,0.15,10⁹/L
+feac9d93,HbA1C,41.21,mmol/mol
+feac9d93,Haematocrit (HCT),37.14,%
+feac9d93,Haemoglobin,156.69,g/L
+287f9c4c,Basophil Count,0.29,10⁹/L
+287f9c4c,Eosinophil Count,0.21,10⁹/L
+287f9c4c,HbA1C,40.19,mmol/mol
+287f9c4c,Haematocrit (HCT),39.34,%
+287f9c4c,Haemoglobin,144.85,g/L
+5a65cbbc,Basophil Count,0.18,10⁹/L
+5a65cbbc,Eosinophil Count,0.23,10⁹/L
+5a65cbbc,HbA1C,39.23,mmol/mol
+5a65cbbc,Haematocrit (HCT),44.29,%
+5a65cbbc,Haemoglobin,123.85,g/L
+a5d5baa0,Basophil Count,0.05,10⁹/L
+a5d5baa0,Eosinophil Count,0.22,10⁹/L
+a5d5baa0,HbA1C,22.34,mmol/mol
+a5d5baa0,Haematocrit (HCT),42.9,%
+a5d5baa0,Haemoglobin,144.63,g/L
+d35fb390,Basophil Count,0.27,10⁹/L
+d35fb390,Eosinophil Count,0.24,10⁹/L
+d35fb390,HbA1C,29.9,mmol/mol
+d35fb390,Haematocrit (HCT),44.41,%
+d35fb390,Haemoglobin,148.31,g/L
+09c0be4f,Basophil Count,0.15,10⁹/L
+09c0be4f,Eosinophil Count,0.19,10⁹/L
+09c0be4f,HbA1C,24.64,mmol/mol
+09c0be4f,Haematocrit (HCT),43.32,%
+09c0be4f,Haemoglobin,140.65,g/L
+7895db23,Basophil Count,0.2,10⁹/L
+7895db23,Eosinophil Count,0.34,10⁹/L
+7895db23,HbA1C,35.87,mmol/mol
+7895db23,Haematocrit (HCT),35.14,%
+7895db23,Haemoglobin,158.58,g/L
+692af793,Basophil Count,0.12,10⁹/L
+692af793,Eosinophil Count,0.12,10⁹/L
+692af793,HbA1C,25.74,mmol/mol
+692af793,Haematocrit (HCT),45.44,%
+692af793,Haemoglobin,132.04,g/L
+1e5ec334,Basophil Count,0.07,10⁹/L
+1e5ec334,Eosinophil Count,0.39,10⁹/L
+1e5ec334,HbA1C,41.95,mmol/mol
+1e5ec334,Haematocrit (HCT),37.67,%
+1e5ec334,Haemoglobin,125.42,g/L
+b660934f,Basophil Count,0.14,10⁹/L
+b660934f,Eosinophil Count,0.1,10⁹/L
+b660934f,HbA1C,24.07,mmol/mol
+b660934f,Haematocrit (HCT),36.3,%
+b660934f,Haemoglobin,141.34,g/L
+f22098e0,Basophil Count,0.23,10⁹/L
+f22098e0,Eosinophil Count,0.09,10⁹/L
+f22098e0,HbA1C,23.75,mmol/mol
+f22098e0,Haematocrit (HCT),39.09,%
+f22098e0,Haemoglobin,160.97,g/L
+827756b5,Basophil Count,0.18,10⁹/L
+827756b5,Eosinophil Count,0.27,10⁹/L
+827756b5,HbA1C,26.72,mmol/mol
+827756b5,Haematocrit (HCT),38.12,%
+827756b5,Haemoglobin,151.71,g/L
+a01f4c11,Basophil Count,0.14,10⁹/L
+a01f4c11,Eosinophil Count,0.18,10⁹/L
+a01f4c11,HbA1C,25.41,mmol/mol
+a01f4c11,Haematocrit (HCT),37.87,%
+a01f4c11,Haemoglobin,155.04,g/L
+c7087d2e,Basophil Count,0.04,10⁹/L
+c7087d2e,Eosinophil Count,0.47,10⁹/L
+c7087d2e,HbA1C,33.6,mmol/mol
+c7087d2e,Haematocrit (HCT),40.82,%
+c7087d2e,Haemoglobin,145.64,g/L
+ff7b76d1,Basophil Count,0.18,10⁹/L
+ff7b76d1,Eosinophil Count,0.17,10⁹/L
+ff7b76d1,HbA1C,44.15,mmol/mol
+ff7b76d1,Haematocrit (HCT),39.41,%
+ff7b76d1,Haemoglobin,121.35,g/L
+98539ee0,Basophil Count,0.12,10⁹/L
+98539ee0,Eosinophil Count,0.16,10⁹/L
+98539ee0,HbA1C,36.63,mmol/mol
+98539ee0,Haematocrit (HCT),41.1,%
+98539ee0,Haemoglobin,165.88,g/L
+98b7bc54,Basophil Count,0.28,10⁹/L
+98b7bc54,Eosinophil Count,0.26,10⁹/L
+98b7bc54,HbA1C,32.18,mmol/mol
+98b7bc54,Haematocrit (HCT),36.99,%
+98b7bc54,Haemoglobin,132.92,g/L
+92ccd9f2,Basophil Count,0.17,10⁹/L
+92ccd9f2,Eosinophil Count,0.44,10⁹/L
+92ccd9f2,HbA1C,39.02,mmol/mol
+92ccd9f2,Haematocrit (HCT),38.98,%
+92ccd9f2,Haemoglobin,159.72,g/L
+dbfcae7d,Basophil Count,0.27,10⁹/L
+dbfcae7d,Eosinophil Count,0.16,10⁹/L
+dbfcae7d,HbA1C,32.79,mmol/mol
+dbfcae7d,Haematocrit (HCT),41.5,%
+dbfcae7d,Haemoglobin,168.91,g/L
+18a049ce,Basophil Count,0.15,10⁹/L
+18a049ce,Eosinophil Count,0.41,10⁹/L
+18a049ce,HbA1C,30.03,mmol/mol
+18a049ce,Haematocrit (HCT),45.92,%
+18a049ce,Haemoglobin,164.65,g/L
+d3c8e3b4,Basophil Count,0.13,10⁹/L
+d3c8e3b4,Eosinophil Count,0.46,10⁹/L
+d3c8e3b4,HbA1C,41.22,mmol/mol
+d3c8e3b4,Haematocrit (HCT),49.96,%
+d3c8e3b4,Haemoglobin,155.37,g/L
+74fa28b3,Basophil Count,0.26,10⁹/L
+74fa28b3,Eosinophil Count,0.11,10⁹/L
+74fa28b3,HbA1C,20.04,mmol/mol
+74fa28b3,Haematocrit (HCT),41.14,%
+74fa28b3,Haemoglobin,163.25,g/L
+6171d3f1,Basophil Count,0.01,10⁹/L
+6171d3f1,Eosinophil Count,0.05,10⁹/L
+6171d3f1,HbA1C,23.43,mmol/mol
+6171d3f1,Haematocrit (HCT),40.41,%
+6171d3f1,Haemoglobin,163.96,g/L
+22195332,Basophil Count,0.25,10⁹/L
+22195332,Eosinophil Count,0.18,10⁹/L
+22195332,HbA1C,40.81,mmol/mol
+22195332,Haematocrit (HCT),38.9,%
+22195332,Haemoglobin,163.1,g/L
+42028bdb,Basophil Count,0.2,10⁹/L
+42028bdb,Eosinophil Count,0.38,10⁹/L
+42028bdb,HbA1C,21.26,mmol/mol
+42028bdb,Haematocrit (HCT),38.29,%
+42028bdb,Haemoglobin,142.74,g/L
+42609489,Basophil Count,0.17,10⁹/L
+42609489,Eosinophil Count,0.43,10⁹/L
+42609489,HbA1C,33.15,mmol/mol
+42609489,Haematocrit (HCT),43.31,%
+42609489,Haemoglobin,137.78,g/L
+4a57ccef,Basophil Count,0.26,10⁹/L
+4a57ccef,Eosinophil Count,0.43,10⁹/L
+4a57ccef,HbA1C,29.2,mmol/mol
+4a57ccef,Haematocrit (HCT),36.22,%
+4a57ccef,Haemoglobin,153.66,g/L
+5b5e0c98,Basophil Count,0.16,10⁹/L
+5b5e0c98,Eosinophil Count,0.04,10⁹/L
+5b5e0c98,HbA1C,20.71,mmol/mol
+5b5e0c98,Haematocrit (HCT),49.37,%
+5b5e0c98,Haemoglobin,166.18,g/L
+80eca871,Basophil Count,0.17,10⁹/L
+80eca871,Eosinophil Count,0.22,10⁹/L
+80eca871,HbA1C,39.47,mmol/mol
+80eca871,Haematocrit (HCT),48.84,%
+80eca871,Haemoglobin,126.81,g/L
+1261e976,Basophil Count,0.16,10⁹/L
+1261e976,Eosinophil Count,0.36,10⁹/L
+1261e976,HbA1C,31.24,mmol/mol
+1261e976,Haematocrit (HCT),49.17,%
+1261e976,Haemoglobin,120.16,g/L
+433682a8,Basophil Count,0.05,10⁹/L
+433682a8,Eosinophil Count,0.16,10⁹/L
+433682a8,HbA1C,25.7,mmol/mol
+433682a8,Haematocrit (HCT),38.8,%
+433682a8,Haemoglobin,165.33,g/L
+e481d59f,Basophil Count,0.06,10⁹/L
+e481d59f,Eosinophil Count,0.38,10⁹/L
+e481d59f,HbA1C,32.27,mmol/mol
+e481d59f,Haematocrit (HCT),36.86,%
+e481d59f,Haemoglobin,166.59,g/L
+39349cc0,Basophil Count,0.06,10⁹/L
+39349cc0,Eosinophil Count,0.31,10⁹/L
+39349cc0,HbA1C,32.44,mmol/mol
+39349cc0,Haematocrit (HCT),46.88,%
+39349cc0,Haemoglobin,139.73,g/L
+fb19558e,Basophil Count,0.05,10⁹/L
+fb19558e,Eosinophil Count,0.47,10⁹/L
+fb19558e,HbA1C,36.56,mmol/mol
+fb19558e,Haematocrit (HCT),43.8,%
+fb19558e,Haemoglobin,157.38,g/L
+57f1a6c4,Basophil Count,0.28,10⁹/L
+57f1a6c4,Eosinophil Count,0.33,10⁹/L
+57f1a6c4,HbA1C,38.75,mmol/mol
+57f1a6c4,Haematocrit (HCT),45.23,%
+57f1a6c4,Haemoglobin,155.63,g/L
+edb4095e,Basophil Count,0.14,10⁹/L
+edb4095e,Eosinophil Count,0.12,10⁹/L
+edb4095e,HbA1C,22.19,mmol/mol
+edb4095e,Haematocrit (HCT),47.08,%
+edb4095e,Haemoglobin,145.12,g/L
+1a62b999,Basophil Count,0.15,10⁹/L
+1a62b999,Eosinophil Count,0.1,10⁹/L
+1a62b999,HbA1C,44.46,mmol/mol
+1a62b999,Haematocrit (HCT),39.72,%
+1a62b999,Haemoglobin,124.85,g/L
+6970670e,Basophil Count,0.15,10⁹/L
+6970670e,Eosinophil Count,0.3,10⁹/L
+6970670e,HbA1C,25.19,mmol/mol
+6970670e,Haematocrit (HCT),39.46,%
+6970670e,Haemoglobin,148.49,g/L
+2db85e19,Basophil Count,0.03,10⁹/L
+2db85e19,Eosinophil Count,0.42,10⁹/L
+2db85e19,HbA1C,33.66,mmol/mol
+2db85e19,Haematocrit (HCT),49.8,%
+2db85e19,Haemoglobin,138.2,g/L
+92b92234,Basophil Count,0.21,10⁹/L
+92b92234,Eosinophil Count,0.13,10⁹/L
+92b92234,HbA1C,40.38,mmol/mol
+92b92234,Haematocrit (HCT),41.44,%
+92b92234,Haemoglobin,126.93,g/L
+9a8570e2,Basophil Count,0.3,10⁹/L
+9a8570e2,Eosinophil Count,0.06,10⁹/L
+9a8570e2,HbA1C,42.97,mmol/mol
+9a8570e2,Haematocrit (HCT),43.46,%
+9a8570e2,Haemoglobin,136.59,g/L
+363bac91,Basophil Count,0.28,10⁹/L
+363bac91,Eosinophil Count,0.14,10⁹/L
+363bac91,HbA1C,28.24,mmol/mol
+363bac91,Haematocrit (HCT),35.16,%
+363bac91,Haemoglobin,121.39,g/L
+87c791cb,Basophil Count,0.29,10⁹/L
+87c791cb,Eosinophil Count,0.28,10⁹/L
+87c791cb,HbA1C,27.19,mmol/mol
+87c791cb,Haematocrit (HCT),43.67,%
+87c791cb,Haemoglobin,149.28,g/L
+fa6ec729,Basophil Count,0.23,10⁹/L
+fa6ec729,Eosinophil Count,0.27,10⁹/L
+fa6ec729,HbA1C,27.64,mmol/mol
+fa6ec729,Haematocrit (HCT),46.39,%
+fa6ec729,Haemoglobin,135.61,g/L
+105e8c5e,Basophil Count,0.14,10⁹/L
+105e8c5e,Eosinophil Count,0.07,10⁹/L
+105e8c5e,HbA1C,20.08,mmol/mol
+105e8c5e,Haematocrit (HCT),44.0,%
+105e8c5e,Haemoglobin,146.18,g/L
+6e880e7f,Basophil Count,0.12,10⁹/L
+6e880e7f,Eosinophil Count,0.4,10⁹/L
+6e880e7f,HbA1C,24.33,mmol/mol
+6e880e7f,Haematocrit (HCT),49.29,%
+6e880e7f,Haemoglobin,163.12,g/L
+b9325f58,Basophil Count,0.02,10⁹/L
+b9325f58,Eosinophil Count,0.46,10⁹/L
+b9325f58,HbA1C,35.1,mmol/mol
+b9325f58,Haematocrit (HCT),40.36,%
+b9325f58,Haemoglobin,137.71,g/L
+4bf4cfb8,Basophil Count,0.15,10⁹/L
+4bf4cfb8,Eosinophil Count,0.06,10⁹/L
+4bf4cfb8,HbA1C,42.5,mmol/mol
+4bf4cfb8,Haematocrit (HCT),38.38,%
+4bf4cfb8,Haemoglobin,159.87,g/L
+e828b927,Basophil Count,0.02,10⁹/L
+e828b927,Eosinophil Count,0.08,10⁹/L
+e828b927,HbA1C,28.04,mmol/mol
+e828b927,Haematocrit (HCT),48.65,%
+e828b927,Haemoglobin,162.5,g/L
+e21672ca,Basophil Count,0.28,10⁹/L
+e21672ca,Eosinophil Count,0.36,10⁹/L
+e21672ca,HbA1C,35.52,mmol/mol
+e21672ca,Haematocrit (HCT),39.34,%
+e21672ca,Haemoglobin,123.58,g/L
+01217016,Basophil Count,0.08,10⁹/L
+01217016,Eosinophil Count,0.35,10⁹/L
+01217016,HbA1C,20.2,mmol/mol
+01217016,Haematocrit (HCT),42.56,%
+01217016,Haemoglobin,165.33,g/L
+449e7c71,Basophil Count,0.06,10⁹/L
+449e7c71,Eosinophil Count,0.27,10⁹/L
+449e7c71,HbA1C,37.5,mmol/mol
+449e7c71,Haematocrit (HCT),39.51,%
+449e7c71,Haemoglobin,158.23,g/L
+048a3b4d,Basophil Count,0.18,10⁹/L
+048a3b4d,Eosinophil Count,0.42,10⁹/L
+048a3b4d,HbA1C,25.36,mmol/mol
+048a3b4d,Haematocrit (HCT),44.82,%
+048a3b4d,Haemoglobin,145.07,g/L
+3fa6e57b,Basophil Count,0.24,10⁹/L
+3fa6e57b,Eosinophil Count,0.38,10⁹/L
+3fa6e57b,HbA1C,20.91,mmol/mol
+3fa6e57b,Haematocrit (HCT),46.73,%
+3fa6e57b,Haemoglobin,139.62,g/L
+5fc6518c,Basophil Count,0.22,10⁹/L
+5fc6518c,Eosinophil Count,0.27,10⁹/L
+5fc6518c,HbA1C,40.04,mmol/mol
+5fc6518c,Haematocrit (HCT),49.38,%
+5fc6518c,Haemoglobin,140.88,g/L
+cee03f5f,Basophil Count,0.29,10⁹/L
+cee03f5f,Eosinophil Count,0.1,10⁹/L
+cee03f5f,HbA1C,23.43,mmol/mol
+cee03f5f,Haematocrit (HCT),38.69,%
+cee03f5f,Haemoglobin,155.91,g/L
+a6a95453,Basophil Count,0.24,10⁹/L
+a6a95453,Eosinophil Count,0.45,10⁹/L
+a6a95453,HbA1C,32.44,mmol/mol
+a6a95453,Haematocrit (HCT),35.06,%
+a6a95453,Haemoglobin,140.9,g/L
+93c02a3e,Basophil Count,0.13,10⁹/L
+93c02a3e,Eosinophil Count,0.04,10⁹/L
+93c02a3e,HbA1C,22.46,mmol/mol
+93c02a3e,Haematocrit (HCT),44.05,%
+93c02a3e,Haemoglobin,132.97,g/L
+8aebdd42,Basophil Count,0.09,10⁹/L
+8aebdd42,Eosinophil Count,0.19,10⁹/L
+8aebdd42,HbA1C,44.55,mmol/mol
+8aebdd42,Haematocrit (HCT),39.05,%
+8aebdd42,Haemoglobin,128.57,g/L
+03c4fe14,Basophil Count,0.27,10⁹/L
+03c4fe14,Eosinophil Count,0.38,10⁹/L
+03c4fe14,HbA1C,25.26,mmol/mol
+03c4fe14,Haematocrit (HCT),45.09,%
+03c4fe14,Haemoglobin,150.93,g/L
+3a8cd05c,Basophil Count,0.01,10⁹/L
+3a8cd05c,Eosinophil Count,0.41,10⁹/L
+3a8cd05c,HbA1C,21.75,mmol/mol
+3a8cd05c,Haematocrit (HCT),44.52,%
+3a8cd05c,Haemoglobin,153.14,g/L
+f7ee764b,Basophil Count,0.28,10⁹/L
+f7ee764b,Eosinophil Count,0.09,10⁹/L
+f7ee764b,HbA1C,32.45,mmol/mol
+f7ee764b,Haematocrit (HCT),35.44,%
+f7ee764b,Haemoglobin,133.88,g/L
+4cb03c7b,Basophil Count,0.19,10⁹/L
+4cb03c7b,Eosinophil Count,0.22,10⁹/L
+4cb03c7b,HbA1C,33.68,mmol/mol
+4cb03c7b,Haematocrit (HCT),42.23,%
+4cb03c7b,Haemoglobin,137.74,g/L
+9c45dae8,Basophil Count,0.14,10⁹/L
+9c45dae8,Eosinophil Count,0.13,10⁹/L
+9c45dae8,HbA1C,36.18,mmol/mol
+9c45dae8,Haematocrit (HCT),35.53,%
+9c45dae8,Haemoglobin,141.15,g/L
+71c2b0a4,Basophil Count,0.04,10⁹/L
+71c2b0a4,Eosinophil Count,0.13,10⁹/L
+71c2b0a4,HbA1C,32.87,mmol/mol
+71c2b0a4,Haematocrit (HCT),39.38,%
+71c2b0a4,Haemoglobin,150.79,g/L
+081fd021,Basophil Count,0.28,10⁹/L
+081fd021,Eosinophil Count,0.08,10⁹/L
+081fd021,HbA1C,39.52,mmol/mol
+081fd021,Haematocrit (HCT),39.13,%
+081fd021,Haemoglobin,134.28,g/L
+355a9872,Basophil Count,0.09,10⁹/L
+355a9872,Eosinophil Count,0.3,10⁹/L
+355a9872,HbA1C,21.66,mmol/mol
+355a9872,Haematocrit (HCT),46.6,%
+355a9872,Haemoglobin,168.55,g/L
+3765469e,Basophil Count,0.22,10⁹/L
+3765469e,Eosinophil Count,0.39,10⁹/L
+3765469e,HbA1C,38.17,mmol/mol
+3765469e,Haematocrit (HCT),41.81,%
+3765469e,Haemoglobin,123.15,g/L
+a1e2a3c0,Basophil Count,0.26,10⁹/L
+a1e2a3c0,Eosinophil Count,0.41,10⁹/L
+a1e2a3c0,HbA1C,26.32,mmol/mol
+a1e2a3c0,Haematocrit (HCT),40.76,%
+a1e2a3c0,Haemoglobin,148.34,g/L
+375402ab,Basophil Count,0.24,10⁹/L
+375402ab,Eosinophil Count,0.27,10⁹/L
+375402ab,HbA1C,20.28,mmol/mol
+375402ab,Haematocrit (HCT),48.55,%
+375402ab,Haemoglobin,146.4,g/L
+ad487a2a,Basophil Count,0.15,10⁹/L
+ad487a2a,Eosinophil Count,0.1,10⁹/L
+ad487a2a,HbA1C,24.9,mmol/mol
+ad487a2a,Haematocrit (HCT),35.59,%
+ad487a2a,Haemoglobin,121.14,g/L
+8b4b7e22,Basophil Count,0.1,10⁹/L
+8b4b7e22,Eosinophil Count,0.11,10⁹/L
+8b4b7e22,HbA1C,29.39,mmol/mol
+8b4b7e22,Haematocrit (HCT),43.61,%
+8b4b7e22,Haemoglobin,151.35,g/L
+e8632b4c,Basophil Count,0.14,10⁹/L
+e8632b4c,Eosinophil Count,0.43,10⁹/L
+e8632b4c,HbA1C,24.52,mmol/mol
+e8632b4c,Haematocrit (HCT),47.55,%
+e8632b4c,Haemoglobin,159.8,g/L
+258cef2b,Basophil Count,0.13,10⁹/L
+258cef2b,Eosinophil Count,0.27,10⁹/L
+258cef2b,HbA1C,23.57,mmol/mol
+258cef2b,Haematocrit (HCT),47.6,%
+258cef2b,Haemoglobin,120.55,g/L
+35ce1a27,Basophil Count,0.21,10⁹/L
+35ce1a27,Eosinophil Count,0.43,10⁹/L
+35ce1a27,HbA1C,41.76,mmol/mol
+35ce1a27,Haematocrit (HCT),45.85,%
+35ce1a27,Haemoglobin,132.54,g/L
+b66842bb,Basophil Count,0.2,10⁹/L
+b66842bb,Eosinophil Count,0.38,10⁹/L
+b66842bb,HbA1C,43.4,mmol/mol
+b66842bb,Haematocrit (HCT),41.95,%
+b66842bb,Haemoglobin,161.65,g/L
+aec7b2c0,Basophil Count,0.3,10⁹/L
+aec7b2c0,Eosinophil Count,0.15,10⁹/L
+aec7b2c0,HbA1C,22.96,mmol/mol
+aec7b2c0,Haematocrit (HCT),48.7,%
+aec7b2c0,Haemoglobin,140.09,g/L
+7d17821c,Basophil Count,0.06,10⁹/L
+7d17821c,Eosinophil Count,0.29,10⁹/L
+7d17821c,HbA1C,43.86,mmol/mol
+7d17821c,Haematocrit (HCT),36.57,%
+7d17821c,Haemoglobin,128.4,g/L
+b6f748b4,Basophil Count,0.12,10⁹/L
+b6f748b4,Eosinophil Count,0.46,10⁹/L
+b6f748b4,HbA1C,27.07,mmol/mol
+b6f748b4,Haematocrit (HCT),47.65,%
+b6f748b4,Haemoglobin,159.92,g/L
+b175e32e,Basophil Count,0.18,10⁹/L
+b175e32e,Eosinophil Count,0.21,10⁹/L
+b175e32e,HbA1C,38.57,mmol/mol
+b175e32e,Haematocrit (HCT),47.98,%
+b175e32e,Haemoglobin,151.53,g/L
+2b6682d4,Basophil Count,0.28,10⁹/L
+2b6682d4,Eosinophil Count,0.43,10⁹/L
+2b6682d4,HbA1C,23.36,mmol/mol
+2b6682d4,Haematocrit (HCT),41.57,%
+2b6682d4,Haemoglobin,165.31,g/L
+4ec666a0,Basophil Count,0.2,10⁹/L
+4ec666a0,Eosinophil Count,0.05,10⁹/L
+4ec666a0,HbA1C,42.62,mmol/mol
+4ec666a0,Haematocrit (HCT),40.64,%
+4ec666a0,Haemoglobin,122.05,g/L
+9aafbc84,Basophil Count,0.07,10⁹/L
+9aafbc84,Eosinophil Count,0.14,10⁹/L
+9aafbc84,HbA1C,30.11,mmol/mol
+9aafbc84,Haematocrit (HCT),43.15,%
+9aafbc84,Haemoglobin,123.69,g/L
+f5b4ca1e,Basophil Count,0.15,10⁹/L
+f5b4ca1e,Eosinophil Count,0.16,10⁹/L
+f5b4ca1e,HbA1C,44.04,mmol/mol
+f5b4ca1e,Haematocrit (HCT),47.78,%
+f5b4ca1e,Haemoglobin,139.36,g/L
+8f3b6d14,Basophil Count,0.04,10⁹/L
+8f3b6d14,Eosinophil Count,0.27,10⁹/L
+8f3b6d14,HbA1C,39.06,mmol/mol
+8f3b6d14,Haematocrit (HCT),41.0,%
+8f3b6d14,Haemoglobin,159.23,g/L
+f601b3a2,Basophil Count,0.04,10⁹/L
+f601b3a2,Eosinophil Count,0.33,10⁹/L
+f601b3a2,HbA1C,33.84,mmol/mol
+f601b3a2,Haematocrit (HCT),39.69,%
+f601b3a2,Haemoglobin,159.24,g/L
+ee40018f,Basophil Count,0.06,10⁹/L
+ee40018f,Eosinophil Count,0.08,10⁹/L
+ee40018f,HbA1C,32.25,mmol/mol
+ee40018f,Haematocrit (HCT),48.93,%
+ee40018f,Haemoglobin,150.63,g/L
+fe658067,Basophil Count,0.3,10⁹/L
+fe658067,Eosinophil Count,0.12,10⁹/L
+fe658067,HbA1C,38.67,mmol/mol
+fe658067,Haematocrit (HCT),42.69,%
+fe658067,Haemoglobin,142.03,g/L
+2fe18e68,Basophil Count,0.28,10⁹/L
+2fe18e68,Eosinophil Count,0.48,10⁹/L
+2fe18e68,HbA1C,26.45,mmol/mol
+2fe18e68,Haematocrit (HCT),37.36,%
+2fe18e68,Haemoglobin,125.08,g/L
+bf9ecd5e,Basophil Count,0.06,10⁹/L
+bf9ecd5e,Eosinophil Count,0.29,10⁹/L
+bf9ecd5e,HbA1C,33.95,mmol/mol
+bf9ecd5e,Haematocrit (HCT),46.87,%
+bf9ecd5e,Haemoglobin,144.33,g/L
+be1fec81,Basophil Count,0.11,10⁹/L
+be1fec81,Eosinophil Count,0.34,10⁹/L
+be1fec81,HbA1C,36.55,mmol/mol
+be1fec81,Haematocrit (HCT),37.38,%
+be1fec81,Haemoglobin,139.16,g/L
+498bd6b1,Basophil Count,0.23,10⁹/L
+498bd6b1,Eosinophil Count,0.31,10⁹/L
+498bd6b1,HbA1C,36.39,mmol/mol
+498bd6b1,Haematocrit (HCT),35.19,%
+498bd6b1,Haemoglobin,136.5,g/L
+1a2be80e,Basophil Count,0.24,10⁹/L
+1a2be80e,Eosinophil Count,0.08,10⁹/L
+1a2be80e,HbA1C,38.41,mmol/mol
+1a2be80e,Haematocrit (HCT),48.81,%
+1a2be80e,Haemoglobin,164.38,g/L
+2a9abad0,Basophil Count,0.22,10⁹/L
+2a9abad0,Eosinophil Count,0.16,10⁹/L
+2a9abad0,HbA1C,24.81,mmol/mol
+2a9abad0,Haematocrit (HCT),35.22,%
+2a9abad0,Haemoglobin,131.93,g/L
+48865b3a,Basophil Count,0.27,10⁹/L
+48865b3a,Eosinophil Count,0.3,10⁹/L
+48865b3a,HbA1C,36.73,mmol/mol
+48865b3a,Haematocrit (HCT),39.8,%
+48865b3a,Haemoglobin,157.45,g/L
+a64eb766,Basophil Count,0.28,10⁹/L
+a64eb766,Eosinophil Count,0.38,10⁹/L
+a64eb766,HbA1C,40.14,mmol/mol
+a64eb766,Haematocrit (HCT),48.7,%
+a64eb766,Haemoglobin,167.66,g/L
+2d5c18b8,Basophil Count,0.18,10⁹/L
+2d5c18b8,Eosinophil Count,0.35,10⁹/L
+2d5c18b8,HbA1C,43.97,mmol/mol
+2d5c18b8,Haematocrit (HCT),37.76,%
+2d5c18b8,Haemoglobin,146.94,g/L
+5e72e7d2,Basophil Count,0.19,10⁹/L
+5e72e7d2,Eosinophil Count,0.43,10⁹/L
+5e72e7d2,HbA1C,26.01,mmol/mol
+5e72e7d2,Haematocrit (HCT),37.59,%
+5e72e7d2,Haemoglobin,122.46,g/L
+a2adfaf7,Basophil Count,0.04,10⁹/L
+a2adfaf7,Eosinophil Count,0.23,10⁹/L
+a2adfaf7,HbA1C,28.21,mmol/mol
+a2adfaf7,Haematocrit (HCT),35.55,%
+a2adfaf7,Haemoglobin,121.99,g/L
+7381f56e,Basophil Count,0.25,10⁹/L
+7381f56e,Eosinophil Count,0.26,10⁹/L
+7381f56e,HbA1C,26.28,mmol/mol
+7381f56e,Haematocrit (HCT),36.41,%
+7381f56e,Haemoglobin,131.87,g/L
+3772aacf,Basophil Count,0.18,10⁹/L
+3772aacf,Eosinophil Count,0.41,10⁹/L
+3772aacf,HbA1C,34.96,mmol/mol
+3772aacf,Haematocrit (HCT),47.98,%
+3772aacf,Haemoglobin,161.47,g/L
+61bbc7eb,Basophil Count,0.25,10⁹/L
+61bbc7eb,Eosinophil Count,0.34,10⁹/L
+61bbc7eb,HbA1C,28.03,mmol/mol
+61bbc7eb,Haematocrit (HCT),37.93,%
+61bbc7eb,Haemoglobin,141.95,g/L
+d7f8ab6e,Basophil Count,0.05,10⁹/L
+d7f8ab6e,Eosinophil Count,0.1,10⁹/L
+d7f8ab6e,HbA1C,29.6,mmol/mol
+d7f8ab6e,Haematocrit (HCT),35.85,%
+d7f8ab6e,Haemoglobin,152.45,g/L
+5993a2da,Basophil Count,0.23,10⁹/L
+5993a2da,Eosinophil Count,0.44,10⁹/L
+5993a2da,HbA1C,31.22,mmol/mol
+5993a2da,Haematocrit (HCT),48.23,%
+5993a2da,Haemoglobin,161.56,g/L
+5b310d08,Basophil Count,0.17,10⁹/L
+5b310d08,Eosinophil Count,0.09,10⁹/L
+5b310d08,HbA1C,24.92,mmol/mol
+5b310d08,Haematocrit (HCT),46.74,%
+5b310d08,Haemoglobin,147.93,g/L
+9e262810,Basophil Count,0.13,10⁹/L
+9e262810,Eosinophil Count,0.24,10⁹/L
+9e262810,HbA1C,42.89,mmol/mol
+9e262810,Haematocrit (HCT),47.06,%
+9e262810,Haemoglobin,140.99,g/L
+5b2b20ee,Basophil Count,0.17,10⁹/L
+5b2b20ee,Eosinophil Count,0.34,10⁹/L
+5b2b20ee,HbA1C,27.03,mmol/mol
+5b2b20ee,Haematocrit (HCT),45.91,%
+5b2b20ee,Haemoglobin,133.99,g/L
+bfcd1005,Basophil Count,0.06,10⁹/L
+bfcd1005,Eosinophil Count,0.25,10⁹/L
+bfcd1005,HbA1C,26.15,mmol/mol
+bfcd1005,Haematocrit (HCT),35.64,%
+bfcd1005,Haemoglobin,147.55,g/L
+a5bc9daa,Basophil Count,0.24,10⁹/L
+a5bc9daa,Eosinophil Count,0.09,10⁹/L
+a5bc9daa,HbA1C,36.92,mmol/mol
+a5bc9daa,Haematocrit (HCT),45.82,%
+a5bc9daa,Haemoglobin,159.25,g/L
+51d8c340,Basophil Count,0.21,10⁹/L
+51d8c340,Eosinophil Count,0.17,10⁹/L
+51d8c340,HbA1C,20.55,mmol/mol
+51d8c340,Haematocrit (HCT),36.86,%
+51d8c340,Haemoglobin,128.26,g/L
+42af28cb,Basophil Count,0.06,10⁹/L
+42af28cb,Eosinophil Count,0.14,10⁹/L
+42af28cb,HbA1C,42.69,mmol/mol
+42af28cb,Haematocrit (HCT),45.17,%
+42af28cb,Haemoglobin,139.1,g/L
+5cbed02d,Basophil Count,0.12,10⁹/L
+5cbed02d,Eosinophil Count,0.31,10⁹/L
+5cbed02d,HbA1C,33.5,mmol/mol
+5cbed02d,Haematocrit (HCT),48.7,%
+5cbed02d,Haemoglobin,139.04,g/L
+46be3ca1,Basophil Count,0.2,10⁹/L
+46be3ca1,Eosinophil Count,0.38,10⁹/L
+46be3ca1,HbA1C,28.5,mmol/mol
+46be3ca1,Haematocrit (HCT),43.41,%
+46be3ca1,Haemoglobin,156.68,g/L
+933eab25,Basophil Count,0.21,10⁹/L
+933eab25,Eosinophil Count,0.35,10⁹/L
+933eab25,HbA1C,31.23,mmol/mol
+933eab25,Haematocrit (HCT),36.77,%
+933eab25,Haemoglobin,138.32,g/L
+5e7e947a,Basophil Count,0.06,10⁹/L
+5e7e947a,Eosinophil Count,0.47,10⁹/L
+5e7e947a,HbA1C,37.69,mmol/mol
+5e7e947a,Haematocrit (HCT),37.78,%
+5e7e947a,Haemoglobin,140.66,g/L
+38c8588e,Basophil Count,0.23,10⁹/L
+38c8588e,Eosinophil Count,0.49,10⁹/L
+38c8588e,HbA1C,30.85,mmol/mol
+38c8588e,Haematocrit (HCT),40.96,%
+38c8588e,Haemoglobin,142.47,g/L
+9ab01bb6,Basophil Count,0.05,10⁹/L
+9ab01bb6,Eosinophil Count,0.19,10⁹/L
+9ab01bb6,HbA1C,22.63,mmol/mol
+9ab01bb6,Haematocrit (HCT),42.56,%
+9ab01bb6,Haemoglobin,133.55,g/L
+61b6f7a3,Basophil Count,0.12,10⁹/L
+61b6f7a3,Eosinophil Count,0.34,10⁹/L
+61b6f7a3,HbA1C,28.79,mmol/mol
+61b6f7a3,Haematocrit (HCT),45.99,%
+61b6f7a3,Haemoglobin,155.19,g/L
+abe72437,Basophil Count,0.12,10⁹/L
+abe72437,Eosinophil Count,0.17,10⁹/L
+abe72437,HbA1C,37.24,mmol/mol
+abe72437,Haematocrit (HCT),38.24,%
+abe72437,Haemoglobin,153.18,g/L
+04300106,Basophil Count,0.22,10⁹/L
+04300106,Eosinophil Count,0.33,10⁹/L
+04300106,HbA1C,36.25,mmol/mol
+04300106,Haematocrit (HCT),49.72,%
+04300106,Haemoglobin,136.73,g/L
+ddd0c5e4,Basophil Count,0.1,10⁹/L
+ddd0c5e4,Eosinophil Count,0.4,10⁹/L
+ddd0c5e4,HbA1C,36.15,mmol/mol
+ddd0c5e4,Haematocrit (HCT),39.58,%
+ddd0c5e4,Haemoglobin,133.96,g/L
+b409c099,Basophil Count,0.25,10⁹/L
+b409c099,Eosinophil Count,0.38,10⁹/L
+b409c099,HbA1C,20.92,mmol/mol
+b409c099,Haematocrit (HCT),39.5,%
+b409c099,Haemoglobin,136.35,g/L
+ebc0da7e,Basophil Count,0.12,10⁹/L
+ebc0da7e,Eosinophil Count,0.44,10⁹/L
+ebc0da7e,HbA1C,27.65,mmol/mol
+ebc0da7e,Haematocrit (HCT),47.15,%
+ebc0da7e,Haemoglobin,151.57,g/L
+e6bfbe8e,Basophil Count,0.27,10⁹/L
+e6bfbe8e,Eosinophil Count,0.31,10⁹/L
+e6bfbe8e,HbA1C,22.3,mmol/mol
+e6bfbe8e,Haematocrit (HCT),36.24,%
+e6bfbe8e,Haemoglobin,166.75,g/L
+7e6e3274,Basophil Count,0.14,10⁹/L
+7e6e3274,Eosinophil Count,0.29,10⁹/L
+7e6e3274,HbA1C,30.79,mmol/mol
+7e6e3274,Haematocrit (HCT),36.62,%
+7e6e3274,Haemoglobin,156.75,g/L
+6ba4e9bb,Basophil Count,0.17,10⁹/L
+6ba4e9bb,Eosinophil Count,0.07,10⁹/L
+6ba4e9bb,HbA1C,30.11,mmol/mol
+6ba4e9bb,Haematocrit (HCT),38.01,%
+6ba4e9bb,Haemoglobin,120.67,g/L
+cab78cc3,Basophil Count,0.21,10⁹/L
+cab78cc3,Eosinophil Count,0.1,10⁹/L
+cab78cc3,HbA1C,31.87,mmol/mol
+cab78cc3,Haematocrit (HCT),37.64,%
+cab78cc3,Haemoglobin,143.06,g/L
+a4e551db,Basophil Count,0.24,10⁹/L
+a4e551db,Eosinophil Count,0.3,10⁹/L
+a4e551db,HbA1C,30.99,mmol/mol
+a4e551db,Haematocrit (HCT),36.76,%
+a4e551db,Haemoglobin,137.53,g/L
+cd282cad,Basophil Count,0.16,10⁹/L
+cd282cad,Eosinophil Count,0.1,10⁹/L
+cd282cad,HbA1C,34.1,mmol/mol
+cd282cad,Haematocrit (HCT),44.78,%
+cd282cad,Haemoglobin,127.82,g/L
+15593b93,Basophil Count,0.1,10⁹/L
+15593b93,Eosinophil Count,0.17,10⁹/L
+15593b93,HbA1C,42.23,mmol/mol
+15593b93,Haematocrit (HCT),44.14,%
+15593b93,Haemoglobin,127.44,g/L
+2bc24874,Basophil Count,0.11,10⁹/L
+2bc24874,Eosinophil Count,0.19,10⁹/L
+2bc24874,HbA1C,39.02,mmol/mol
+2bc24874,Haematocrit (HCT),38.29,%
+2bc24874,Haemoglobin,142.86,g/L
+6afa97a4,Basophil Count,0.08,10⁹/L
+6afa97a4,Eosinophil Count,0.45,10⁹/L
+6afa97a4,HbA1C,27.03,mmol/mol
+6afa97a4,Haematocrit (HCT),48.03,%
+6afa97a4,Haemoglobin,154.04,g/L
+5f317b74,Basophil Count,0.14,10⁹/L
+5f317b74,Eosinophil Count,0.42,10⁹/L
+5f317b74,HbA1C,32.62,mmol/mol
+5f317b74,Haematocrit (HCT),41.34,%
+5f317b74,Haemoglobin,151.32,g/L
+2170f77c,Basophil Count,0.18,10⁹/L
+2170f77c,Eosinophil Count,0.16,10⁹/L
+2170f77c,HbA1C,29.59,mmol/mol
+2170f77c,Haematocrit (HCT),37.41,%
+2170f77c,Haemoglobin,129.67,g/L
+78f425f8,Basophil Count,0.12,10⁹/L
+78f425f8,Eosinophil Count,0.42,10⁹/L
+78f425f8,HbA1C,41.77,mmol/mol
+78f425f8,Haematocrit (HCT),38.05,%
+78f425f8,Haemoglobin,155.4,g/L
+02e18196,Basophil Count,0.07,10⁹/L
+02e18196,Eosinophil Count,0.13,10⁹/L
+02e18196,HbA1C,33.64,mmol/mol
+02e18196,Haematocrit (HCT),42.79,%
+02e18196,Haemoglobin,146.76,g/L
+b9f4f7ab,Basophil Count,0.26,10⁹/L
+b9f4f7ab,Eosinophil Count,0.17,10⁹/L
+b9f4f7ab,HbA1C,44.46,mmol/mol
+b9f4f7ab,Haematocrit (HCT),35.43,%
+b9f4f7ab,Haemoglobin,149.54,g/L
+ef65d60d,Basophil Count,0.22,10⁹/L
+ef65d60d,Eosinophil Count,0.13,10⁹/L
+ef65d60d,HbA1C,36.13,mmol/mol
+ef65d60d,Haematocrit (HCT),39.86,%
+ef65d60d,Haemoglobin,120.71,g/L
+4e851e0b,Basophil Count,0.22,10⁹/L
+4e851e0b,Eosinophil Count,0.11,10⁹/L
+4e851e0b,HbA1C,31.53,mmol/mol
+4e851e0b,Haematocrit (HCT),42.28,%
+4e851e0b,Haemoglobin,132.77,g/L
+9649a81d,Basophil Count,0.15,10⁹/L
+9649a81d,Eosinophil Count,0.47,10⁹/L
+9649a81d,HbA1C,41.89,mmol/mol
+9649a81d,Haematocrit (HCT),36.63,%
+9649a81d,Haemoglobin,131.9,g/L
+9ce98daf,Basophil Count,0.24,10⁹/L
+9ce98daf,Eosinophil Count,0.5,10⁹/L
+9ce98daf,HbA1C,31.61,mmol/mol
+9ce98daf,Haematocrit (HCT),47.39,%
+9ce98daf,Haemoglobin,146.67,g/L
+ffbb2d57,Basophil Count,0.15,10⁹/L
+ffbb2d57,Eosinophil Count,0.34,10⁹/L
+ffbb2d57,HbA1C,28.3,mmol/mol
+ffbb2d57,Haematocrit (HCT),38.01,%
+ffbb2d57,Haemoglobin,166.13,g/L
+e41bec2e,Basophil Count,0.3,10⁹/L
+e41bec2e,Eosinophil Count,0.02,10⁹/L
+e41bec2e,HbA1C,31.67,mmol/mol
+e41bec2e,Haematocrit (HCT),49.1,%
+e41bec2e,Haemoglobin,167.92,g/L
+7310117f,Basophil Count,0.12,10⁹/L
+7310117f,Eosinophil Count,0.13,10⁹/L
+7310117f,HbA1C,22.93,mmol/mol
+7310117f,Haematocrit (HCT),49.92,%
+7310117f,Haemoglobin,122.6,g/L
+81b284e0,Basophil Count,0.08,10⁹/L
+81b284e0,Eosinophil Count,0.41,10⁹/L
+81b284e0,HbA1C,34.44,mmol/mol
+81b284e0,Haematocrit (HCT),35.29,%
+81b284e0,Haemoglobin,148.78,g/L
+ecced04c,Basophil Count,0.19,10⁹/L
+ecced04c,Eosinophil Count,0.09,10⁹/L
+ecced04c,HbA1C,25.24,mmol/mol
+ecced04c,Haematocrit (HCT),37.66,%
+ecced04c,Haemoglobin,167.05,g/L
+c68c6129,Basophil Count,0.2,10⁹/L
+c68c6129,Eosinophil Count,0.39,10⁹/L
+c68c6129,HbA1C,34.0,mmol/mol
+c68c6129,Haematocrit (HCT),42.07,%
+c68c6129,Haemoglobin,139.38,g/L
+d42250f2,Basophil Count,0.18,10⁹/L
+d42250f2,Eosinophil Count,0.28,10⁹/L
+d42250f2,HbA1C,31.26,mmol/mol
+d42250f2,Haematocrit (HCT),39.05,%
+d42250f2,Haemoglobin,135.71,g/L
+1974ed66,Basophil Count,0.06,10⁹/L
+1974ed66,Eosinophil Count,0.22,10⁹/L
+1974ed66,HbA1C,25.54,mmol/mol
+1974ed66,Haematocrit (HCT),46.84,%
+1974ed66,Haemoglobin,137.49,g/L
+b104a9eb,Basophil Count,0.21,10⁹/L
+b104a9eb,Eosinophil Count,0.4,10⁹/L
+b104a9eb,HbA1C,38.14,mmol/mol
+b104a9eb,Haematocrit (HCT),35.39,%
+b104a9eb,Haemoglobin,139.16,g/L
+0ca1ec21,Basophil Count,0.3,10⁹/L
+0ca1ec21,Eosinophil Count,0.37,10⁹/L
+0ca1ec21,HbA1C,41.44,mmol/mol
+0ca1ec21,Haematocrit (HCT),42.86,%
+0ca1ec21,Haemoglobin,142.71,g/L
+0dec9a73,Basophil Count,0.27,10⁹/L
+0dec9a73,Eosinophil Count,0.3,10⁹/L
+0dec9a73,HbA1C,37.06,mmol/mol
+0dec9a73,Haematocrit (HCT),39.4,%
+0dec9a73,Haemoglobin,169.39,g/L
+2da1a8e8,Basophil Count,0.26,10⁹/L
+2da1a8e8,Eosinophil Count,0.37,10⁹/L
+2da1a8e8,HbA1C,34.43,mmol/mol
+2da1a8e8,Haematocrit (HCT),36.44,%
+2da1a8e8,Haemoglobin,169.82,g/L
+77a7c143,Basophil Count,0.07,10⁹/L
+77a7c143,Eosinophil Count,0.25,10⁹/L
+77a7c143,HbA1C,41.45,mmol/mol
+77a7c143,Haematocrit (HCT),37.27,%
+77a7c143,Haemoglobin,126.35,g/L
+7e219070,Basophil Count,0.24,10⁹/L
+7e219070,Eosinophil Count,0.26,10⁹/L
+7e219070,HbA1C,21.59,mmol/mol
+7e219070,Haematocrit (HCT),47.1,%
+7e219070,Haemoglobin,161.15,g/L
+b64b206c,Basophil Count,0.15,10⁹/L
+b64b206c,Eosinophil Count,0.17,10⁹/L
+b64b206c,HbA1C,23.42,mmol/mol
+b64b206c,Haematocrit (HCT),39.39,%
+b64b206c,Haemoglobin,138.78,g/L
+9502276f,Basophil Count,0.11,10⁹/L
+9502276f,Eosinophil Count,0.49,10⁹/L
+9502276f,HbA1C,21.43,mmol/mol
+9502276f,Haematocrit (HCT),36.3,%
+9502276f,Haemoglobin,131.99,g/L
+bdb457e1,Basophil Count,0.25,10⁹/L
+bdb457e1,Eosinophil Count,0.16,10⁹/L
+bdb457e1,HbA1C,40.54,mmol/mol
+bdb457e1,Haematocrit (HCT),45.03,%
+bdb457e1,Haemoglobin,137.51,g/L
+1b0940a9,Basophil Count,0.11,10⁹/L
+1b0940a9,Eosinophil Count,0.5,10⁹/L
+1b0940a9,HbA1C,34.51,mmol/mol
+1b0940a9,Haematocrit (HCT),49.94,%
+1b0940a9,Haemoglobin,143.28,g/L
+5e2e5af3,Basophil Count,0.12,10⁹/L
+5e2e5af3,Eosinophil Count,0.41,10⁹/L
+5e2e5af3,HbA1C,22.64,mmol/mol
+5e2e5af3,Haematocrit (HCT),35.16,%
+5e2e5af3,Haemoglobin,151.06,g/L
+fb230fcc,Basophil Count,0.03,10⁹/L
+fb230fcc,Eosinophil Count,0.32,10⁹/L
+fb230fcc,HbA1C,29.18,mmol/mol
+fb230fcc,Haematocrit (HCT),40.88,%
+fb230fcc,Haemoglobin,124.68,g/L
+32d65a0d,Basophil Count,0.1,10⁹/L
+32d65a0d,Eosinophil Count,0.17,10⁹/L
+32d65a0d,HbA1C,21.32,mmol/mol
+32d65a0d,Haematocrit (HCT),41.97,%
+32d65a0d,Haemoglobin,144.33,g/L
+5380ced3,Basophil Count,0.24,10⁹/L
+5380ced3,Eosinophil Count,0.32,10⁹/L
+5380ced3,HbA1C,35.9,mmol/mol
+5380ced3,Haematocrit (HCT),45.79,%
+5380ced3,Haemoglobin,150.3,g/L
+e6ee1951,Basophil Count,0.17,10⁹/L
+e6ee1951,Eosinophil Count,0.41,10⁹/L
+e6ee1951,HbA1C,44.26,mmol/mol
+e6ee1951,Haematocrit (HCT),40.51,%
+e6ee1951,Haemoglobin,136.65,g/L
+b4957f15,Basophil Count,0.25,10⁹/L
+b4957f15,Eosinophil Count,0.26,10⁹/L
+b4957f15,HbA1C,41.86,mmol/mol
+b4957f15,Haematocrit (HCT),48.87,%
+b4957f15,Haemoglobin,142.02,g/L
+49ba2485,Basophil Count,0.2,10⁹/L
+49ba2485,Eosinophil Count,0.3,10⁹/L
+49ba2485,HbA1C,36.23,mmol/mol
+49ba2485,Haematocrit (HCT),44.88,%
+49ba2485,Haemoglobin,142.44,g/L
+7d06c11c,Basophil Count,0.21,10⁹/L
+7d06c11c,Eosinophil Count,0.41,10⁹/L
+7d06c11c,HbA1C,33.16,mmol/mol
+7d06c11c,Haematocrit (HCT),46.91,%
+7d06c11c,Haemoglobin,131.15,g/L
+15a8c914,Basophil Count,0.12,10⁹/L
+15a8c914,Eosinophil Count,0.05,10⁹/L
+15a8c914,HbA1C,22.56,mmol/mol
+15a8c914,Haematocrit (HCT),47.52,%
+15a8c914,Haemoglobin,155.24,g/L
+44cef191,Basophil Count,0.29,10⁹/L
+44cef191,Eosinophil Count,0.37,10⁹/L
+44cef191,HbA1C,27.61,mmol/mol
+44cef191,Haematocrit (HCT),49.4,%
+44cef191,Haemoglobin,143.73,g/L
+76616d0f,Basophil Count,0.12,10⁹/L
+76616d0f,Eosinophil Count,0.08,10⁹/L
+76616d0f,HbA1C,22.97,mmol/mol
+76616d0f,Haematocrit (HCT),48.87,%
+76616d0f,Haemoglobin,121.15,g/L
+40b71139,Basophil Count,0.04,10⁹/L
+40b71139,Eosinophil Count,0.31,10⁹/L
+40b71139,HbA1C,30.3,mmol/mol
+40b71139,Haematocrit (HCT),41.07,%
+40b71139,Haemoglobin,144.62,g/L
+b13d9167,Basophil Count,0.06,10⁹/L
+b13d9167,Eosinophil Count,0.08,10⁹/L
+b13d9167,HbA1C,41.39,mmol/mol
+b13d9167,Haematocrit (HCT),39.78,%
+b13d9167,Haemoglobin,123.81,g/L
+46fe4d78,Basophil Count,0.05,10⁹/L
+46fe4d78,Eosinophil Count,0.08,10⁹/L
+46fe4d78,HbA1C,42.46,mmol/mol
+46fe4d78,Haematocrit (HCT),36.45,%
+46fe4d78,Haemoglobin,160.11,g/L
+c4ae2cca,Basophil Count,0.08,10⁹/L
+c4ae2cca,Eosinophil Count,0.03,10⁹/L
+c4ae2cca,HbA1C,20.09,mmol/mol
+c4ae2cca,Haematocrit (HCT),48.83,%
+c4ae2cca,Haemoglobin,166.88,g/L
+a6c2a3e4,Basophil Count,0.16,10⁹/L
+a6c2a3e4,Eosinophil Count,0.46,10⁹/L
+a6c2a3e4,HbA1C,28.85,mmol/mol
+a6c2a3e4,Haematocrit (HCT),44.23,%
+a6c2a3e4,Haemoglobin,123.6,g/L
+5d7d9501,Basophil Count,0.08,10⁹/L
+5d7d9501,Eosinophil Count,0.04,10⁹/L
+5d7d9501,HbA1C,22.98,mmol/mol
+5d7d9501,Haematocrit (HCT),43.46,%
+5d7d9501,Haemoglobin,159.41,g/L
+a0d65abb,Basophil Count,0.01,10⁹/L
+a0d65abb,Eosinophil Count,0.17,10⁹/L
+a0d65abb,HbA1C,38.62,mmol/mol
+a0d65abb,Haematocrit (HCT),37.45,%
+a0d65abb,Haemoglobin,140.81,g/L
+fdda0a8b,Basophil Count,0.08,10⁹/L
+fdda0a8b,Eosinophil Count,0.46,10⁹/L
+fdda0a8b,HbA1C,30.14,mmol/mol
+fdda0a8b,Haematocrit (HCT),47.76,%
+fdda0a8b,Haemoglobin,160.63,g/L
+2b796db5,Basophil Count,0.19,10⁹/L
+2b796db5,Eosinophil Count,0.12,10⁹/L
+2b796db5,HbA1C,44.73,mmol/mol
+2b796db5,Haematocrit (HCT),41.4,%
+2b796db5,Haemoglobin,151.24,g/L
+47360b2a,Basophil Count,0.19,10⁹/L
+47360b2a,Eosinophil Count,0.4,10⁹/L
+47360b2a,HbA1C,39.38,mmol/mol
+47360b2a,Haematocrit (HCT),47.02,%
+47360b2a,Haemoglobin,122.65,g/L
+a3e28934,Basophil Count,0.12,10⁹/L
+a3e28934,Eosinophil Count,0.35,10⁹/L
+a3e28934,HbA1C,24.93,mmol/mol
+a3e28934,Haematocrit (HCT),47.45,%
+a3e28934,Haemoglobin,147.48,g/L
+cec8c6d2,Basophil Count,0.07,10⁹/L
+cec8c6d2,Eosinophil Count,0.16,10⁹/L
+cec8c6d2,HbA1C,21.08,mmol/mol
+cec8c6d2,Haematocrit (HCT),39.4,%
+cec8c6d2,Haemoglobin,153.36,g/L
+3bbbdf11,Basophil Count,0.27,10⁹/L
+3bbbdf11,Eosinophil Count,0.2,10⁹/L
+3bbbdf11,HbA1C,40.55,mmol/mol
+3bbbdf11,Haematocrit (HCT),46.73,%
+3bbbdf11,Haemoglobin,125.88,g/L
+8b03cd86,Basophil Count,0.15,10⁹/L
+8b03cd86,Eosinophil Count,0.45,10⁹/L
+8b03cd86,HbA1C,29.34,mmol/mol
+8b03cd86,Haematocrit (HCT),37.49,%
+8b03cd86,Haemoglobin,123.98,g/L
+f254360b,Basophil Count,0.03,10⁹/L
+f254360b,Eosinophil Count,0.46,10⁹/L
+f254360b,HbA1C,24.44,mmol/mol
+f254360b,Haematocrit (HCT),44.61,%
+f254360b,Haemoglobin,166.74,g/L
+1abf1947,Basophil Count,0.04,10⁹/L
+1abf1947,Eosinophil Count,0.47,10⁹/L
+1abf1947,HbA1C,33.13,mmol/mol
+1abf1947,Haematocrit (HCT),36.34,%
+1abf1947,Haemoglobin,155.68,g/L
+a53fe136,Basophil Count,0.27,10⁹/L
+a53fe136,Eosinophil Count,0.31,10⁹/L
+a53fe136,HbA1C,39.27,mmol/mol
+a53fe136,Haematocrit (HCT),47.82,%
+a53fe136,Haemoglobin,154.3,g/L
+e7515942,Basophil Count,0.26,10⁹/L
+e7515942,Eosinophil Count,0.36,10⁹/L
+e7515942,HbA1C,34.73,mmol/mol
+e7515942,Haematocrit (HCT),38.45,%
+e7515942,Haemoglobin,130.65,g/L
+fd3bbcea,Basophil Count,0.05,10⁹/L
+fd3bbcea,Eosinophil Count,0.35,10⁹/L
+fd3bbcea,HbA1C,31.46,mmol/mol
+fd3bbcea,Haematocrit (HCT),47.7,%
+fd3bbcea,Haemoglobin,167.03,g/L
+b587c9af,Basophil Count,0.21,10⁹/L
+b587c9af,Eosinophil Count,0.27,10⁹/L
+b587c9af,HbA1C,43.37,mmol/mol
+b587c9af,Haematocrit (HCT),41.1,%
+b587c9af,Haemoglobin,163.45,g/L
+1c48e4c9,Basophil Count,0.02,10⁹/L
+1c48e4c9,Eosinophil Count,0.2,10⁹/L
+1c48e4c9,HbA1C,35.89,mmol/mol
+1c48e4c9,Haematocrit (HCT),36.6,%
+1c48e4c9,Haemoglobin,158.75,g/L
+5090b759,Basophil Count,0.19,10⁹/L
+5090b759,Eosinophil Count,0.08,10⁹/L
+5090b759,HbA1C,35.99,mmol/mol
+5090b759,Haematocrit (HCT),38.52,%
+5090b759,Haemoglobin,131.37,g/L
+7eaeca0c,Basophil Count,0.18,10⁹/L
+7eaeca0c,Eosinophil Count,0.13,10⁹/L
+7eaeca0c,HbA1C,24.35,mmol/mol
+7eaeca0c,Haematocrit (HCT),44.34,%
+7eaeca0c,Haemoglobin,129.5,g/L
+47558151,Basophil Count,0.21,10⁹/L
+47558151,Eosinophil Count,0.14,10⁹/L
+47558151,HbA1C,26.7,mmol/mol
+47558151,Haematocrit (HCT),38.2,%
+47558151,Haemoglobin,144.94,g/L
+917809e4,Basophil Count,0.22,10⁹/L
+917809e4,Eosinophil Count,0.45,10⁹/L
+917809e4,HbA1C,25.85,mmol/mol
+917809e4,Haematocrit (HCT),39.71,%
+917809e4,Haemoglobin,136.64,g/L
+c7fca567,Basophil Count,0.1,10⁹/L
+c7fca567,Eosinophil Count,0.12,10⁹/L
+c7fca567,HbA1C,30.54,mmol/mol
+c7fca567,Haematocrit (HCT),38.05,%
+c7fca567,Haemoglobin,141.17,g/L
+998960c1,Basophil Count,0.21,10⁹/L
+998960c1,Eosinophil Count,0.43,10⁹/L
+998960c1,HbA1C,39.25,mmol/mol
+998960c1,Haematocrit (HCT),35.28,%
+998960c1,Haemoglobin,143.46,g/L
+3e010ba5,Basophil Count,0.15,10⁹/L
+3e010ba5,Eosinophil Count,0.11,10⁹/L
+3e010ba5,HbA1C,26.6,mmol/mol
+3e010ba5,Haematocrit (HCT),35.49,%
+3e010ba5,Haemoglobin,167.22,g/L
+1756b001,Basophil Count,0.15,10⁹/L
+1756b001,Eosinophil Count,0.19,10⁹/L
+1756b001,HbA1C,28.52,mmol/mol
+1756b001,Haematocrit (HCT),42.49,%
+1756b001,Haemoglobin,150.23,g/L
+19779be3,Basophil Count,0.11,10⁹/L
+19779be3,Eosinophil Count,0.34,10⁹/L
+19779be3,HbA1C,43.92,mmol/mol
+19779be3,Haematocrit (HCT),47.46,%
+19779be3,Haemoglobin,134.14,g/L
+fc43ed39,Basophil Count,0.07,10⁹/L
+fc43ed39,Eosinophil Count,0.27,10⁹/L
+fc43ed39,HbA1C,43.65,mmol/mol
+fc43ed39,Haematocrit (HCT),47.77,%
+fc43ed39,Haemoglobin,141.03,g/L
+32d8c687,Basophil Count,0.07,10⁹/L
+32d8c687,Eosinophil Count,0.05,10⁹/L
+32d8c687,HbA1C,33.59,mmol/mol
+32d8c687,Haematocrit (HCT),38.38,%
+32d8c687,Haemoglobin,143.47,g/L
+a43d7a6d,Basophil Count,0.15,10⁹/L
+a43d7a6d,Eosinophil Count,0.07,10⁹/L
+a43d7a6d,HbA1C,27.07,mmol/mol
+a43d7a6d,Haematocrit (HCT),35.31,%
+a43d7a6d,Haemoglobin,141.23,g/L
+b14ec23a,Basophil Count,0.21,10⁹/L
+b14ec23a,Eosinophil Count,0.35,10⁹/L
+b14ec23a,HbA1C,22.25,mmol/mol
+b14ec23a,Haematocrit (HCT),39.29,%
+b14ec23a,Haemoglobin,122.24,g/L
+8ea79614,Basophil Count,0.16,10⁹/L
+8ea79614,Eosinophil Count,0.39,10⁹/L
+8ea79614,HbA1C,39.91,mmol/mol
+8ea79614,Haematocrit (HCT),37.59,%
+8ea79614,Haemoglobin,161.84,g/L
+5a1044b6,Basophil Count,0.28,10⁹/L
+5a1044b6,Eosinophil Count,0.03,10⁹/L
+5a1044b6,HbA1C,23.5,mmol/mol
+5a1044b6,Haematocrit (HCT),49.74,%
+5a1044b6,Haemoglobin,140.27,g/L
+05325d28,Basophil Count,0.03,10⁹/L
+05325d28,Eosinophil Count,0.18,10⁹/L
+05325d28,HbA1C,21.02,mmol/mol
+05325d28,Haematocrit (HCT),40.39,%
+05325d28,Haemoglobin,156.03,g/L
