@@ -6,7 +6,7 @@ This project is a ML based decision tree classifier that analyses blood test res
 - Generates fake blood tests with randomsied results
 - Stores blood test results in an SQLite database
 - Uses decision tree classification to categorize test results based on existing definintions 
-- Working on ... 
+- Working on ... create nodes within the predefined definintions 
 - Working on ... Provides explainability for how the classifier makes predictions
 - working on ... support continuous learning (updating with new data)
 - Goal is to expanded with a Ruby API for real-time classification
