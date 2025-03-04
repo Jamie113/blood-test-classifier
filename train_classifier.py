@@ -5,14 +5,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
 
-# Connect to database
 DATABASE_URL = "sqlite:///blood_tests.db"
 engine = create_engine(DATABASE_URL)
 
-# Load data from SQLite database
+# Load from SQLite database
 df = pd.read_sql("SELECT * FROM blood_tests", con=engine)
 
-# Define blood test classification ranges
+# Define predfined classifications
 classification_rules = {
     "Basophil Count": {"normal": (0.01, 0.2), "borderline": (0.2, 0.3)},
     "Eosinophil Count": {"normal": (0.02, 0.4), "borderline": (0.4, 0.5)},
@@ -21,7 +20,6 @@ classification_rules = {
     "Haemoglobin": {"normal": (130, 160), "borderline": (160, 170)},
 }
 
-# Function to classify each test result
 def classify_test(test_name, value):
     if test_name in classification_rules:
         rules = classification_rules[test_name]
@@ -46,7 +44,7 @@ df["Category Encoded"] = category_encoder.fit_transform(df["Category"])
 
 # Prepare dataset
 X = df[["Test Name Encoded", "value"]]
-y = df["Category Encoded"]  # Classification target
+y = df["Category Encoded"] 
 
 # Train decision tree classifier
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
