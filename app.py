@@ -17,10 +17,91 @@ from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
 from stub_data import generate_stub_data
 
 st.set_page_config(page_title="Blood Test Classifier", layout="wide")
-st.title("Blood Test Classifier")
 
 CLUSTER_COLOURS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52"]
 
+# ── Marker categories (for Patient View grouping) ─────────────────────────────
+MARKER_CATEGORIES = {
+    "Liver / Metabolic": ["Albumin", "ALP", "ALT", "GGT"],
+    "Kidney":            ["eGFR"],
+    "Iron / Blood":      ["Ferritin", "Haemoglobin", "Haematocrit (HCT)", "Platelet Count"],
+    "Glucose":           ["HbA1C"],
+    "Lipids":            ["Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol",
+                          "Total Cholesterol:HDL Ratio"],
+    "Thyroid":           ["TSH", "Free T4"],
+    "Hormones":          ["Testosterone", "Free Testosterone", "SHBG", "Oestradiol",
+                          "Prolactin", "FSH", "LH", "PSA"],
+    "Blood Cells":       ["White Blood Cell Count", "Neutrophil Count",
+                          "Basophil Count", "Eosinophil Count"],
+}
+
+def marker_category(test_name: str) -> str:
+    for cat, markers in MARKER_CATEGORIES.items():
+        if test_name in markers:
+            return cat
+    return "Other"
+
+
+# ── Plain-English helpers ─────────────────────────────────────────────────────
+
+def sample_size_label(n: int) -> str:
+    if n < 30:
+        return "🔴 Small sample — treat findings as a starting point"
+    if n < 100:
+        return "🟡 Moderate sample — per-marker groups are forming"
+    if n < 200:
+        return "🟢 Good sample — per-marker groups are reliable"
+    return "🟢 Large sample — all findings are reliable"
+
+
+def marker_plain_english(
+    test_name: str, n_comp: int, means_d: np.ndarray,
+    weights: np.ndarray, disp_unit: str, ref_nb: float, ref_ba: float,
+) -> str:
+    """One-paragraph plain English summary of a marker's group structure."""
+    groups = sorted(
+        [(f"Group {i + 1}", float(means_d[i]), float(weights[i]))
+         for i in range(n_comp)],
+        key=lambda x: x[2], reverse=True,
+    )
+    group_parts = ", ".join(
+        f"**{name}** ({w * 100:.0f}% of patients, average {m:.2f} {disp_unit})"
+        for name, m, w in groups
+    )
+    summary = (
+        f"**{test_name}** shows **{n_comp} natural {'group' if n_comp == 1 else 'groups'}** "
+        f"in your population: {group_parts}."
+    )
+    # Add reference range context if the highest group exceeds normal
+    highest_mean = float(means_d[-1])
+    if highest_mean > ref_nb:
+        summary += (
+            f" The higher group sits above the standard reference threshold "
+            f"({ref_nb:.2f} {disp_unit}) — worth investigating what distinguishes those patients."
+        )
+    elif highest_mean < ref_ba and n_comp > 1:
+        summary += " All groups fall within the standard reference range."
+    return summary
+
+
+def group_plain_english(fp: pd.DataFrame, group_col: str, top_n: int = 4) -> list[str]:
+    """Ranked plain-English bullets describing what defines a population group."""
+    col = fp[group_col]
+    col_sorted = col.abs().sort_values(ascending=False)
+    lines = []
+    for marker in col_sorted.index:
+        z = col[marker]
+        if abs(z) < 0.3:
+            break
+        direction = "higher than average" if z > 0 else "lower than average"
+        strength  = "notably" if abs(z) > 1.0 else "slightly"
+        lines.append(f"- **{marker}**: {strength} {direction}")
+        if len(lines) >= top_n:
+            break
+    return lines
+
+
+# ── Analysis functions (unchanged) ───────────────────────────────────────────
 
 @st.cache_data
 def analyse_upload(df_long: pd.DataFrame) -> dict:
@@ -43,9 +124,9 @@ def analyse_upload(df_long: pd.DataFrame) -> dict:
             mask = labels == i
             cv = values[mask]
             cluster_stats.append({
-                "Cluster":    f"Cluster {i + 1}",
-                "Mean":       round(float(means[i]), 3),
-                "Std Dev":    round(float(stds[i]), 3),
+                "Group":      f"Group {i + 1}",
+                "Average":    round(float(means[i]), 3),
+                "Spread (±)": round(float(stds[i]), 3),
                 "Min":        round(float(cv.min()), 3) if len(cv) else "—",
                 "Max":        round(float(cv.max()), 3) if len(cv) else "—",
                 "Patients":   int(mask.sum()),
@@ -53,16 +134,16 @@ def analyse_upload(df_long: pd.DataFrame) -> dict:
             })
 
         results[test_name] = {
-            "n_components": n,
-            "bic_scores":   bic_scores,
-            "means":        means,
-            "stds":         stds,
-            "weights":      weights,
-            "boundaries":   boundaries,
-            "labels":       labels,
-            "values":       values,
+            "n_components":  n,
+            "bic_scores":    bic_scores,
+            "means":         means,
+            "stds":          stds,
+            "weights":       weights,
+            "boundaries":    boundaries,
+            "labels":        labels,
+            "values":        values,
             "cluster_stats": cluster_stats,
-            "small_sample": len(values) < 30,
+            "small_sample":  len(values) < 30,
         }
 
     return results
@@ -73,15 +154,9 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     """
     Multivariate patient clustering across all markers.
     Pipeline: wide pivot → median impute → StandardScaler → PCA → GMM.
-    Returns enough to render scatter, fingerprint table, and patient list.
     """
-    # Wide format: rows = patients, cols = markers
     df_wide = df_long.pivot_table(index="patient_id", columns="test_name", values="value")
-
-    # Drop markers missing for more than half the patients
     df_wide = df_wide.dropna(thresh=int(len(df_wide) * 0.5), axis=1)
-
-    # Impute remaining gaps with per-marker median
     df_wide = df_wide.fillna(df_wide.median())
 
     n_patients, n_markers = df_wide.shape
@@ -90,22 +165,18 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     if n_markers < 2:
         return {"error": "Not enough markers with sufficient coverage for population clustering."}
 
-    # Normalise so markers on different scales contribute equally
-    scaler = StandardScaler()
+    scaler   = StandardScaler()
     X_scaled = scaler.fit_transform(df_wide.values)
 
-    # PCA — use enough components to explain 80% variance, minimum 2
     max_components = min(n_patients - 1, n_markers)
-    pca = PCA(n_components=max_components, random_state=42)
+    pca   = PCA(n_components=max_components, random_state=42)
     X_pca = pca.fit_transform(X_scaled)
 
-    cumvar = np.cumsum(pca.explained_variance_ratio_)
-    n_for_80 = int(np.searchsorted(cumvar, 0.80)) + 1
+    cumvar        = np.cumsum(pca.explained_variance_ratio_)
+    n_for_80      = int(np.searchsorted(cumvar, 0.80)) + 1
     n_cluster_dims = max(2, min(n_for_80, max_components))
+    X_cluster     = X_pca[:, :n_cluster_dims]
 
-    X_cluster = X_pca[:, :n_cluster_dims]
-
-    # GMM with BIC to select cluster count (2–5, capped by patient count)
     max_n = min(5, n_patients - 1)
     best_n, best_bic, best_gmm, bic_scores = 2, np.inf, None, {}
     for n in range(2, max_n + 1):
@@ -116,13 +187,11 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         if bic < best_bic:
             best_bic, best_n, best_gmm = bic, n, gmm
 
-    labels = best_gmm.predict(X_cluster)
-
-    # Z-scores per marker per cluster (shows which markers define each group)
-    z_scores = pd.DataFrame(X_scaled, index=df_wide.index, columns=df_wide.columns)
+    labels      = best_gmm.predict(X_cluster)
+    z_scores    = pd.DataFrame(X_scaled, index=df_wide.index, columns=df_wide.columns)
     fingerprint = z_scores.copy()
     fingerprint["Group"] = [f"Group {l + 1}" for l in labels]
-    fingerprint = fingerprint.groupby("Group").mean().T  # markers × groups
+    fingerprint = fingerprint.groupby("Group").mean().T
 
     return {
         "patient_ids":    list(df_wide.index),
@@ -132,8 +201,8 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         "X_pca_2d":       X_pca[:, :2],
         "pca_var":        pca.explained_variance_ratio_,
         "n_cluster_dims": n_cluster_dims,
-        "fingerprint":    fingerprint,       # DataFrame: markers × groups, values = mean z-score
-        "df_wide":        df_wide,           # actual canonical values, for per-group means table
+        "fingerprint":    fingerprint,
+        "df_wide":        df_wide,
         "small_sample":   n_patients < 30,
     }
 
@@ -175,31 +244,44 @@ def parse_upload(uploaded_file) -> tuple:
     return pd.DataFrame(rows), recognised, unrecognised
 
 
+# ── App header ────────────────────────────────────────────────────────────────
+
+st.title("Blood Test Classifier")
+st.caption(
+    "Discovers natural patterns in blood test results using unsupervised machine learning. "
+    "Upload a population export and the app finds the groups that exist in your data — "
+    "without pre-labelling them. **This tool is not a diagnostic instrument.** "
+    "Findings should be interpreted by a qualified clinician."
+)
+
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-tab1, tab2, tab3 = st.tabs(["Upload & Discover", "Population Groups", "Patient View"])
+tab1, tab2, tab3 = st.tabs([
+    "How does my population look?",
+    "What types of patient exist?",
+    "Is this patient unusual?",
+])
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Tab 1 — Upload & Discover
+# Tab 1 — How does my population look?
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab1:
-    st.header("Upload & Discover")
+    st.header("How does my population look?")
     st.write(
-        "Upload a blood test export. The app fits clusters to each marker from your data "
-        "and lets you interpret what those clusters mean."
+        "Each marker is analysed independently to find the natural groups in your data. "
+        "Select a marker below to see how your patients are distributed."
     )
 
-    uploaded = st.file_uploader("Upload CSV", type="csv", key="upload")
+    uploaded = st.file_uploader("Upload a blood test CSV export", type="csv", key="upload")
 
-    # ── Unit preferences (shown whether or not a file has been uploaded) ─────
     MULTI_UNIT_MARKERS = [m for m in THRESHOLDS if len(available_units(m)) > 1]
 
     with st.expander("Unit preferences", expanded=False):
         st.caption(
-            "These markers can appear in different unit systems. "
-            "Pick the units your export uses — values will be displayed accordingly."
+            "Some markers can be reported in different unit systems. "
+            "Select the units your export uses — results will update instantly."
         )
         unit_prefs = {}
         cols = st.columns(3)
@@ -211,7 +293,7 @@ with tab1:
     st.session_state["unit_prefs"] = unit_prefs
 
     if uploaded:
-        with st.spinner("Parsing and fitting clusters…"):
+        with st.spinner("Reading your data and finding groups…"):
             df_long, recognised, unrecognised = parse_upload(uploaded)
             gmm_results = analyse_upload(df_long)
 
@@ -223,9 +305,9 @@ with tab1:
             f"Column mapping — {len(recognised)} recognised, {len(unrecognised)} skipped",
             expanded=False,
         ):
-            st.write(f"**Classified:** {', '.join(COLUMN_MAP[c]['test'] for c in recognised)}")
+            st.write(f"**Recognised:** {', '.join(COLUMN_MAP[c]['test'] for c in recognised)}")
             if unrecognised:
-                st.write(f"**No thresholds yet:** {', '.join(unrecognised)}")
+                st.write(f"**Skipped (no mapping):** {', '.join(unrecognised)}")
     else:
         if "df_long" not in st.session_state or st.session_state.get("is_demo"):
             with st.spinner("Loading demo data…"):
@@ -237,70 +319,37 @@ with tab1:
 
     if st.session_state.get("is_demo"):
         st.info(
-            "Showing demo data — 80 synthetic patients across two subgroups. "
-            "Upload your own CSV above to analyse your population.",
+            "**Demo mode** — showing 80 synthetic patients across two subgroups. "
+            "Upload your own CSV above to analyse your real population.",
         )
 
     if "df_long" in st.session_state:
         df_long     = st.session_state["df_long"]
         gmm_results = st.session_state["gmm_results"]
 
-        # Build display table: attach cluster assignment to each row
-        df_display = df_long.copy()
-        df_display["Cluster"] = "—"
-        for test_name, res in gmm_results.items():
-            if "error" in res:
-                continue
-            mask = df_display["test_name"] == test_name
-            labels = assign_clusters(df_display.loc[mask, "value"].values, res["boundaries"])
-            df_display.loc[mask, "Cluster"] = [f"Cluster {l + 1}" for l in labels]
-
-        # Apply display unit preferences
-        for marker, disp_unit in unit_prefs.items():
-            mask = df_display["test_name"] == marker
-            df_display.loc[mask, "value"] = df_display.loc[mask, "value"].apply(
-                lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
-            )
-            df_display.loc[mask, "unit"] = disp_unit
-
-        df_display = df_display.rename(columns={
-            "patient_id": "Patient", "test_name": "Test", "value": "Value", "unit": "Unit",
-        })
-        df_display["Value"] = df_display["Value"].round(3)
-
         n_patients = df_long["patient_id"].nunique()
         n_markers  = df_long["test_name"].nunique()
-        st.subheader(f"Results — {n_patients} patients · {n_markers} markers")
-        st.dataframe(df_display, use_container_width=True, hide_index=True)
-        st.download_button(
-            "Download results CSV",
-            data=df_display.to_csv(index=False),
-            file_name="clustered_results.csv",
-            mime="text/csv",
-        )
 
-        # ── Cluster Explorer ─────────────────────────────────────────────────
+        col_a, col_b, col_c = st.columns(3)
+        col_a.metric("Patients", n_patients)
+        col_b.metric("Markers",  n_markers)
+        col_c.metric("Sample quality", "")
+        col_c.caption(sample_size_label(n_patients))
+
         st.divider()
-        st.subheader("Cluster Explorer")
-        st.caption("Select a marker to see the discovered clusters and how they compare to reference ranges.")
 
+        # ── Marker explorer ──────────────────────────────────────────────────
         available = [t for t in gmm_results if "error" not in gmm_results[t]]
         errored   = [t for t in gmm_results if "error" in gmm_results[t]]
 
         if errored:
             st.caption(f"Skipped (too few data points): {', '.join(errored)}")
 
-        selected_marker = st.selectbox("Marker", available)
+        selected_marker = st.selectbox("Select a marker to explore", available)
 
         if selected_marker:
             res       = gmm_results[selected_marker]
             disp_unit = unit_prefs.get(selected_marker, THRESHOLDS[selected_marker]["unit"])
-
-            if res["small_sample"]:
-                st.warning(
-                    f"Only {len(res['values'])} data points — clusters are indicative. "
-                    "More data will improve reliability."
-                )
 
             values_d, means_d, stds_d, boundaries_d = transform_for_display(
                 selected_marker,
@@ -308,16 +357,33 @@ with tab1:
                 disp_unit,
             )
 
+            rules  = THRESHOLDS[selected_marker]
+            ref_nb = from_canonical(selected_marker, rules["normal"][1],     disp_unit)
+            ref_ba = from_canonical(selected_marker, rules["borderline"][1], disp_unit)
+
+            # Plain English summary — leads the section
+            st.markdown(marker_plain_english(
+                selected_marker, res["n_components"],
+                means_d, res["weights"], disp_unit, ref_nb, ref_ba,
+            ))
+
+            if res["small_sample"]:
+                st.warning(
+                    f"Small sample ({len(res['values'])} patients) — "
+                    "treat these groups as a starting point. Results will stabilise around 100+ patients."
+                )
+
+            # Stats table
             n_comp = res["n_components"]
             labels = assign_clusters(res["values"], res["boundaries"])
             display_stats = []
             for i in range(n_comp):
                 mask = labels == i
-                cv = values_d[mask]
+                cv   = values_d[mask]
                 display_stats.append({
-                    "Cluster":    f"Cluster {i + 1}",
-                    "Mean":       round(float(means_d[i]), 3),
-                    "Std Dev":    round(float(stds_d[i]), 3),
+                    "Group":      f"Group {i + 1}",
+                    "Average":    round(float(means_d[i]), 3),
+                    "Spread (±)": round(float(stds_d[i]), 3),
                     "Min":        round(float(cv.min()), 3) if len(cv) else "—",
                     "Max":        round(float(cv.max()), 3) if len(cv) else "—",
                     "Patients":   int(mask.sum()),
@@ -325,14 +391,7 @@ with tab1:
                 })
             st.dataframe(pd.DataFrame(display_stats), use_container_width=True, hide_index=True)
 
-            bic_str = " · ".join(
-                f"n={n}: {int(bic)}" for n, bic in sorted(res["bic_scores"].items())
-            )
-            st.caption(
-                f"BIC — {bic_str} (lower is better). "
-                f"{res['n_components']} clusters selected."
-            )
-
+            # Chart
             weights = res["weights"]
             x = np.linspace(
                 values_d.min() - 2 * values_d.std(),
@@ -346,13 +405,14 @@ with tab1:
                 fig.add_trace(go.Histogram(
                     x=values_d, histnorm="probability density",
                     nbinsx=20, opacity=0.25,
-                    marker_color="steelblue", name="Data",
+                    marker_color="steelblue", name="Your patients",
                 ))
             else:
                 fig.add_trace(go.Scatter(
                     x=values_d, y=np.zeros(len(values_d)),
-                    mode="markers", marker=dict(symbol="line-ns", size=16, line=dict(width=2, color="#333")),
-                    name="Data points",
+                    mode="markers",
+                    marker=dict(symbol="line-ns", size=16, line=dict(width=2, color="#333")),
+                    name="Patient values",
                 ))
 
             for i, (m, s, w) in enumerate(zip(means_d, stds_d, weights)):
@@ -360,104 +420,139 @@ with tab1:
                 fig.add_trace(go.Scatter(
                     x=x, y=w * scipy_norm.pdf(x, m, s),
                     mode="lines", line=dict(color=colour, width=2),
-                    name=f"Cluster {i + 1} (mean={m:.2f})",
+                    name=f"Group {i + 1} (avg {m:.2f})",
                 ))
 
             total = sum(w * scipy_norm.pdf(x, m, s) for m, s, w in zip(means_d, stds_d, weights))
             fig.add_trace(go.Scatter(
                 x=x, y=total,
                 mode="lines", line=dict(color="black", width=1, dash="dash"),
-                opacity=0.4, name="Combined fit",
+                opacity=0.4, name="Combined",
             ))
 
             for b in boundaries_d:
                 fig.add_vline(
                     x=b, line=dict(color="grey", width=1.5, dash="dash"),
-                    annotation_text=f"Boundary: {b:.2f}", annotation_position="top",
+                    annotation_text=f"Group boundary: {b:.2f}",
+                    annotation_position="top",
                 )
 
-            rules  = THRESHOLDS[selected_marker]
-            ref_nb = from_canonical(selected_marker, rules["normal"][1],     disp_unit)
-            ref_ba = from_canonical(selected_marker, rules["borderline"][1], disp_unit)
             fig.add_vline(
                 x=ref_nb, line=dict(color="green", width=1.5, dash="dot"),
-                annotation_text=f"Ref N→B: {round(ref_nb, 2)}", annotation_position="top right",
+                annotation_text=f"Standard ref: {round(ref_nb, 2)}",
+                annotation_position="top right",
             )
             fig.add_vline(
                 x=ref_ba, line=dict(color="red", width=1.5, dash="dot"),
-                annotation_text=f"Ref B→A: {round(ref_ba, 2)}", annotation_position="top right",
+                annotation_text=f"Upper ref: {round(ref_ba, 2)}",
+                annotation_position="top right",
             )
 
             fig.update_layout(
-                title=f"{selected_marker} — {res['n_components']} clusters discovered",
+                title=f"{selected_marker} — {res['n_components']} groups found",
                 xaxis_title=f"{selected_marker} ({disp_unit})",
-                yaxis_title="Density",
+                yaxis_title="How many patients",
                 yaxis=dict(rangemode="tozero"),
                 legend=dict(orientation="v", font=dict(size=11)),
                 height=420,
             )
             st.plotly_chart(fig, use_container_width=True)
 
+            with st.expander("Technical details", expanded=False):
+                bic_str = " · ".join(
+                    f"{n} groups: {int(bic)}" for n, bic in sorted(res["bic_scores"].items())
+                )
+                st.caption(
+                    f"Group count selected by BIC scoring (lower = better fit): {bic_str}. "
+                    f"{res['n_components']} groups selected."
+                )
+
+        st.divider()
+
+        # ── Full results table ───────────────────────────────────────────────
+        with st.expander("View full results table", expanded=False):
+            df_display = df_long.copy()
+            df_display["Group"] = "—"
+            for test_name, res in gmm_results.items():
+                if "error" in res:
+                    continue
+                mask   = df_display["test_name"] == test_name
+                lbs    = assign_clusters(df_display.loc[mask, "value"].values, res["boundaries"])
+                df_display.loc[mask, "Group"] = [f"Group {l + 1}" for l in lbs]
+
+            for marker, disp_unit in unit_prefs.items():
+                mask = df_display["test_name"] == marker
+                df_display.loc[mask, "value"] = df_display.loc[mask, "value"].apply(
+                    lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
+                )
+                df_display.loc[mask, "unit"] = disp_unit
+
+            df_display = df_display.rename(columns={
+                "patient_id": "Patient", "test_name": "Test",
+                "value": "Value", "unit": "Unit",
+            })
+            df_display["Value"] = df_display["Value"].round(3)
+            st.dataframe(df_display, use_container_width=True, hide_index=True)
+            st.download_button(
+                "Download CSV",
+                data=df_display.to_csv(index=False),
+                file_name="clustered_results.csv",
+                mime="text/csv",
+            )
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Tab 2 — Population Groups
+# Tab 2 — What types of patient exist?
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab2:
-    st.header("Population Groups")
+    st.header("What types of patient exist?")
     st.write(
-        "Cluster patients by their full blood test profile — not marker by marker, "
-        "but all markers together. Reveals which types of patient exist in your population."
+        "Rather than looking at one marker at a time, this combines every marker together "
+        "to ask: which patients are similar to each other overall? "
+        "The result is a set of patient types defined by their whole blood profile — "
+        "not just one number."
     )
 
     if "df_long" not in st.session_state:
-        st.info("Upload a CSV in the 'Upload & Discover' tab first.")
+        st.info("Upload a CSV in the first tab to get started.")
     else:
         df_long = st.session_state["df_long"]
 
-        with st.spinner("Running population clustering…"):
+        with st.spinner("Analysing your population…"):
             pop = analyse_population(df_long)
 
         if "error" in pop:
             st.warning(pop["error"])
         else:
-            if pop["small_sample"]:
-                st.warning(
-                    f"Only {len(pop['patient_ids'])} patients — groups are indicative. "
-                    "More data will improve reliability."
-                )
-
+            n_patients  = len(pop["patient_ids"])
             n_clusters  = pop["n_clusters"]
             labels      = pop["labels"]
             patient_ids = pop["patient_ids"]
-            group_labels = [f"Group {l + 1}" for l in labels]
 
-            # ── Summary metrics ──────────────────────────────────────────────
             col_a, col_b, col_c = st.columns(3)
-            col_a.metric("Patients",        len(patient_ids))
-            col_b.metric("Markers used",    pop["df_wide"].shape[1])
-            col_c.metric("Groups found",    n_clusters)
+            col_a.metric("Patients",     n_patients)
+            col_b.metric("Markers used", pop["df_wide"].shape[1])
+            col_c.metric("Types found",  n_clusters)
+            st.caption(sample_size_label(n_patients))
 
-            bic_str = " · ".join(
-                f"n={n}: {int(bic)}" for n, bic in sorted(pop["bic_scores"].items())
-            )
-            var_str = f"{pop['pca_var'][:pop['n_cluster_dims']].sum() * 100:.0f}%"
-            st.caption(
-                f"Clustered on {pop['n_cluster_dims']} PCA components "
-                f"({var_str} of variance explained) · "
-                f"BIC — {bic_str} (lower is better)"
-            )
+            if pop["small_sample"]:
+                st.warning(
+                    f"Small sample ({n_patients} patients) — patient types are a starting point. "
+                    "Results will stabilise around 200+ patients."
+                )
 
             st.divider()
 
-            # ── PCA scatter ──────────────────────────────────────────────────
+            # ── Patient map ──────────────────────────────────────────────────
             st.subheader("Patient map")
-            st.caption(
-                "Each point is a patient. Position reflects similarity across all markers — "
-                "patients close together have similar overall profiles."
+            st.info(
+                "Each dot is a patient. **Patients close together have similar overall blood profiles.** "
+                "Colour shows which group they belong to. Hover over a dot to see the patient ID.",
+                icon="ℹ️",
             )
 
-            X2 = pop["X_pca_2d"]
+            X2   = pop["X_pca_2d"]
             var1 = pop["pca_var"][0] * 100
             var2 = pop["pca_var"][1] * 100
 
@@ -472,13 +567,12 @@ with tab2:
                     text=[patient_ids[i] for i in idxs],
                     textposition="top right",
                     textfont=dict(size=10),
-                    name=f"Group {g + 1}",
-                    hovertemplate="<b>%{text}</b><br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>",
+                    name=f"Type {g + 1}",
+                    hovertemplate="<b>%{text}</b><br>Similarity axis 1: %{x:.2f}<br>Similarity axis 2: %{y:.2f}<extra></extra>",
                 ))
             fig.update_layout(
-                title="Patient clustering — all markers combined",
-                xaxis_title=f"PC1 ({var1:.1f}% variance)",
-                yaxis_title=f"PC2 ({var2:.1f}% variance)",
+                xaxis_title=f"Similarity axis 1 ({var1:.1f}% of variation)",
+                yaxis_title=f"Similarity axis 2 ({var2:.1f}% of variation)",
                 legend=dict(orientation="h", yanchor="bottom", y=1.02),
                 height=500,
             )
@@ -486,108 +580,182 @@ with tab2:
 
             st.divider()
 
-            # ── Group fingerprint ────────────────────────────────────────────
-            st.subheader("Group fingerprint")
-            st.caption(
-                "Mean z-score per marker per group. "
-                "Positive (red) = above population average. "
-                "Negative (blue) = below population average. "
-                "The larger the value, the more that marker defines the group."
+            # ── What defines each type ───────────────────────────────────────
+            st.subheader("What defines each type?")
+            st.write(
+                "The markers below are what most distinguish each patient type from the rest of your population."
             )
 
-            fp = pop["fingerprint"].round(2)
-            fig_fp = go.Figure(go.Heatmap(
-                z=fp.values,
-                x=fp.columns.tolist(),
-                y=fp.index.tolist(),
-                colorscale="RdBu_r",
-                zmid=0,
-                zmin=-2, zmax=2,
-                text=fp.values.round(2),
-                texttemplate="%{text}",
-                hovertemplate="<b>%{y}</b><br>%{x}: %{z:.2f}<extra></extra>",
-                colorbar=dict(title="z-score"),
-            ))
-            fig_fp.update_layout(
-                height=max(300, len(fp.index) * 22),
-                margin=dict(l=160, r=40, t=20, b=40),
-                xaxis=dict(side="top"),
-                yaxis=dict(autorange="reversed"),
-            )
-            st.plotly_chart(fig_fp, use_container_width=True)
+            fp          = pop["fingerprint"].round(2)
+            type_cols   = st.columns(n_clusters)
+            for g in range(n_clusters):
+                group_col   = f"Group {g + 1}"
+                members     = [pid for pid, lbl in zip(patient_ids, labels) if lbl == g]
+                bullets     = group_plain_english(fp, group_col, top_n=5)
+                with type_cols[g]:
+                    colour = CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]
+                    st.markdown(
+                        f"<h4 style='color:{colour}'>Type {g + 1}</h4>",
+                        unsafe_allow_html=True,
+                    )
+                    st.caption(f"{len(members)} patients")
+                    if bullets:
+                        st.markdown("\n".join(bullets))
+                    else:
+                        st.caption("No strong distinguishing markers found.")
+
+            with st.expander("See full marker heatmap", expanded=False):
+                st.caption(
+                    "Red = this type scores higher than the population average for this marker. "
+                    "Blue = lower than average. Darker = stronger signal."
+                )
+                fig_fp = go.Figure(go.Heatmap(
+                    z=fp.values,
+                    x=fp.columns.tolist(),
+                    y=fp.index.tolist(),
+                    colorscale="RdBu_r",
+                    zmid=0, zmin=-2, zmax=2,
+                    text=fp.values.round(2),
+                    texttemplate="%{text}",
+                    hovertemplate="<b>%{y}</b><br>%{x}: %{z:.2f}<extra></extra>",
+                    colorbar=dict(title="vs average"),
+                ))
+                fig_fp.update_layout(
+                    height=max(300, len(fp.index) * 22),
+                    margin=dict(l=160, r=40, t=20, b=40),
+                    xaxis=dict(side="top"),
+                    yaxis=dict(autorange="reversed"),
+                )
+                st.plotly_chart(fig_fp, use_container_width=True)
 
             st.divider()
 
-            # ── Patient list per group ───────────────────────────────────────
-            st.subheader("Group membership")
+            # ── Patient list ─────────────────────────────────────────────────
+            st.subheader("Who is in each type?")
             gcols = st.columns(n_clusters)
             for g in range(n_clusters):
                 members = [pid for pid, lbl in zip(patient_ids, labels) if lbl == g]
-                gcols[g].markdown(f"**Group {g + 1}** ({len(members)} patients)")
+                gcols[g].markdown(f"**Type {g + 1}** — {len(members)} patients")
                 for pid in members:
                     gcols[g].write(pid)
 
+            with st.expander("Technical details", expanded=False):
+                bic_str = " · ".join(
+                    f"{n} types: {int(bic)}" for n, bic in sorted(pop["bic_scores"].items())
+                )
+                var_str = f"{pop['pca_var'][:pop['n_cluster_dims']].sum() * 100:.0f}%"
+                st.caption(
+                    f"Analysis used {pop['n_cluster_dims']} dimensions capturing {var_str} of total variation. "
+                    f"Number of types selected by BIC (lower = better fit): {bic_str}."
+                )
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Tab 3 — Patient View
+# Tab 3 — Is this patient unusual?
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab3:
-    st.header("Patient View")
+    st.header("Is this patient unusual?")
+    st.write(
+        "Select a patient to see how they compare to the rest of your population "
+        "on each marker. Flagged markers are those where this patient sits in the "
+        "smallest, most unusual group."
+    )
 
     if "df_long" not in st.session_state:
-        st.info("Upload a CSV in the 'Upload & Discover' tab first.")
+        st.info("Upload a CSV in the first tab to get started.")
     else:
         df_long     = st.session_state["df_long"]
         gmm_results = st.session_state["gmm_results"]
+        unit_prefs  = st.session_state.get("unit_prefs", {})
 
-        # Identify the minority cluster per marker (fewest patients = most unusual)
+        # Minority cluster per marker
         minority_cluster = {}
         for test_name, res in gmm_results.items():
             if "error" in res or not res["cluster_stats"]:
                 continue
             minority_cluster[test_name] = min(
                 res["cluster_stats"], key=lambda r: r["Patients"]
-            )["Cluster"]
+            )["Group"]
 
-        # Attach cluster labels
+        # Attach group labels
         df_view = df_long.copy()
-        df_view["Cluster"] = "—"
+        df_view["Group"] = "—"
         for test_name, res in gmm_results.items():
             if "error" in res:
                 continue
             mask   = df_view["test_name"] == test_name
-            labels = assign_clusters(df_view.loc[mask, "value"].values, res["boundaries"])
-            df_view.loc[mask, "Cluster"] = [f"Cluster {l + 1}" for l in labels]
-
-        unit_prefs = st.session_state.get("unit_prefs", {})
+            lbs    = assign_clusters(df_view.loc[mask, "value"].values, res["boundaries"])
+            df_view.loc[mask, "Group"] = [f"Group {l + 1}" for l in lbs]
 
         selected_patient = st.selectbox("Select patient", sorted(df_long["patient_id"].unique()))
 
         patient_df = df_view[df_view["patient_id"] == selected_patient].copy()
-        patient_df["Note"] = patient_df.apply(
-            lambda row: "⚠️ minority cluster" if row["Cluster"] == minority_cluster.get(row["test_name"]) else "",
+        patient_df["Unusual"] = patient_df.apply(
+            lambda row: True if row["Group"] == minority_cluster.get(row["test_name"]) else False,
             axis=1,
         )
-        patient_df = (
-            patient_df[["test_name", "value", "unit", "Cluster", "Note"]]
-            .rename(columns={"test_name": "Test", "value": "Value", "unit": "Unit"})
-        )
+        patient_df["Category"] = patient_df["test_name"].apply(marker_category)
 
         # Apply display unit preferences
         for marker, disp_unit in unit_prefs.items():
-            mask = patient_df["Test"] == marker
-            patient_df.loc[mask, "Value"] = patient_df.loc[mask, "Value"].apply(
+            mask = patient_df["test_name"] == marker
+            patient_df.loc[mask, "value"] = patient_df.loc[mask, "value"].apply(
                 lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
             )
-            patient_df.loc[mask, "Unit"] = disp_unit
+            patient_df.loc[mask, "unit"] = disp_unit
 
-        patient_df["Value"] = patient_df["Value"].round(3)
+        patient_df["value"] = patient_df["value"].round(3)
 
-        n_flagged = (patient_df["Note"] != "").sum()
-        st.subheader(f"Patient {selected_patient}")
-        st.caption(
-            f"⚠️ flags markers where this patient is in the smallest cluster across all patients. "
-            f"{n_flagged} of {len(patient_df)} markers flagged."
-        )
-        st.dataframe(patient_df, use_container_width=True, hide_index=True)
+        flagged   = patient_df[patient_df["Unusual"]]
+        n_flagged = len(flagged)
+
+        # ── Summary callout ──────────────────────────────────────────────────
+        if n_flagged == 0:
+            st.success(
+                f"**{selected_patient}** does not fall in any unusual group across "
+                f"{len(patient_df)} markers analysed."
+            )
+        else:
+            # Group flagged markers by category
+            flagged_by_cat = flagged.groupby("Category")["test_name"].apply(list).to_dict()
+            cat_summaries  = [
+                f"**{cat}**: {', '.join(markers)}"
+                for cat, markers in flagged_by_cat.items()
+            ]
+            st.warning(
+                f"**{selected_patient}** sits in an unusual group on **{n_flagged} of "
+                f"{len(patient_df)} markers** — "
+                + " · ".join(cat_summaries)
+                + ". This means these values are atypical relative to the rest of this population. "
+                "A clinician should determine whether this pattern is meaningful."
+            )
+
+        st.divider()
+
+        # ── Per-category breakdown ───────────────────────────────────────────
+        for category in MARKER_CATEGORIES:
+            cat_rows = patient_df[patient_df["Category"] == category]
+            if cat_rows.empty:
+                continue
+
+            n_flagged_cat = cat_rows["Unusual"].sum()
+            header = f"**{category}**"
+            if n_flagged_cat > 0:
+                header += f" — {n_flagged_cat} unusual"
+
+            with st.expander(header, expanded=(n_flagged_cat > 0)):
+                display_rows = []
+                for _, row in cat_rows.iterrows():
+                    display_rows.append({
+                        "Marker": row["test_name"],
+                        "Value":  row["value"],
+                        "Unit":   row["unit"],
+                        "Group":  row["Group"],
+                        "Note":   "⚠️ unusual — smallest group for this marker" if row["Unusual"] else "",
+                    })
+                st.dataframe(
+                    pd.DataFrame(display_rows),
+                    use_container_width=True,
+                    hide_index=True,
+                )
