@@ -490,18 +490,31 @@ with tab2:
             st.subheader("Group fingerprint")
             st.caption(
                 "Mean z-score per marker per group. "
-                "Positive (orange) = above average for this population. "
-                "Negative (blue) = below average. "
+                "Positive (red) = above population average. "
+                "Negative (blue) = below population average. "
                 "The larger the value, the more that marker defines the group."
             )
 
             fp = pop["fingerprint"].round(2)
-
-            # Style: diverging colour map centred on zero
-            styled = fp.style.background_gradient(
-                cmap="RdBu_r", axis=None, vmin=-2, vmax=2
-            ).format("{:.2f}")
-            st.dataframe(styled, use_container_width=True)
+            fig_fp = go.Figure(go.Heatmap(
+                z=fp.values,
+                x=fp.columns.tolist(),
+                y=fp.index.tolist(),
+                colorscale="RdBu_r",
+                zmid=0,
+                zmin=-2, zmax=2,
+                text=fp.values.round(2),
+                texttemplate="%{text}",
+                hovertemplate="<b>%{y}</b><br>%{x}: %{z:.2f}<extra></extra>",
+                colorbar=dict(title="z-score"),
+            ))
+            fig_fp.update_layout(
+                height=max(300, len(fp.index) * 22),
+                margin=dict(l=160, r=40, t=20, b=40),
+                xaxis=dict(side="top"),
+                yaxis=dict(autorange="reversed"),
+            )
+            st.plotly_chart(fig_fp, use_container_width=True)
 
             st.divider()
 
