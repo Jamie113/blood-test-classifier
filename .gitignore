@@ -2,3 +2,9 @@ venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Generated files — rebuilt by training scripts, not source-controlled
+*.pkl
+mock_blood_tests.csv
+blood_tests.db
+plot_*.png
