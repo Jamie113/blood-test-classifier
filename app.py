@@ -14,6 +14,7 @@ from unit_conversions import (
     available_units, from_canonical, transform_for_display,
 )
 from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
+from stub_data import generate_stub_data
 
 st.set_page_config(page_title="Blood Test Classifier", layout="wide")
 st.title("Blood Test Classifier")
@@ -214,8 +215,9 @@ with tab1:
             df_long, recognised, unrecognised = parse_upload(uploaded)
             gmm_results = analyse_upload(df_long)
 
-        st.session_state["df_long"] = df_long
+        st.session_state["df_long"]     = df_long
         st.session_state["gmm_results"] = gmm_results
+        st.session_state["is_demo"]     = False
 
         with st.expander(
             f"Column mapping — {len(recognised)} recognised, {len(unrecognised)} skipped",
@@ -224,6 +226,24 @@ with tab1:
             st.write(f"**Classified:** {', '.join(COLUMN_MAP[c]['test'] for c in recognised)}")
             if unrecognised:
                 st.write(f"**No thresholds yet:** {', '.join(unrecognised)}")
+    else:
+        if "df_long" not in st.session_state or st.session_state.get("is_demo"):
+            with st.spinner("Loading demo data…"):
+                df_long     = generate_stub_data()
+                gmm_results = analyse_upload(df_long)
+            st.session_state["df_long"]     = df_long
+            st.session_state["gmm_results"] = gmm_results
+            st.session_state["is_demo"]     = True
+
+    if st.session_state.get("is_demo"):
+        st.info(
+            "Showing demo data — 80 synthetic patients across two subgroups. "
+            "Upload your own CSV above to analyse your population.",
+        )
+
+    if "df_long" in st.session_state:
+        df_long     = st.session_state["df_long"]
+        gmm_results = st.session_state["gmm_results"]
 
         # Build display table: attach cluster assignment to each row
         df_display = df_long.copy()
