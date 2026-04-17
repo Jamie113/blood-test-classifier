@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.stats import norm as scipy_norm
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
+import plotly.graph_objects as go
 
 from thresholds import THRESHOLDS
 from column_map import COLUMN_MAP, ID_COLUMN
@@ -320,47 +320,63 @@ with tab1:
                 500,
             )
 
-            fig, ax = plt.subplots(figsize=(10, 4))
+            fig = go.Figure()
 
             if len(values_d) >= 30:
-                ax.hist(values_d, bins=20, density=True, alpha=0.25, color="steelblue", label="Data")
+                fig.add_trace(go.Histogram(
+                    x=values_d, histnorm="probability density",
+                    nbinsx=20, opacity=0.25,
+                    marker_color="steelblue", name="Data",
+                ))
             else:
-                ax.plot(
-                    values_d,
-                    np.full_like(values_d, -0.01 / values_d.std()),
-                    "|", color="#333", markersize=20, markeredgewidth=2, label="Data points",
-                )
+                fig.add_trace(go.Scatter(
+                    x=values_d, y=np.zeros(len(values_d)),
+                    mode="markers", marker=dict(symbol="line-ns", size=16, line=dict(width=2, color="#333")),
+                    name="Data points",
+                ))
 
             for i, (m, s, w) in enumerate(zip(means_d, stds_d, weights)):
                 colour = CLUSTER_COLOURS[i % len(CLUSTER_COLOURS)]
-                ax.plot(
-                    x, w * scipy_norm.pdf(x, m, s),
-                    color=colour, linewidth=2, label=f"Cluster {i + 1} (mean={m:.2f})",
-                )
+                fig.add_trace(go.Scatter(
+                    x=x, y=w * scipy_norm.pdf(x, m, s),
+                    mode="lines", line=dict(color=colour, width=2),
+                    name=f"Cluster {i + 1} (mean={m:.2f})",
+                ))
 
             total = sum(w * scipy_norm.pdf(x, m, s) for m, s, w in zip(means_d, stds_d, weights))
-            ax.plot(x, total, "k--", linewidth=1, alpha=0.4, label="Combined fit")
+            fig.add_trace(go.Scatter(
+                x=x, y=total,
+                mode="lines", line=dict(color="black", width=1, dash="dash"),
+                opacity=0.4, name="Combined fit",
+            ))
 
             for b in boundaries_d:
-                ax.axvline(b, color="grey", linestyle="--", linewidth=1.2,
-                           label=f"Cluster boundary: {b:.3f}")
+                fig.add_vline(
+                    x=b, line=dict(color="grey", width=1.5, dash="dash"),
+                    annotation_text=f"Boundary: {b:.2f}", annotation_position="top",
+                )
 
             rules  = THRESHOLDS[selected_marker]
             ref_nb = from_canonical(selected_marker, rules["normal"][1],     disp_unit)
             ref_ba = from_canonical(selected_marker, rules["borderline"][1], disp_unit)
-            ax.axvline(ref_nb, color="green", linestyle=":", linewidth=1.5,
-                       label=f"Ref N→B: {round(ref_nb, 3)} {disp_unit}")
-            ax.axvline(ref_ba, color="red",   linestyle=":", linewidth=1.5,
-                       label=f"Ref B→A: {round(ref_ba, 3)} {disp_unit}")
+            fig.add_vline(
+                x=ref_nb, line=dict(color="green", width=1.5, dash="dot"),
+                annotation_text=f"Ref N→B: {round(ref_nb, 2)}", annotation_position="top right",
+            )
+            fig.add_vline(
+                x=ref_ba, line=dict(color="red", width=1.5, dash="dot"),
+                annotation_text=f"Ref B→A: {round(ref_ba, 2)}", annotation_position="top right",
+            )
 
-            ax.set_xlabel(f"{selected_marker} ({disp_unit})")
-            ax.set_ylabel("Density")
-            ax.set_title(f"{selected_marker} — {res['n_components']} clusters discovered")
-            ax.set_ylim(bottom=0)
-            ax.legend(fontsize=8)
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close(fig)
+            fig.update_layout(
+                title=f"{selected_marker} — {res['n_components']} clusters discovered",
+                xaxis_title=f"{selected_marker} ({disp_unit})",
+                yaxis_title="Density",
+                yaxis=dict(rangemode="tozero"),
+                legend=dict(orientation="v", font=dict(size=11)),
+                height=420,
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -425,29 +441,28 @@ with tab2:
             var1 = pop["pca_var"][0] * 100
             var2 = pop["pca_var"][1] * 100
 
-            fig, ax = plt.subplots(figsize=(8, 5))
+            fig = go.Figure()
             for g in range(n_clusters):
                 mask = labels == g
-                ax.scatter(
-                    X2[mask, 0], X2[mask, 1],
-                    color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)],
-                    s=100, label=f"Group {g + 1}", zorder=3,
-                )
-                for idx in np.where(mask)[0]:
-                    ax.annotate(
-                        patient_ids[idx],
-                        (X2[idx, 0], X2[idx, 1]),
-                        textcoords="offset points", xytext=(6, 4),
-                        fontsize=7, color="#444",
-                    )
-            ax.set_xlabel(f"PC1 ({var1:.1f}% variance)")
-            ax.set_ylabel(f"PC2 ({var2:.1f}% variance)")
-            ax.set_title("Patient clustering — all markers combined")
-            ax.legend(fontsize=9)
-            ax.grid(True, alpha=0.2)
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close(fig)
+                idxs = np.where(mask)[0]
+                fig.add_trace(go.Scatter(
+                    x=X2[mask, 0], y=X2[mask, 1],
+                    mode="markers+text",
+                    marker=dict(size=12, color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]),
+                    text=[patient_ids[i] for i in idxs],
+                    textposition="top right",
+                    textfont=dict(size=10),
+                    name=f"Group {g + 1}",
+                    hovertemplate="<b>%{text}</b><br>PC1: %{x:.2f}<br>PC2: %{y:.2f}<extra></extra>",
+                ))
+            fig.update_layout(
+                title="Patient clustering — all markers combined",
+                xaxis_title=f"PC1 ({var1:.1f}% variance)",
+                yaxis_title=f"PC2 ({var2:.1f}% variance)",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02),
+                height=500,
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
             st.divider()
 

@@ -2,8 +2,8 @@ pandas
 scikit-learn
 sqlalchemy
 faker
-matplotlib
 scipy
 pytest
 numpy
 streamlit
+plotly
