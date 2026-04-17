@@ -6,7 +6,10 @@ from scipy.stats import norm as scipy_norm
 
 from thresholds import classify_test, THRESHOLDS
 from column_map import COLUMN_MAP, ID_COLUMN
-from unit_conversions import to_canonical, unit_hint
+from unit_conversions import (
+    to_canonical, unit_hint,
+    available_units, from_canonical, transform_for_display,
+)
 from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
 
 st.set_page_config(page_title="Blood Test Classifier", layout="wide")
@@ -153,6 +156,23 @@ with tab2:
 
     uploaded = st.file_uploader("Upload CSV", type="csv", key="upload")
 
+    # ── Unit preferences (shown whether or not a file has been uploaded) ─────
+    MULTI_UNIT_MARKERS = [m for m in THRESHOLDS if len(available_units(m)) > 1]
+
+    with st.expander("Unit preferences", expanded=False):
+        st.caption(
+            "These markers can appear in different unit systems. "
+            "Pick the units your export uses — values will be displayed accordingly."
+        )
+        unit_prefs = {}
+        cols = st.columns(3)
+        for i, marker in enumerate(MULTI_UNIT_MARKERS):
+            units = available_units(marker)
+            unit_prefs[marker] = cols[i % 3].selectbox(
+                marker, units, key=f"unit_{marker}"
+            )
+    st.session_state["unit_prefs"] = unit_prefs
+
     if uploaded:
         with st.spinner("Parsing and fitting clusters…"):
             df_long, recognised, unrecognised = parse_upload(uploaded)
@@ -178,6 +198,14 @@ with tab2:
             mask = df_display["test_name"] == test_name
             labels = assign_clusters(df_display.loc[mask, "value"].values, res["boundaries"])
             df_display.loc[mask, "Cluster"] = [f"Cluster {l + 1}" for l in labels]
+
+        # Apply display unit preferences to Value and Unit columns
+        for marker, disp_unit in unit_prefs.items():
+            mask = df_display["test_name"] == marker
+            df_display.loc[mask, "value"] = df_display.loc[mask, "value"].apply(
+                lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
+            )
+            df_display.loc[mask, "unit"] = disp_unit
 
         df_display = df_display.rename(columns={
             "patient_id": "Patient", "test_name": "Test", "value": "Value", "unit": "Unit",
@@ -209,8 +237,8 @@ with tab2:
         selected_marker = st.selectbox("Marker", available)
 
         if selected_marker:
-            res  = gmm_results[selected_marker]
-            unit = THRESHOLDS[selected_marker]["unit"]
+            res       = gmm_results[selected_marker]
+            disp_unit = unit_prefs.get(selected_marker, THRESHOLDS[selected_marker]["unit"])
 
             if res["small_sample"]:
                 st.warning(
@@ -218,12 +246,30 @@ with tab2:
                     "More data will improve reliability."
                 )
 
-            # Cluster stats table
-            st.dataframe(
-                pd.DataFrame(res["cluster_stats"]),
-                use_container_width=True,
-                hide_index=True,
+            # Transform all GMM quantities to chosen display unit
+            values_d, means_d, stds_d, boundaries_d = transform_for_display(
+                selected_marker,
+                res["values"], res["means"], res["stds"], res["boundaries"],
+                disp_unit,
             )
+
+            # Cluster stats table in display units
+            n_comp = res["n_components"]
+            labels = assign_clusters(res["values"], res["boundaries"])
+            display_stats = []
+            for i in range(n_comp):
+                mask = labels == i
+                cv = values_d[mask]
+                display_stats.append({
+                    "Cluster":    f"Cluster {i + 1}",
+                    "Mean":       round(float(means_d[i]), 3),
+                    "Std Dev":    round(float(stds_d[i]), 3),
+                    "Min":        round(float(cv.min()), 3) if len(cv) else "—",
+                    "Max":        round(float(cv.max()), 3) if len(cv) else "—",
+                    "Patients":   int(mask.sum()),
+                    "% of Total": f"{mask.mean() * 100:.1f}%",
+                })
+            st.dataframe(pd.DataFrame(display_stats), use_container_width=True, hide_index=True)
 
             bic_str = " · ".join(
                 f"n={n}: {int(bic)}" for n, bic in sorted(res["bic_scores"].items())
@@ -233,47 +279,49 @@ with tab2:
                 f"{res['n_components']} clusters selected."
             )
 
-            # Histogram / rug + GMM curves
-            values  = res["values"]
-            means   = res["means"]
-            stds    = res["stds"]
+            # Histogram / rug + GMM curves (all in display units)
             weights = res["weights"]
-            x = np.linspace(values.min() - 2 * values.std(), values.max() + 2 * values.std(), 500)
+            x = np.linspace(
+                values_d.min() - 2 * values_d.std(),
+                values_d.max() + 2 * values_d.std(),
+                500,
+            )
 
             fig, ax = plt.subplots(figsize=(10, 4))
 
-            if len(values) >= 30:
-                ax.hist(values, bins=20, density=True, alpha=0.25, color="steelblue", label="Data")
+            if len(values_d) >= 30:
+                ax.hist(values_d, bins=20, density=True, alpha=0.25, color="steelblue", label="Data")
             else:
-                # Rug plot is more honest for small n
                 ax.plot(
-                    values,
-                    np.full_like(values, -0.01 / values.std()),
+                    values_d,
+                    np.full_like(values_d, -0.01 / values_d.std()),
                     "|", color="#333", markersize=20, markeredgewidth=2, label="Data points",
                 )
 
-            for i, (m, s, w) in enumerate(zip(means, stds, weights)):
+            for i, (m, s, w) in enumerate(zip(means_d, stds_d, weights)):
                 colour = CLUSTER_COLOURS[i % len(CLUSTER_COLOURS)]
                 ax.plot(
                     x, w * scipy_norm.pdf(x, m, s),
                     color=colour, linewidth=2, label=f"Cluster {i + 1} (mean={m:.2f})",
                 )
 
-            total = sum(w * scipy_norm.pdf(x, m, s) for m, s, w in zip(means, stds, weights))
+            total = sum(w * scipy_norm.pdf(x, m, s) for m, s, w in zip(means_d, stds_d, weights))
             ax.plot(x, total, "k--", linewidth=1, alpha=0.4, label="Combined fit")
 
-            for b in res["boundaries"]:
+            for b in boundaries_d:
                 ax.axvline(b, color="grey", linestyle="--", linewidth=1.2,
                            label=f"Cluster boundary: {b:.3f}")
 
-            # Reference ranges as context — NOT used to label clusters
+            # Reference ranges converted to display unit for context
             rules = THRESHOLDS[selected_marker]
-            ax.axvline(rules["normal"][1], color="green", linestyle=":", linewidth=1.5,
-                       label=f"Ref N→B: {rules['normal'][1]} {unit}")
-            ax.axvline(rules["borderline"][1], color="red", linestyle=":", linewidth=1.5,
-                       label=f"Ref B→A: {rules['borderline'][1]} {unit}")
+            ref_nb  = from_canonical(selected_marker, rules["normal"][1],     disp_unit)
+            ref_ba  = from_canonical(selected_marker, rules["borderline"][1], disp_unit)
+            ax.axvline(ref_nb, color="green", linestyle=":", linewidth=1.5,
+                       label=f"Ref N→B: {round(ref_nb, 3)} {disp_unit}")
+            ax.axvline(ref_ba, color="red",   linestyle=":", linewidth=1.5,
+                       label=f"Ref B→A: {round(ref_ba, 3)} {disp_unit}")
 
-            ax.set_xlabel(f"{selected_marker} ({unit})")
+            ax.set_xlabel(f"{selected_marker} ({disp_unit})")
             ax.set_ylabel("Density")
             ax.set_title(f"{selected_marker} — {res['n_components']} clusters discovered")
             ax.set_ylim(bottom=0)
@@ -315,6 +363,8 @@ with tab3:
             labels = assign_clusters(df_view.loc[mask, "value"].values, res["boundaries"])
             df_view.loc[mask, "Cluster"] = [f"Cluster {l + 1}" for l in labels]
 
+        unit_prefs = st.session_state.get("unit_prefs", {})
+
         selected_patient = st.selectbox("Select patient", sorted(df_long["patient_id"].unique()))
 
         patient_df = df_view[df_view["patient_id"] == selected_patient].copy()
@@ -326,6 +376,15 @@ with tab3:
             patient_df[["test_name", "value", "unit", "Cluster", "Note"]]
             .rename(columns={"test_name": "Test", "value": "Value", "unit": "Unit"})
         )
+
+        # Apply display unit preferences
+        for marker, disp_unit in unit_prefs.items():
+            mask = patient_df["Test"] == marker
+            patient_df.loc[mask, "Value"] = patient_df.loc[mask, "Value"].apply(
+                lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
+            )
+            patient_df.loc[mask, "Unit"] = disp_unit
+
         patient_df["Value"] = patient_df["Value"].round(3)
 
         n_flagged = (patient_df["Note"] != "").sum()
