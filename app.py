@@ -2,67 +2,17 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.mixture import GaussianMixture
-from scipy.optimize import brentq
 from scipy.stats import norm as scipy_norm
 
 from thresholds import classify_test, THRESHOLDS
 from column_map import COLUMN_MAP, ID_COLUMN
 from unit_conversions import to_canonical, unit_hint
+from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
 
 st.set_page_config(page_title="Blood Test Classifier", layout="wide")
 st.title("Blood Test Classifier")
 
 CLUSTER_COLOURS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52"]
-
-
-# ── GMM fitting ───────────────────────────────────────────────────────────────
-
-def fit_optimal_gmm(values: np.ndarray) -> tuple:
-    """Try 2–4 components, return the GMM with lowest BIC."""
-    max_n = min(4, max(2, len(values) // 5))
-    best_n, best_bic, best_gmm, bic_scores = 2, np.inf, None, {}
-    for n in range(2, max_n + 1):
-        gmm = GaussianMixture(n_components=n, random_state=42, n_init=5)
-        gmm.fit(values.reshape(-1, 1))
-        bic = gmm.bic(values.reshape(-1, 1))
-        bic_scores[n] = bic
-        if bic < best_bic:
-            best_bic, best_n, best_gmm = bic, n, gmm
-    return best_gmm, best_n, bic_scores
-
-
-def sort_gmm(gmm: GaussianMixture):
-    """Return means, stds, weights sorted ascending by mean."""
-    order = np.argsort(gmm.means_.ravel())
-    means   = gmm.means_.ravel()[order]
-    stds    = np.sqrt(gmm.covariances_.ravel()[order])
-    weights = gmm.weights_[order]
-    return means, stds, weights
-
-
-def get_boundaries(means, stds, weights) -> list:
-    """Intersection point between each pair of adjacent sorted components."""
-    boundaries = []
-    for i in range(len(means) - 1):
-        try:
-            b = brentq(
-                lambda x: (weights[i]   * scipy_norm.pdf(x, means[i],   stds[i]) -
-                           weights[i+1] * scipy_norm.pdf(x, means[i+1], stds[i+1])),
-                means[i], means[i+1],
-            )
-        except ValueError:
-            b = (means[i] + means[i+1]) / 2  # fallback: midpoint
-        boundaries.append(b)
-    return boundaries
-
-
-def assign_clusters(values: np.ndarray, boundaries: list) -> np.ndarray:
-    """0-indexed cluster per value based on sorted boundaries."""
-    labels = np.zeros(len(values), dtype=int)
-    for b in boundaries:
-        labels[values > b] += 1
-    return labels
 
 
 @st.cache_data
