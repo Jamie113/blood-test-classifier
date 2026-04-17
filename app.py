@@ -8,6 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 
 from thresholds import classify_test, THRESHOLDS
 from column_map import COLUMN_MAP, ID_COLUMN
+from unit_conversions import to_canonical, unit_hint
 
 st.set_page_config(page_title="Blood Test Classifier", layout="wide")
 st.title("Blood Test Classifier")
@@ -49,14 +50,19 @@ def predict_gmm(test_name, value, gmm_results):
 
 def classify_row(row, clf, cat_enc, gmm_results, test_name_enc):
     records = []
+    seen_tests = set()
     for col, mapping in COLUMN_MAP.items():
         if col not in row.index:
             continue
         raw = row[col]
         if pd.isna(raw):
             continue
-        value = float(raw) * mapping["scale"]
         test_name = mapping["test"]
+        # Skip duplicate test mappings (e.g. Haematocrit ADJ when Haematocrit already present)
+        if test_name in seen_tests:
+            continue
+        seen_tests.add(test_name)
+        value = to_canonical(test_name, float(raw) * mapping["scale"])
         records.append({
             "Test":       test_name,
             "Value":      round(value, 3),
@@ -99,13 +105,14 @@ with tab1:
     with col_a:
         test_names = list(THRESHOLDS.keys())
         selected_test = st.selectbox("Test", test_names)
-        unit = THRESHOLDS[selected_test]["unit"]
-        value = st.number_input(f"Value ({unit})", format="%.4f", value=0.0)
+        hint = unit_hint(selected_test)
+        value = st.number_input(f"Value ({hint})", format="%.4f", value=0.0)
 
     if st.button("Classify", disabled=not models_ready):
-        rules_pred  = classify_test(selected_test, value)
-        tree_pred   = predict_tree(selected_test, value, clf, cat_enc, test_name_enc)
-        gmm_pred    = predict_gmm(selected_test, value, gmm_results)
+        canonical_value = to_canonical(selected_test, value)
+        rules_pred  = classify_test(selected_test, canonical_value)
+        tree_pred   = predict_tree(selected_test, canonical_value, clf, cat_enc, test_name_enc)
+        gmm_pred    = predict_gmm(selected_test, canonical_value, gmm_results)
 
         with col_b:
             st.subheader("Results")
@@ -119,10 +126,13 @@ with tab1:
                 st.warning("Approaches disagree — value may be near a boundary.")
 
         rules = THRESHOLDS[selected_test]
+        canonical_unit = rules["unit"]
+        if canonical_value != value:
+            st.caption(f"Auto-converted: {value} → {round(canonical_value, 4)} {canonical_unit}")
         st.divider()
         st.caption(
-            f"Reference ranges — Normal: {rules['normal'][0]}–{rules['normal'][1]} {unit} | "
-            f"Borderline: {rules['borderline'][0]}–{rules['borderline'][1]} {unit}"
+            f"Reference ranges — Normal: {rules['normal'][0]}–{rules['normal'][1]} {canonical_unit} | "
+            f"Borderline: {rules['borderline'][0]}–{rules['borderline'][1]} {canonical_unit}"
         )
 
 
