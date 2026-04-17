@@ -16,6 +16,10 @@ from unit_conversions import (
 from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
 from stub_data import generate_stub_data
 
+@st.cache_data
+def load_stub_data():
+    return generate_stub_data()
+
 st.set_page_config(page_title="Blood Test Classifier", layout="wide")
 
 CLUSTER_COLOURS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52"]
@@ -293,29 +297,40 @@ with tab1:
     st.session_state["unit_prefs"] = unit_prefs
 
     if uploaded:
-        with st.spinner("Reading your data and finding groups…"):
-            df_long, recognised, unrecognised = parse_upload(uploaded)
-            gmm_results = analyse_upload(df_long)
-
-        st.session_state["df_long"]     = df_long
-        st.session_state["gmm_results"] = gmm_results
-        st.session_state["is_demo"]     = False
+        # Only reprocess if this is a new file
+        file_id = f"{uploaded.name}_{uploaded.size}"
+        if st.session_state.get("file_id") != file_id:
+            with st.spinner("Reading your data and finding groups…"):
+                df_long, recognised, unrecognised = parse_upload(uploaded)
+                gmm_results  = analyse_upload(df_long)
+                pop_results  = analyse_population(df_long)
+            st.session_state["df_long"]      = df_long
+            st.session_state["gmm_results"]  = gmm_results
+            st.session_state["pop_results"]  = pop_results
+            st.session_state["is_demo"]      = False
+            st.session_state["file_id"]      = file_id
+            st.session_state["recognised"]   = recognised
+            st.session_state["unrecognised"] = unrecognised
 
         with st.expander(
-            f"Column mapping — {len(recognised)} recognised, {len(unrecognised)} skipped",
+            f"Column mapping — {len(st.session_state['recognised'])} recognised, "
+            f"{len(st.session_state['unrecognised'])} skipped",
             expanded=False,
         ):
-            st.write(f"**Recognised:** {', '.join(COLUMN_MAP[c]['test'] for c in recognised)}")
-            if unrecognised:
-                st.write(f"**Skipped (no mapping):** {', '.join(unrecognised)}")
+            st.write(f"**Recognised:** {', '.join(COLUMN_MAP[c]['test'] for c in st.session_state['recognised'])}")
+            if st.session_state["unrecognised"]:
+                st.write(f"**Skipped (no mapping):** {', '.join(st.session_state['unrecognised'])}")
     else:
         if "df_long" not in st.session_state or st.session_state.get("is_demo"):
             with st.spinner("Loading demo data…"):
-                df_long     = generate_stub_data()
+                df_long     = load_stub_data()
                 gmm_results = analyse_upload(df_long)
+                pop_results = analyse_population(df_long)
             st.session_state["df_long"]     = df_long
             st.session_state["gmm_results"] = gmm_results
+            st.session_state["pop_results"] = pop_results
             st.session_state["is_demo"]     = True
+            st.session_state["file_id"]     = None
 
     if st.session_state.get("is_demo"):
         st.info(
@@ -514,13 +529,10 @@ with tab2:
         "not just one number."
     )
 
-    if "df_long" not in st.session_state:
+    if "pop_results" not in st.session_state:
         st.info("Upload a CSV in the first tab to get started.")
     else:
-        df_long = st.session_state["df_long"]
-
-        with st.spinner("Analysing your population…"):
-            pop = analyse_population(df_long)
+        pop = st.session_state["pop_results"]
 
         if "error" in pop:
             st.warning(pop["error"])
