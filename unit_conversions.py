@@ -137,10 +137,3 @@ def transform_for_display(
     boundaries_d = [b * scale + shift for b in boundaries]
     return values_d, means_d, stds_d, boundaries_d
 
-
-def unit_hint(test_name: str) -> str:
-    """Return a display string describing accepted units for this test (used in Reference Lookup)."""
-    units = available_units(test_name)
-    if len(units) > 1:
-        return " or ".join(units)
-    return units[0] if units else ""

@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm as scipy_norm
 
-from thresholds import classify_test, THRESHOLDS
+from thresholds import THRESHOLDS
 from column_map import COLUMN_MAP, ID_COLUMN
 from unit_conversions import (
-    to_canonical, unit_hint,
+    to_canonical,
     available_units, from_canonical, transform_for_display,
 )
 from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
@@ -103,51 +103,14 @@ def parse_upload(uploaded_file) -> tuple:
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-tab1, tab2, tab3 = st.tabs(["Reference Lookup", "Upload & Discover", "Patient View"])
+tab1, tab2 = st.tabs(["Upload & Discover", "Patient View"])
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Tab 1 — Reference Lookup (rules only, no ML)
+# Tab 1 — Upload & Discover
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab1:
-    st.header("Reference Lookup")
-    st.caption("Check a single value against male reference ranges.")
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        selected_test = st.selectbox("Test", list(THRESHOLDS.keys()))
-        hint = unit_hint(selected_test)
-        value = st.number_input(f"Value ({hint})", format="%.4f", value=0.0)
-
-    if st.button("Check"):
-        canonical = to_canonical(selected_test, value)
-        result = classify_test(selected_test, canonical)
-        colour = {"Normal": "green", "Borderline": "orange", "Abnormal": "red"}[result]
-
-        with col_b:
-            st.subheader("Result")
-            st.markdown(f"### :{colour}[{result}]")
-            if canonical != value:
-                st.caption(
-                    f"Auto-converted: {value} → {round(canonical, 4)} "
-                    f"{THRESHOLDS[selected_test]['unit']}"
-                )
-
-        rules = THRESHOLDS[selected_test]
-        unit = rules["unit"]
-        st.divider()
-        st.caption(
-            f"Normal: {rules['normal'][0]}–{rules['normal'][1]} {unit} · "
-            f"Borderline: {rules['borderline'][0]}–{rules['borderline'][1]} {unit}"
-        )
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Tab 2 — Upload & Discover
-# ─────────────────────────────────────────────────────────────────────────────
-
-with tab2:
     st.header("Upload & Discover")
     st.write(
         "Upload a blood test export. The app fits clusters to each marker from your data "
@@ -332,10 +295,10 @@ with tab2:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Tab 3 — Patient View
+# Tab 2 — Patient View
 # ─────────────────────────────────────────────────────────────────────────────
 
-with tab3:
+with tab2:
     st.header("Patient View")
 
     if "df_long" not in st.session_state:
