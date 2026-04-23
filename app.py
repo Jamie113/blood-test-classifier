@@ -107,7 +107,6 @@ def group_plain_english(fp: pd.DataFrame, group_col: str, top_n: int = 4) -> lis
 
 # ── Analysis functions (unchanged) ───────────────────────────────────────────
 
-@st.cache_data
 def analyse_upload(df_long: pd.DataFrame) -> dict:
     """Fit GMM per marker on uploaded data. Returns per-marker analysis dict."""
     results = {}
@@ -153,7 +152,19 @@ def analyse_upload(df_long: pd.DataFrame) -> dict:
     return results
 
 
-@st.cache_data
+def build_labelled_df(df_long: pd.DataFrame, gmm_results: dict) -> pd.DataFrame:
+    """Attach group labels to every row. Computed once at load time."""
+    df = df_long.copy()
+    df["Group"] = "—"
+    for test_name, res in gmm_results.items():
+        if "error" in res:
+            continue
+        mask = df["test_name"] == test_name
+        lbs  = assign_clusters(df.loc[mask, "value"].values, res["boundaries"])
+        df.loc[mask, "Group"] = [f"Group {l + 1}" for l in lbs]
+    return df
+
+
 def analyse_population(df_long: pd.DataFrame) -> dict:
     """
     Multivariate patient clustering across all markers.
@@ -304,9 +315,11 @@ with tab1:
                 df_long, recognised, unrecognised = parse_upload(uploaded)
                 gmm_results  = analyse_upload(df_long)
                 pop_results  = analyse_population(df_long)
+                df_labelled  = build_labelled_df(df_long, gmm_results)
             st.session_state["df_long"]      = df_long
             st.session_state["gmm_results"]  = gmm_results
             st.session_state["pop_results"]  = pop_results
+            st.session_state["df_labelled"]  = df_labelled
             st.session_state["is_demo"]      = False
             st.session_state["file_id"]      = file_id
             st.session_state["recognised"]   = recognised
@@ -321,14 +334,16 @@ with tab1:
             if st.session_state["unrecognised"]:
                 st.write(f"**Skipped (no mapping):** {', '.join(st.session_state['unrecognised'])}")
     else:
-        if "df_long" not in st.session_state or st.session_state.get("is_demo"):
+        if "df_long" not in st.session_state:
             with st.spinner("Loading demo data…"):
                 df_long     = load_stub_data()
                 gmm_results = analyse_upload(df_long)
                 pop_results = analyse_population(df_long)
+                df_labelled = build_labelled_df(df_long, gmm_results)
             st.session_state["df_long"]     = df_long
             st.session_state["gmm_results"] = gmm_results
             st.session_state["pop_results"] = pop_results
+            st.session_state["df_labelled"] = df_labelled
             st.session_state["is_demo"]     = True
             st.session_state["file_id"]     = None
 
@@ -486,14 +501,7 @@ with tab1:
 
         # ── Full results table ───────────────────────────────────────────────
         with st.expander("View full results table", expanded=False):
-            df_display = df_long.copy()
-            df_display["Group"] = "—"
-            for test_name, res in gmm_results.items():
-                if "error" in res:
-                    continue
-                mask   = df_display["test_name"] == test_name
-                lbs    = assign_clusters(df_display.loc[mask, "value"].values, res["boundaries"])
-                df_display.loc[mask, "Group"] = [f"Group {l + 1}" for l in lbs]
+            df_display = st.session_state["df_labelled"].copy()
 
             for marker, disp_unit in unit_prefs.items():
                 mask = df_display["test_name"] == marker
@@ -679,6 +687,7 @@ with tab3:
     else:
         df_long     = st.session_state["df_long"]
         gmm_results = st.session_state["gmm_results"]
+        df_view     = st.session_state["df_labelled"]
         unit_prefs  = st.session_state.get("unit_prefs", {})
 
         # Minority cluster per marker
@@ -689,16 +698,6 @@ with tab3:
             minority_cluster[test_name] = min(
                 res["cluster_stats"], key=lambda r: r["Patients"]
             )["Group"]
-
-        # Attach group labels
-        df_view = df_long.copy()
-        df_view["Group"] = "—"
-        for test_name, res in gmm_results.items():
-            if "error" in res:
-                continue
-            mask   = df_view["test_name"] == test_name
-            lbs    = assign_clusters(df_view.loc[mask, "value"].values, res["boundaries"])
-            df_view.loc[mask, "Group"] = [f"Group {l + 1}" for l in lbs]
 
         selected_patient = st.selectbox("Select patient", sorted(df_long["patient_id"].unique()))
 
