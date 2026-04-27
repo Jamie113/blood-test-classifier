@@ -5,6 +5,7 @@ __pycache__/
 
 # Generated files — rebuilt by training scripts, not source-controlled
 *.pkl
+!demo_cache.pkl
 mock_blood_tests.csv
 blood_tests.db
 plot_*.png

@@ -97,12 +97,6 @@ def available_units(test_name: str) -> list[str]:
     return [THRESHOLDS.get(test_name, {}).get("unit", "")]
 
 
-def canonical_unit(test_name: str) -> str:
-    """Return the canonical unit name for a test."""
-    from thresholds import THRESHOLDS
-    return THRESHOLDS.get(test_name, {}).get("unit", "")
-
-
 def from_canonical(test_name: str, value: float, display_unit: str) -> float:
     """Convert a canonical value to the requested display unit."""
     transforms = _DISPLAY_TRANSFORMS.get(test_name, {})

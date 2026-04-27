@@ -1,18 +1,17 @@
 # Blood Test Classifier
 
-A Python tool for discovering patterns in blood test results using unsupervised machine learning. Upload a dataset of real patient results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
+A Streamlit app for discovering patterns in blood test results using unsupervised machine learning. Upload a dataset of patient results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
 
 ---
 
 ## How it works
 
-1. **Upload a CSV** export of blood test results (wide format: one row per patient, one column per marker)
-2. **GMM clustering** (Gaussian Mixture Model) is fitted per marker directly from your data. The number of clusters is chosen automatically using BIC scoring
-3. **Upload & Discover** shows the discovered clusters for each marker — their means, ranges, and patient counts — alongside reference range lines for context
-4. **Population Groups** clusters patients by their full blood test profile (all markers combined), revealing which types of patient exist in your population
-5. **Patient View** shows each patient's cluster assignments and flags markers where they fall in the smallest (most unusual) cluster
+1. **Upload a CSV** export of blood test results (wide format: one row per patient, one column per marker). Without a CSV the app loads 80 synthetic demo patients.
+2. **GMM clustering** (Gaussian Mixture Model) is fitted per marker directly from your data. The number of clusters is chosen automatically using BIC scoring.
+3. **Blood marker explorer** (tab 1) shows the discovered clusters for each marker — their means, ranges, and patient counts — alongside reference range lines for context.
+4. **Patient population** (tab 2) clusters patients by their full blood test profile (all markers combined), revealing which patient types exist in your population and what distinguishes them.
 
-Clusters are labelled Cluster 1, 2, 3 — not pre-labelled as Normal/Borderline/Abnormal. The goal is to let the data speak first, then you add the meaning.
+Clusters are labelled Group 1, 2, 3 — not pre-labelled as Normal/Borderline/Abnormal. The goal is to let the data speak first, then you add the meaning.
 
 ---
 
@@ -34,11 +33,13 @@ streamlit run app.py
 
 The app expects a wide-format export with one row per patient. Column names must match those in `column_map.py`. Example columns:
 
-| Blood Test Info Blood Test ID | Blood Test Info Haemoglobin Levels | Blood Test Info HBA1C Levels | ... |
-|---|---|---|---|
-| 100015 | 163 | 56.83 | ... |
+| Blood Test Info Blood Test ID | Current Age | Blood Test Info Haemoglobin Levels | Blood Test Info HBA1C Levels | ... |
+|---|---|---|---|---|
+| 100015 | 42 | 163 | 56.83 | ... |
 
-All 27 markers from standard blood panel exports are supported. See `column_map.py` for the full list.
+All 27 markers from standard blood panel exports are supported. `Current Age` is optional — if present it enables age-based colouring on the patient scatter plot.
+
+See `column_map.py` for the full column list.
 
 **Unit auto-detection:** Six markers automatically detect and convert between unit systems at upload time:
 
@@ -51,7 +52,7 @@ All 27 markers from standard blood panel exports are supported. See `column_map.
 | Oestradiol | value > 200 → pmol/L | ÷ 3.671 → pg/mL |
 | Prolactin | value < 50 → ng/mL | × 21.2 → mIU/L |
 
-All values are stored internally in canonical units. The **Unit preferences** panel in the app lets you switch display units instantly without re-running the pipeline.
+All values are stored internally in canonical units. The **⚙ Units** button (top-right of the tab bar) lets you switch display units instantly without re-running the analysis.
 
 ---
 
@@ -64,8 +65,6 @@ To update a threshold, edit `thresholds.py` — all downstream logic picks it up
 ---
 
 ## Sample size guidance
-
-Results become meaningful at different thresholds depending on the analysis:
 
 | Patients | What's reliable |
 |---|---|
@@ -80,12 +79,28 @@ Results become meaningful at different thresholds depending on the analysis:
 ## Project structure
 
 ```
-app.py              — Streamlit UI (3 tabs: Upload & Discover, Population Groups, Patient View)
-gmm.py              — Core GMM functions (fit, sort, boundaries, cluster assignment)
-thresholds.py       — Male reference ranges for all 27 markers
+app.py              — Streamlit UI (two tabs: marker explorer + population view)
+analysis.py         — Core analysis functions (GMM per marker, population clustering)
+gmm.py              — Low-level GMM functions (fit, sort, boundaries, assignment)
+thresholds.py       — Male reference ranges for all 27 markers + classify_test()
 column_map.py       — Maps CSV column headers to marker names
-unit_conversions.py — Upload-time auto-detection + display unit transforms
+unit_conversions.py — Upload-time unit auto-detection + display unit transforms
+stub_data.py        — Generates 80 synthetic demo patients (fixed seed)
+demo_cache.pkl      — Pre-baked demo analysis results (loaded instantly on cold start)
+bake_demo.py        — Script to regenerate demo_cache.pkl after data/analysis changes
 tests/              — Tests across all modules
+```
+
+---
+
+## Updating the demo cache
+
+`demo_cache.pkl` is committed to the repo so Render loads it instantly on cold start instead of running all GMM fits. Regenerate it whenever `stub_data.py` or `analysis.py` changes:
+
+```bash
+python3 bake_demo.py
+git add demo_cache.pkl
+git commit -m "Regenerate demo cache"
 ```
 
 ---
@@ -102,11 +117,12 @@ python -m pytest
 | `test_gmm_functions.py` | fit, sort, boundaries, cluster assignment |
 | `test_unit_conversions.py` | All 6 conversion rules, boundary detection |
 | `test_column_map.py` | All 27 export columns mapped to valid thresholds |
+| `test_analysis.py` | analyse_upload, analyse_population, build_labelled_df |
 
 ---
 
 ## Future directions
 
 - Female reference ranges (currently male only)
-- Persist uploaded data to SQLite for longitudinal analysis — population clusters improve as more data arrives
+- Persist uploaded data for longitudinal analysis — population clusters improve as more data arrives
 - Sequenced blood tests — can the result of one predict the next?

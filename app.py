@@ -10,7 +10,6 @@ from unit_conversions import (
     to_canonical,
     available_units, from_canonical, transform_for_display,
 )
-from gmm import sort_gmm, get_boundaries, assign_clusters
 from stub_data import generate_stub_data
 from analysis import analyse_upload, analyse_population, build_labelled_df
 

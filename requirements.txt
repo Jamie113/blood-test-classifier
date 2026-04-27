@@ -1,9 +1,7 @@
 pandas
 scikit-learn
-sqlalchemy
-faker
 scipy
-pytest
 numpy
 streamlit
 plotly
+pytest
