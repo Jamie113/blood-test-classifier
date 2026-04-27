@@ -138,10 +138,9 @@ def parse_upload(uploaded_file) -> tuple:
 header_left, header_right = st.columns([2, 1])
 
 with header_left:
-    st.title("Blood Test Classifier")
+    st.title("Classifier")
     st.caption(
-        "Discovers natural patterns in blood test results using unsupervised machine learning. "
-        "**Not a diagnostic tool** — findings should be reviewed by a qualified clinician."
+        "Discovers natural patterns in blood test results using unsupervised machine learning."
     )
 
 with header_right:
@@ -208,14 +207,13 @@ else:
 
 if st.session_state.get("is_demo"):
     st.info(
-        "**Demo mode** — showing 80 synthetic patients across two subgroups. "
-        "Upload your own CSV using the button above to analyse your real population.",
+        "**Demo mode** — uses 80 synthetic patients across two subgroups."
     )
 
 with st.expander("Unit preferences", expanded=False):
     st.caption(
         "Some markers can be reported in different unit systems. "
-        "Select the units your export uses — results update instantly."
+        "Select the units your export uses to update results"
     )
     unit_prefs = {}
     pref_cols  = st.columns(3)
