@@ -210,27 +210,28 @@ if st.session_state.get("is_demo"):
         "**Demo mode** — uses 80 synthetic patients across two subgroups."
     )
 
-with st.expander("Unit preferences", expanded=False):
-    st.caption(
-        "Some markers can be reported in different unit systems. "
-        "Select the units your export uses to update results"
-    )
+# ── Tab bar row: tabs on the left, unit preferences on the far right ──────────
+
+_tab_col, _prefs_col = st.columns([7, 1])
+
+with _prefs_col:
     unit_prefs = {}
-    pref_cols  = st.columns(3)
-    for i, marker in enumerate(MULTI_UNIT_MARKERS):
-        units = available_units(marker)
-        unit_prefs[marker] = pref_cols[i % 3].selectbox(
-            marker, units, key=f"unit_{marker}"
-        )
+    if MULTI_UNIT_MARKERS:
+        with st.popover("⚙ Units", use_container_width=True):
+            st.caption("Select the units your export uses.")
+            for marker in MULTI_UNIT_MARKERS:
+                units = available_units(marker)
+                unit_prefs[marker] = st.selectbox(marker, units, key=f"unit_{marker}")
+    else:
+        # No multi-unit markers — still consume the column so layout is consistent
+        for marker in MULTI_UNIT_MARKERS:
+            unit_prefs[marker] = available_units(marker)[0]
 
-st.divider()
-
-# ── Tabs ──────────────────────────────────────────────────────────────────────
-
-tab1, tab2 = st.tabs([
-    "How does my population look?",
-    "What types of patient exist?",
-])
+with _tab_col:
+    tab1, tab2 = st.tabs([
+        "How does my population look?",
+        "What types of patient exist?",
+    ])
 
 
 # ─────────────────────────────────────────────────────────────────────────────
