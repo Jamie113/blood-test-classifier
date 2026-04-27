@@ -265,10 +265,9 @@ tab1, tab2 = st.tabs([
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab1:
-    st.header("How does my population look?")
-    st.write(
-        "Each marker is analysed independently to find the natural groups in your data. "
-        "Select a marker below to see how your patients are distributed."
+    st.header("Patterns by blood marker")
+    st.write("
+        "Select a marker to see how your patients are distributed."
     )
 
     uploaded = st.file_uploader("Upload a blood test CSV export", type="csv", key="upload")
@@ -513,12 +512,9 @@ with tab1:
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab2:
-    st.header("What types of patient exist?")
+    st.header("Population view")
     st.write(
-        "Rather than looking at one marker at a time, this combines every marker together "
-        "to ask: which patients are similar to each other overall? "
-        "The result is a set of patient types defined by their whole blood profile — "
-        "not just one number."
+        "Understand patterns in blood markers across the population."
     )
 
     if "pop_results" not in st.session_state:
