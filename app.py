@@ -266,8 +266,7 @@ tab1, tab2 = st.tabs([
 
 with tab1:
     st.header("Patterns by blood marker")
-    st.write("
-        "Select a marker to see how your patients are distributed."
+    st.write("Select a marker to see how your patients are distributed."
     )
 
     uploaded = st.file_uploader("Upload a blood test CSV export", type="csv", key="upload")
