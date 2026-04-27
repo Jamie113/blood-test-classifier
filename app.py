@@ -20,7 +20,7 @@ from stub_data import generate_stub_data
 def load_stub_data():
     return generate_stub_data()
 
-st.set_page_config(page_title="Blood Test Classifier", layout="wide")
+st.set_page_config(page_title="Classifier", layout="wide")
 
 CLUSTER_COLOURS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52"]
 
@@ -246,17 +246,14 @@ def parse_upload(uploaded_file) -> tuple:
 
 st.title("Blood Test Classifier")
 st.caption(
-    "Discovers natural patterns in blood test results using unsupervised machine learning. "
-    "Upload a population export and the app finds the groups that exist in your data — "
-    "without pre-labelling them. **This tool is not a diagnostic instrument.** "
-    "Findings should be interpreted by a qualified clinician."
+    "Discovers natural patterns in blood test using unsupervised machine learning."
 )
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 
 tab1, tab2 = st.tabs([
-    "How does my population look?",
-    "What types of patient exist?",
+    "Blood marker pattern",
+    "Population patterns",
 ])
 
 
@@ -265,7 +262,6 @@ tab1, tab2 = st.tabs([
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab1:
-    st.header("Patterns by blood marker")
     st.write("Select a marker to see how your patients are distributed."
     )
 
@@ -511,7 +507,6 @@ with tab1:
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab2:
-    st.header("Population view")
     st.write(
         "Understand patterns in blood markers across the population."
     )
