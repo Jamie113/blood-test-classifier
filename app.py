@@ -24,27 +24,6 @@ st.set_page_config(page_title="Blood Test Classifier", layout="wide")
 
 CLUSTER_COLOURS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52"]
 
-# ── Marker categories (for Patient View grouping) ─────────────────────────────
-MARKER_CATEGORIES = {
-    "Liver / Metabolic": ["Albumin", "ALP", "ALT", "GGT"],
-    "Kidney":            ["eGFR"],
-    "Iron / Blood":      ["Ferritin", "Haemoglobin", "Haematocrit (HCT)", "Platelet Count"],
-    "Glucose":           ["HbA1C"],
-    "Lipids":            ["Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol",
-                          "Total Cholesterol:HDL Ratio"],
-    "Thyroid":           ["TSH", "Free T4"],
-    "Hormones":          ["Testosterone", "Free Testosterone", "SHBG", "Oestradiol",
-                          "Prolactin", "FSH", "LH", "PSA"],
-    "Blood Cells":       ["White Blood Cell Count", "Neutrophil Count",
-                          "Basophil Count", "Eosinophil Count"],
-}
-
-def marker_category(test_name: str) -> str:
-    for cat, markers in MARKER_CATEGORIES.items():
-        if test_name in markers:
-            return cat
-    return "Other"
-
 
 # ── Plain-English helpers ─────────────────────────────────────────────────────
 
@@ -271,10 +250,9 @@ st.caption(
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2 = st.tabs([
     "How does my population look?",
     "What types of patient exist?",
-    "Is this patient unusual?",
 ])
 
 
@@ -305,8 +283,6 @@ with tab1:
             unit_prefs[marker] = cols[i % 3].selectbox(
                 marker, units, key=f"unit_{marker}"
             )
-    st.session_state["unit_prefs"] = unit_prefs
-
     if uploaded:
         # Only reprocess if this is a new file
         file_id = f"{uploaded.name}_{uploaded.size}"
@@ -403,9 +379,9 @@ with tab1:
                     "treat these groups as a starting point. Results will stabilise around 100+ patients."
                 )
 
-            # Stats table
+            # Stats table — use pre-computed labels from analyse_upload
             n_comp = res["n_components"]
-            labels = assign_clusters(res["values"], res["boundaries"])
+            labels = res["labels"]
             display_stats = []
             for i in range(n_comp):
                 mask = labels == i
@@ -503,7 +479,10 @@ with tab1:
         with st.expander("View full results table", expanded=False):
             df_display = st.session_state["df_labelled"].copy()
 
+            present = set(df_display["test_name"].unique())
             for marker, disp_unit in unit_prefs.items():
+                if marker not in present:
+                    continue
                 mask = df_display["test_name"] == marker
                 df_display.loc[mask, "value"] = df_display.loc[mask, "value"].apply(
                     lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
@@ -670,103 +649,3 @@ with tab2:
                 )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Tab 3 — Is this patient unusual?
-# ─────────────────────────────────────────────────────────────────────────────
-
-with tab3:
-    st.header("Is this patient unusual?")
-    st.write(
-        "Select a patient to see how they compare to the rest of your population "
-        "on each marker. Flagged markers are those where this patient sits in the "
-        "smallest, most unusual group."
-    )
-
-    if "df_long" not in st.session_state:
-        st.info("Upload a CSV in the first tab to get started.")
-    else:
-        df_long     = st.session_state["df_long"]
-        gmm_results = st.session_state["gmm_results"]
-        df_view     = st.session_state["df_labelled"]
-        unit_prefs  = st.session_state.get("unit_prefs", {})
-
-        # Minority cluster per marker
-        minority_cluster = {}
-        for test_name, res in gmm_results.items():
-            if "error" in res or not res["cluster_stats"]:
-                continue
-            minority_cluster[test_name] = min(
-                res["cluster_stats"], key=lambda r: r["Patients"]
-            )["Group"]
-
-        selected_patient = st.selectbox("Select patient", sorted(df_long["patient_id"].unique()))
-
-        patient_df = df_view[df_view["patient_id"] == selected_patient].copy()
-        patient_df["Unusual"] = patient_df.apply(
-            lambda row: True if row["Group"] == minority_cluster.get(row["test_name"]) else False,
-            axis=1,
-        )
-        patient_df["Category"] = patient_df["test_name"].apply(marker_category)
-
-        # Apply display unit preferences
-        for marker, disp_unit in unit_prefs.items():
-            mask = patient_df["test_name"] == marker
-            patient_df.loc[mask, "value"] = patient_df.loc[mask, "value"].apply(
-                lambda v, du=disp_unit, mn=marker: from_canonical(mn, v, du)
-            )
-            patient_df.loc[mask, "unit"] = disp_unit
-
-        patient_df["value"] = patient_df["value"].round(3)
-
-        flagged   = patient_df[patient_df["Unusual"]]
-        n_flagged = len(flagged)
-
-        # ── Summary callout ──────────────────────────────────────────────────
-        if n_flagged == 0:
-            st.success(
-                f"**{selected_patient}** does not fall in any unusual group across "
-                f"{len(patient_df)} markers analysed."
-            )
-        else:
-            # Group flagged markers by category
-            flagged_by_cat = flagged.groupby("Category")["test_name"].apply(list).to_dict()
-            cat_summaries  = [
-                f"**{cat}**: {', '.join(markers)}"
-                for cat, markers in flagged_by_cat.items()
-            ]
-            st.warning(
-                f"**{selected_patient}** sits in an unusual group on **{n_flagged} of "
-                f"{len(patient_df)} markers** — "
-                + " · ".join(cat_summaries)
-                + ". This means these values are atypical relative to the rest of this population. "
-                "A clinician should determine whether this pattern is meaningful."
-            )
-
-        st.divider()
-
-        # ── Per-category breakdown ───────────────────────────────────────────
-        for category in MARKER_CATEGORIES:
-            cat_rows = patient_df[patient_df["Category"] == category]
-            if cat_rows.empty:
-                continue
-
-            n_flagged_cat = cat_rows["Unusual"].sum()
-            header = f"**{category}**"
-            if n_flagged_cat > 0:
-                header += f" — {n_flagged_cat} unusual"
-
-            with st.expander(header, expanded=(n_flagged_cat > 0)):
-                display_rows = []
-                for _, row in cat_rows.iterrows():
-                    display_rows.append({
-                        "Marker": row["test_name"],
-                        "Value":  row["value"],
-                        "Unit":   row["unit"],
-                        "Group":  row["Group"],
-                        "Note":   "⚠️ unusual — smallest group for this marker" if row["Unusual"] else "",
-                    })
-                st.dataframe(
-                    pd.DataFrame(display_rows),
-                    use_container_width=True,
-                    hide_index=True,
-                )
