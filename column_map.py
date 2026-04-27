@@ -54,4 +54,5 @@ COLUMN_MAP = {
     "Blood Test Info Neutrophil Count":               {"test": "Neutrophil Count",       "scale": 1},
 }
 
-ID_COLUMN = "Blood Test Info Blood Test ID"
+ID_COLUMN  = "Blood Test Info Blood Test ID"
+AGE_COLUMN = "Current Age"

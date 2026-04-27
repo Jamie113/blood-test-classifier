@@ -68,19 +68,21 @@ def generate_stub_data() -> pd.DataFrame:
     rng = np.random.default_rng(_SEED)
     rows = []
 
-    for group_idx, (n, suffix, param_offset) in enumerate(
-        [(_N_A, "A", 0), (_N_B, "B", 2)]
-    ):
+    # Group A skews younger (30–50), Group B skews older (45–65)
+    age_ranges = [(_N_A, "A", 0, 30, 50), (_N_B, "B", 2, 45, 65)]
+
+    for n, suffix, param_offset, age_lo, age_hi in age_ranges:
         for patient_num in range(1, n + 1):
             patient_id = f"DEMO-{suffix}{patient_num:03d}"
+            age = int(rng.integers(age_lo, age_hi + 1))
             for test_name, params in _MARKER_PARAMS.items():
                 mean = params[param_offset]
                 std  = params[param_offset + 1]
                 value = float(rng.normal(mean, std))
-                # Clip to a small positive floor to avoid nonsensical negatives
                 value = max(value, mean * 0.1)
                 rows.append({
                     "patient_id": patient_id,
+                    "age":        age,
                     "test_name":  test_name,
                     "value":      round(value, 4),
                     "unit":       THRESHOLDS[test_name]["unit"],

@@ -8,7 +8,7 @@ from sklearn.mixture import GaussianMixture
 import plotly.graph_objects as go
 
 from thresholds import THRESHOLDS
-from column_map import COLUMN_MAP, ID_COLUMN
+from column_map import COLUMN_MAP, ID_COLUMN, AGE_COLUMN
 from unit_conversions import (
     to_canonical,
     available_units, from_canonical, transform_for_display,
@@ -211,9 +211,12 @@ def parse_upload(uploaded_file) -> tuple:
         (df_raw[ID_COLUMN].astype(str).str.strip() != "")
     ].reset_index(drop=True)
 
+    has_age = AGE_COLUMN in df_raw.columns
+
     rows = []
     for _, row in df_raw.iterrows():
         patient_id = str(row[ID_COLUMN])
+        age = int(row[AGE_COLUMN]) if has_age and not pd.isna(row.get(AGE_COLUMN)) else None
         seen_tests = set()
         for col, mapping in COLUMN_MAP.items():
             if col not in df_raw.columns:
@@ -228,6 +231,7 @@ def parse_upload(uploaded_file) -> tuple:
             value = to_canonical(test_name, float(raw) * mapping["scale"])
             rows.append({
                 "patient_id": patient_id,
+                "age":        age,
                 "test_name":  test_name,
                 "value":      value,
                 "unit":       THRESHOLDS[test_name]["unit"],
@@ -490,9 +494,10 @@ with tab1:
                 df_display.loc[mask, "unit"] = disp_unit
 
             df_display = df_display.rename(columns={
-                "patient_id": "Patient", "test_name": "Test",
-                "value": "Value", "unit": "Unit",
+                "patient_id": "Patient", "age": "Age",
+                "test_name": "Test", "value": "Value", "unit": "Unit",
             })
+            df_display = df_display[["Patient", "Age", "Test", "Value", "Unit", "Group"]]
             df_display["Value"] = df_display["Value"].round(3)
             st.dataframe(df_display, use_container_width=True, hide_index=True)
             st.download_button(
@@ -529,6 +534,15 @@ with tab2:
             labels      = pop["labels"]
             patient_ids = pop["patient_ids"]
 
+            # Age lookup (None if column not in upload)
+            df_long    = st.session_state["df_long"]
+            age_lookup = (
+                df_long.drop_duplicates("patient_id")
+                .set_index("patient_id")["age"]
+                .to_dict()
+                if "age" in df_long.columns else {}
+            )
+
             col_a, col_b, col_c = st.columns(3)
             col_a.metric("Patients",     n_patients)
             col_b.metric("Markers used", pop["df_wide"].shape[1])
@@ -559,15 +573,23 @@ with tab2:
             for g in range(n_clusters):
                 mask = labels == g
                 idxs = np.where(mask)[0]
+                hover_labels = [
+                    f"{patient_ids[i]}" + (
+                        f" · Age {age_lookup[patient_ids[i]]}"
+                        if age_lookup.get(patient_ids[i]) is not None else ""
+                    )
+                    for i in idxs
+                ]
                 fig.add_trace(go.Scatter(
                     x=X2[mask, 0], y=X2[mask, 1],
                     mode="markers+text",
                     marker=dict(size=12, color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]),
                     text=[patient_ids[i] for i in idxs],
+                    customdata=hover_labels,
                     textposition="top right",
                     textfont=dict(size=10),
                     name=f"Type {g + 1}",
-                    hovertemplate="<b>%{text}</b><br>Similarity axis 1: %{x:.2f}<br>Similarity axis 2: %{y:.2f}<extra></extra>",
+                    hovertemplate="<b>%{customdata}</b><br>Similarity axis 1: %{x:.2f}<br>Similarity axis 2: %{y:.2f}<extra></extra>",
                 ))
             fig.update_layout(
                 xaxis_title=f"Similarity axis 1 ({var1:.1f}% of variation)",
