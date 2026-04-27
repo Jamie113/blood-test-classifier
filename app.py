@@ -229,8 +229,8 @@ with _prefs_col:
 
 with _tab_col:
     tab1, tab2 = st.tabs([
-        "How does my population look?",
-        "What types of patient exist?",
+        "Blood marker explorer",
+        "Patient population",
     ])
 
 
