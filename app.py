@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from scipy.stats import norm as scipy_norm
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.mixture import GaussianMixture
 import plotly.graph_objects as go
 
 from thresholds import THRESHOLDS
@@ -13,8 +10,9 @@ from unit_conversions import (
     to_canonical,
     available_units, from_canonical, transform_for_display,
 )
-from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
+from gmm import sort_gmm, get_boundaries, assign_clusters
 from stub_data import generate_stub_data
+from analysis import analyse_upload, analyse_population, build_labelled_df
 
 @st.cache_data
 def load_stub_data():
@@ -84,123 +82,6 @@ def group_plain_english(fp: pd.DataFrame, group_col: str, top_n: int = 4) -> lis
     return lines
 
 
-# ── Analysis functions (unchanged) ───────────────────────────────────────────
-
-def analyse_upload(df_long: pd.DataFrame) -> dict:
-    """Fit GMM per marker on uploaded data. Returns per-marker analysis dict."""
-    results = {}
-    for test_name in df_long["test_name"].unique():
-        values = df_long[df_long["test_name"] == test_name]["value"].dropna().values
-
-        if len(values) < 4:
-            results[test_name] = {"error": f"Only {len(values)} data points", "values": values}
-            continue
-
-        gmm, n, bic_scores = fit_optimal_gmm(values)
-        means, stds, weights = sort_gmm(gmm)
-        boundaries = get_boundaries(means, stds, weights)
-        labels = assign_clusters(values, boundaries)
-
-        cluster_stats = []
-        for i in range(n):
-            mask = labels == i
-            cv = values[mask]
-            cluster_stats.append({
-                "Group":      f"Group {i + 1}",
-                "Average":    round(float(means[i]), 3),
-                "Spread (±)": round(float(stds[i]), 3),
-                "Min":        round(float(cv.min()), 3) if len(cv) else "—",
-                "Max":        round(float(cv.max()), 3) if len(cv) else "—",
-                "Patients":   int(mask.sum()),
-                "% of Total": f"{mask.mean() * 100:.1f}%",
-            })
-
-        results[test_name] = {
-            "n_components":  n,
-            "bic_scores":    bic_scores,
-            "means":         means,
-            "stds":          stds,
-            "weights":       weights,
-            "boundaries":    boundaries,
-            "labels":        labels,
-            "values":        values,
-            "cluster_stats": cluster_stats,
-            "small_sample":  len(values) < 30,
-        }
-
-    return results
-
-
-def build_labelled_df(df_long: pd.DataFrame, gmm_results: dict) -> pd.DataFrame:
-    """Attach group labels to every row. Computed once at load time."""
-    df = df_long.copy()
-    df["Group"] = "—"
-    for test_name, res in gmm_results.items():
-        if "error" in res:
-            continue
-        mask = df["test_name"] == test_name
-        lbs  = assign_clusters(df.loc[mask, "value"].values, res["boundaries"])
-        df.loc[mask, "Group"] = [f"Group {l + 1}" for l in lbs]
-    return df
-
-
-def analyse_population(df_long: pd.DataFrame) -> dict:
-    """
-    Multivariate patient clustering across all markers.
-    Pipeline: wide pivot → median impute → StandardScaler → PCA → GMM.
-    """
-    df_wide = df_long.pivot_table(index="patient_id", columns="test_name", values="value")
-    df_wide = df_wide.dropna(thresh=int(len(df_wide) * 0.5), axis=1)
-    df_wide = df_wide.fillna(df_wide.median())
-
-    n_patients, n_markers = df_wide.shape
-    if n_patients < 4:
-        return {"error": f"Only {n_patients} patients — need at least 4 for population clustering."}
-    if n_markers < 2:
-        return {"error": "Not enough markers with sufficient coverage for population clustering."}
-
-    scaler   = StandardScaler()
-    X_scaled = scaler.fit_transform(df_wide.values)
-
-    max_components = min(n_patients - 1, n_markers)
-    pca   = PCA(n_components=max_components, random_state=42)
-    X_pca = pca.fit_transform(X_scaled)
-
-    cumvar        = np.cumsum(pca.explained_variance_ratio_)
-    n_for_80      = int(np.searchsorted(cumvar, 0.80)) + 1
-    n_cluster_dims = max(2, min(n_for_80, max_components))
-    X_cluster     = X_pca[:, :n_cluster_dims]
-
-    max_n = min(5, n_patients - 1)
-    best_n, best_bic, best_gmm, bic_scores = 2, np.inf, None, {}
-    for n in range(2, max_n + 1):
-        gmm = GaussianMixture(n_components=n, random_state=42, n_init=10)
-        gmm.fit(X_cluster)
-        bic = gmm.bic(X_cluster)
-        bic_scores[n] = float(bic)
-        if bic < best_bic:
-            best_bic, best_n, best_gmm = bic, n, gmm
-
-    labels      = best_gmm.predict(X_cluster)
-    z_scores    = pd.DataFrame(X_scaled, index=df_wide.index, columns=df_wide.columns)
-    fingerprint = z_scores.copy()
-    fingerprint["Group"] = [f"Group {l + 1}" for l in labels]
-    fingerprint = fingerprint.groupby("Group").mean().T
-
-    return {
-        "patient_ids":    list(df_wide.index),
-        "labels":         labels,
-        "n_clusters":     best_n,
-        "bic_scores":     bic_scores,
-        "X_pca_2d":       X_pca[:, :2],
-        "pca_var":        pca.explained_variance_ratio_,
-        "n_cluster_dims": n_cluster_dims,
-        "fingerprint":    fingerprint,
-        "df_wide":        df_wide,
-        "small_sample":   n_patients < 30,
-    }
-
-
 # ── CSV parsing ───────────────────────────────────────────────────────────────
 
 def parse_upload(uploaded_file) -> tuple:
@@ -213,33 +94,43 @@ def parse_upload(uploaded_file) -> tuple:
 
     has_age = AGE_COLUMN in df_raw.columns
 
-    rows = []
-    for _, row in df_raw.iterrows():
-        patient_id = str(row[ID_COLUMN])
-        age = int(row[AGE_COLUMN]) if has_age and not pd.isna(row.get(AGE_COLUMN)) else None
-        seen_tests = set()
-        for col, mapping in COLUMN_MAP.items():
-            if col not in df_raw.columns:
-                continue
-            raw = row.get(col)
-            if pd.isna(raw):
-                continue
-            test_name = mapping["test"]
-            if test_name in seen_tests:
-                continue
-            seen_tests.add(test_name)
-            value = to_canonical(test_name, float(raw) * mapping["scale"])
-            rows.append({
-                "patient_id": patient_id,
-                "age":        age,
-                "test_name":  test_name,
-                "value":      value,
-                "unit":       THRESHOLDS[test_name]["unit"],
-            })
+    # Build long-format column-by-column (much faster than iterrows)
+    frames = []
+    seen_tests: set = set()
+    for col, mapping in COLUMN_MAP.items():
+        if col not in df_raw.columns:
+            continue
+        test_name = mapping["test"]
+        if test_name in seen_tests:
+            continue  # skip duplicate column mappings (e.g. Haematocrit ADJ)
+        seen_tests.add(test_name)
+
+        sub = df_raw[[ID_COLUMN, col]].copy()
+        if has_age:
+            sub[AGE_COLUMN] = df_raw[AGE_COLUMN]
+        sub = sub.dropna(subset=[col]).reset_index(drop=True)
+        if sub.empty:
+            continue
+
+        sub["patient_id"] = sub[ID_COLUMN].astype(str)
+        sub["age"] = (
+            pd.to_numeric(sub[AGE_COLUMN], errors="coerce").astype("Int64")
+            if has_age else None
+        )
+        sub["value"] = sub[col].astype(float) * mapping["scale"]
+        sub["value"] = sub["value"].apply(lambda v: to_canonical(test_name, v))
+        sub["test_name"] = test_name
+        sub["unit"] = THRESHOLDS[test_name]["unit"]
+        frames.append(sub[["patient_id", "age", "test_name", "value", "unit"]])
+
+    if frames:
+        df_long = pd.concat(frames, ignore_index=True)
+    else:
+        df_long = pd.DataFrame(columns=["patient_id", "age", "test_name", "value", "unit"])
 
     recognised   = [c for c in COLUMN_MAP if c in df_raw.columns]
     unrecognised = [c for c in df_raw.columns if c not in COLUMN_MAP and c != ID_COLUMN]
-    return pd.DataFrame(rows), recognised, unrecognised
+    return df_long, recognised, unrecognised
 
 
 # ── Header ────────────────────────────────────────────────────────────────────
@@ -295,19 +186,25 @@ if uploaded:
             st.write(f"**Skipped:** {', '.join(st.session_state['unrecognised'])}")
 else:
     if "df_long" not in st.session_state:
-        with st.spinner("Loading demo data…"):
-            df_long     = load_stub_data()
-            gmm_results = analyse_upload(df_long)
-            pop_results = analyse_population(df_long)
-            df_labelled = build_labelled_df(df_long, gmm_results)
-        st.session_state.update({
-            "df_long":     df_long,
-            "gmm_results": gmm_results,
-            "pop_results": pop_results,
-            "df_labelled": df_labelled,
-            "is_demo":     True,
-            "file_id":     None,
-        })
+        import pickle
+        from pathlib import Path
+        _cache_path = Path(__file__).parent / "demo_cache.pkl"
+        if _cache_path.exists():
+            with open(_cache_path, "rb") as _f:
+                _cached = pickle.load(_f)
+        else:
+            with st.spinner("Loading demo data…"):
+                _df_long     = load_stub_data()
+                _gmm_results = analyse_upload(_df_long)
+                _pop_results = analyse_population(_df_long)
+                _df_labelled = build_labelled_df(_df_long, _gmm_results)
+            _cached = {
+                "df_long":     _df_long,
+                "gmm_results": _gmm_results,
+                "pop_results": _pop_results,
+                "df_labelled": _df_labelled,
+            }
+        st.session_state.update({**_cached, "is_demo": True, "file_id": None})
 
 if st.session_state.get("is_demo"):
     st.info(
