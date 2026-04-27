@@ -561,36 +561,64 @@ with tab2:
             st.subheader("Patient map")
             st.info(
                 "Each dot is a patient. **Patients close together have similar overall blood profiles.** "
-                "Colour shows which group they belong to. Hover over a dot to see the patient ID.",
+                "Hover over a dot to see the patient ID and age.",
                 icon="ℹ️",
+            )
+
+            has_age_data = bool(age_lookup)
+            colour_by    = st.radio(
+                "Colour by",
+                ["Patient type", "Age"] if has_age_data else ["Patient type"],
+                horizontal=True,
+                key="scatter_colour",
             )
 
             X2   = pop["X_pca_2d"]
             var1 = pop["pca_var"][0] * 100
             var2 = pop["pca_var"][1] * 100
 
+            hover_text = [
+                f"{pid}" + (f" · Age {age_lookup[pid]}" if age_lookup.get(pid) is not None else "")
+                for pid in patient_ids
+            ]
+
             fig = go.Figure()
-            for g in range(n_clusters):
-                mask = labels == g
-                idxs = np.where(mask)[0]
-                hover_labels = [
-                    f"{patient_ids[i]}" + (
-                        f" · Age {age_lookup[patient_ids[i]]}"
-                        if age_lookup.get(patient_ids[i]) is not None else ""
-                    )
-                    for i in idxs
-                ]
+
+            if colour_by == "Age":
+                ages = [age_lookup.get(pid) for pid in patient_ids]
                 fig.add_trace(go.Scatter(
-                    x=X2[mask, 0], y=X2[mask, 1],
+                    x=X2[:, 0], y=X2[:, 1],
                     mode="markers+text",
-                    marker=dict(size=12, color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]),
-                    text=[patient_ids[i] for i in idxs],
-                    customdata=hover_labels,
+                    marker=dict(
+                        size=12,
+                        color=ages,
+                        colorscale="RdYlBu_r",
+                        showscale=True,
+                        colorbar=dict(title="Age"),
+                    ),
+                    text=patient_ids,
+                    customdata=hover_text,
                     textposition="top right",
                     textfont=dict(size=10),
-                    name=f"Type {g + 1}",
                     hovertemplate="<b>%{customdata}</b><br>Similarity axis 1: %{x:.2f}<br>Similarity axis 2: %{y:.2f}<extra></extra>",
+                    showlegend=False,
                 ))
+            else:
+                for g in range(n_clusters):
+                    mask = labels == g
+                    idxs = np.where(mask)[0]
+                    fig.add_trace(go.Scatter(
+                        x=X2[mask, 0], y=X2[mask, 1],
+                        mode="markers+text",
+                        marker=dict(size=12, color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]),
+                        text=[patient_ids[i] for i in idxs],
+                        customdata=[hover_text[i] for i in idxs],
+                        textposition="top right",
+                        textfont=dict(size=10),
+                        name=f"Type {g + 1}",
+                        hovertemplate="<b>%{customdata}</b><br>Similarity axis 1: %{x:.2f}<br>Similarity axis 2: %{y:.2f}<extra></extra>",
+                    ))
+
             fig.update_layout(
                 xaxis_title=f"Similarity axis 1 ({var1:.1f}% of variation)",
                 yaxis_title=f"Similarity axis 2 ({var2:.1f}% of variation)",
