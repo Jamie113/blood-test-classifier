@@ -242,18 +242,99 @@ def parse_upload(uploaded_file) -> tuple:
     return pd.DataFrame(rows), recognised, unrecognised
 
 
-# ── App header ────────────────────────────────────────────────────────────────
+# ── Header ────────────────────────────────────────────────────────────────────
 
-st.title("Blood Test Classifier")
-st.caption(
-    "Discovers natural patterns in blood test using unsupervised machine learning."
-)
+header_left, header_right = st.columns([2, 1])
+
+with header_left:
+    st.title("Blood Test Classifier")
+    st.caption(
+        "Discovers natural patterns in blood test results using unsupervised machine learning. "
+        "**Not a diagnostic tool** — findings should be reviewed by a qualified clinician."
+    )
+
+with header_right:
+    st.write("")  # nudge upward to align with title
+    uploaded = st.file_uploader(
+        "Upload blood test CSV", type="csv", key="upload",
+        label_visibility="collapsed",
+        help="Wide-format export — one row per patient.",
+    )
+    if uploaded:
+        st.caption(f"📄 {uploaded.name}")
+
+# ── Data loading (runs once per file, above tabs) ─────────────────────────────
+
+MULTI_UNIT_MARKERS = [m for m in THRESHOLDS if len(available_units(m)) > 1]
+
+if uploaded:
+    file_id = f"{uploaded.name}_{uploaded.size}"
+    if st.session_state.get("file_id") != file_id:
+        with st.spinner("Reading your data and finding groups…"):
+            df_long, recognised, unrecognised = parse_upload(uploaded)
+            gmm_results = analyse_upload(df_long)
+            pop_results = analyse_population(df_long)
+            df_labelled = build_labelled_df(df_long, gmm_results)
+        st.session_state.update({
+            "df_long":      df_long,
+            "gmm_results":  gmm_results,
+            "pop_results":  pop_results,
+            "df_labelled":  df_labelled,
+            "is_demo":      False,
+            "file_id":      file_id,
+            "recognised":   recognised,
+            "unrecognised": unrecognised,
+        })
+    with st.expander(
+        f"Column mapping — {len(st.session_state['recognised'])} recognised, "
+        f"{len(st.session_state['unrecognised'])} skipped",
+        expanded=False,
+    ):
+        st.write(f"**Recognised:** {', '.join(COLUMN_MAP[c]['test'] for c in st.session_state['recognised'])}")
+        if st.session_state["unrecognised"]:
+            st.write(f"**Skipped:** {', '.join(st.session_state['unrecognised'])}")
+else:
+    if "df_long" not in st.session_state:
+        with st.spinner("Loading demo data…"):
+            df_long     = load_stub_data()
+            gmm_results = analyse_upload(df_long)
+            pop_results = analyse_population(df_long)
+            df_labelled = build_labelled_df(df_long, gmm_results)
+        st.session_state.update({
+            "df_long":     df_long,
+            "gmm_results": gmm_results,
+            "pop_results": pop_results,
+            "df_labelled": df_labelled,
+            "is_demo":     True,
+            "file_id":     None,
+        })
+
+if st.session_state.get("is_demo"):
+    st.info(
+        "**Demo mode** — showing 80 synthetic patients across two subgroups. "
+        "Upload your own CSV using the button above to analyse your real population.",
+    )
+
+with st.expander("Unit preferences", expanded=False):
+    st.caption(
+        "Some markers can be reported in different unit systems. "
+        "Select the units your export uses — results update instantly."
+    )
+    unit_prefs = {}
+    pref_cols  = st.columns(3)
+    for i, marker in enumerate(MULTI_UNIT_MARKERS):
+        units = available_units(marker)
+        unit_prefs[marker] = pref_cols[i % 3].selectbox(
+            marker, units, key=f"unit_{marker}"
+        )
+
+st.divider()
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 
 tab1, tab2 = st.tabs([
-    "Blood marker pattern",
-    "Population patterns",
+    "How does my population look?",
+    "What types of patient exist?",
 ])
 
 
@@ -262,71 +343,6 @@ tab1, tab2 = st.tabs([
 # ─────────────────────────────────────────────────────────────────────────────
 
 with tab1:
-    st.write("Select a marker to see how your patients are distributed."
-    )
-
-    uploaded = st.file_uploader("Upload a blood test CSV export", type="csv", key="upload")
-
-    MULTI_UNIT_MARKERS = [m for m in THRESHOLDS if len(available_units(m)) > 1]
-
-    with st.expander("Unit preferences", expanded=False):
-        st.caption(
-            "Some markers can be reported in different unit systems. "
-            "Select the units your export uses — results will update instantly."
-        )
-        unit_prefs = {}
-        cols = st.columns(3)
-        for i, marker in enumerate(MULTI_UNIT_MARKERS):
-            units = available_units(marker)
-            unit_prefs[marker] = cols[i % 3].selectbox(
-                marker, units, key=f"unit_{marker}"
-            )
-    if uploaded:
-        # Only reprocess if this is a new file
-        file_id = f"{uploaded.name}_{uploaded.size}"
-        if st.session_state.get("file_id") != file_id:
-            with st.spinner("Reading your data and finding groups…"):
-                df_long, recognised, unrecognised = parse_upload(uploaded)
-                gmm_results  = analyse_upload(df_long)
-                pop_results  = analyse_population(df_long)
-                df_labelled  = build_labelled_df(df_long, gmm_results)
-            st.session_state["df_long"]      = df_long
-            st.session_state["gmm_results"]  = gmm_results
-            st.session_state["pop_results"]  = pop_results
-            st.session_state["df_labelled"]  = df_labelled
-            st.session_state["is_demo"]      = False
-            st.session_state["file_id"]      = file_id
-            st.session_state["recognised"]   = recognised
-            st.session_state["unrecognised"] = unrecognised
-
-        with st.expander(
-            f"Column mapping — {len(st.session_state['recognised'])} recognised, "
-            f"{len(st.session_state['unrecognised'])} skipped",
-            expanded=False,
-        ):
-            st.write(f"**Recognised:** {', '.join(COLUMN_MAP[c]['test'] for c in st.session_state['recognised'])}")
-            if st.session_state["unrecognised"]:
-                st.write(f"**Skipped (no mapping):** {', '.join(st.session_state['unrecognised'])}")
-    else:
-        if "df_long" not in st.session_state:
-            with st.spinner("Loading demo data…"):
-                df_long     = load_stub_data()
-                gmm_results = analyse_upload(df_long)
-                pop_results = analyse_population(df_long)
-                df_labelled = build_labelled_df(df_long, gmm_results)
-            st.session_state["df_long"]     = df_long
-            st.session_state["gmm_results"] = gmm_results
-            st.session_state["pop_results"] = pop_results
-            st.session_state["df_labelled"] = df_labelled
-            st.session_state["is_demo"]     = True
-            st.session_state["file_id"]     = None
-
-    if st.session_state.get("is_demo"):
-        st.info(
-            "**Demo mode** — showing 80 synthetic patients across two subgroups. "
-            "Upload your own CSV above to analyse your real population.",
-        )
-
     if "df_long" in st.session_state:
         df_long     = st.session_state["df_long"]
         gmm_results = st.session_state["gmm_results"]
