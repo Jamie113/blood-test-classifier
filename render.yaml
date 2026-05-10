@@ -1,0 +1,24 @@
+# Render Blueprint — infrastructure-as-code for the FastAPI app.
+# https://render.com/docs/blueprint-spec
+#
+# Existing Web Services created via the dashboard do NOT auto-pick up
+# render.yaml. To use this file:
+#   - Either create the service via Blueprints > New Blueprint Instance
+#     (it will read this file), or
+#   - Update the existing service's Build/Start commands in the dashboard
+#     to match the values below.
+
+services:
+  - type: web
+    name: blood-test-classifier
+    runtime: python
+    plan: free
+    region: oregon            # match the region of the existing service
+    branch: main
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn web.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.2

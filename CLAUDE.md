@@ -4,14 +4,9 @@ Guidance for Claude Code when working in this repository.
 
 ## What this project is
 
-An app that discovers natural clusters in blood test results using unsupervised machine learning. Each row in the dataset is one **blood test** (a single panel result), not a patient-as-such. The app does **not** classify results as Normal/Borderline/Abnormal — it finds what groups exist.
+A FastAPI + HTMX + Tailwind app that discovers natural clusters in blood test results using unsupervised machine learning. Each row in the dataset is one **blood test** (a single panel result), not a patient-as-such. The app does **not** classify results as Normal/Borderline/Abnormal — it finds what groups exist.
 
-There are **two front-ends** sharing the same analysis layer:
-
-- **FastAPI + HTMX + Tailwind** under `web/` — the current development target. Notion-style design system, four tabs, full design control.
-- **Streamlit** at the project root (`app.py`) — kept working for comparison; not where new UI features go.
-
-Four tabs (FastAPI app):
+Four tabs:
 - **1. Groups** — per-marker GMM, histogram + density curves, reference range lines.
 - **2. Clusters** — multivariate clustering (PCA → diagonal-covariance GMM), scatter, cluster cards, fingerprint heatmap.
 - **3. Outliers** — boundary cases (max posterior < 0.7) + multivariate outliers (χ² test on Mahalanobis distance).
@@ -21,16 +16,12 @@ A left-rail **cohort filter** (age range + per-marker value ranges) re-runs all 
 
 A left-rail **upload** form (`POST /upload`) replaces the demo data with a parsed CSV, and a **display units** disclosure overrides the default unit per marker.
 
-## Running the apps
+## Running the app
 
 ```bash
 source venv/bin/activate
-
-# FastAPI app (current target)
 uvicorn web.main:app --reload
-
-# Streamlit app (legacy, still functional)
-streamlit run app.py
+# → http://localhost:8000
 ```
 
 ## Tests
@@ -48,17 +39,17 @@ python -m pytest tests/test_analysis.py   # core analysis only
 |------------|---------|
 | `analysis.py` | Core analysis: `analyse_upload`, `analyse_population`, `build_labelled_df`, `filter_long`, `most_separated_marker`, `strongest_marker_pair` |
 | `gmm.py` | Low-level GMM: `fit_optimal_gmm`, `sort_gmm` (returns `(means, stds, weights, order)`), `get_boundaries`, `assign_clusters` |
-| `parsing.py` | Shared CSV parser (`parse_csv`) — used by both FastAPI and Streamlit apps |
+| `parsing.py` | CSV parser (`parse_csv`) — wide-format upload → long DataFrame |
 | `thresholds.py` | Reference ranges for 27 markers + `classify_test()` |
 | `column_map.py` | Maps CSV column headers → marker names |
 | `unit_conversions.py` | Upload-time unit auto-detection + display transforms |
 | `stub_data.py` | 80 synthetic demo blood tests across two designed sub-populations |
 | `demo_cache.pkl` | Pre-baked demo analysis — committed so cold start is instant |
 | `bake_demo.py` | Regenerates `demo_cache.pkl` — run after changing `stub_data.py`, `analysis.py`, or `gmm.py` |
-| `app.py` | Streamlit UI (legacy) |
 | `web/main.py` | FastAPI app: routes, context builders, chart helpers, request pipeline |
 | `web/templates/` | Jinja2 templates: `base.html`, `index.html`, and `partials/*.html` |
 | `web/static/styles.css` | Design system: typography scale, colour tokens, components |
+| `render.yaml` | Render Blueprint — build command, start command, health check |
 | `tests/` | pytest suite |
 | `.claude/agents/ml-reviewer.md` | Custom subagent for periodic ML / methodology review (read-only, opus) |
 
@@ -72,11 +63,9 @@ python bake_demo.py
 git add demo_cache.pkl
 ```
 
-**Analysis layer is framework-agnostic** — `analysis.py`, `gmm.py`, `thresholds.py`, `unit_conversions.py`, `parsing.py` and `stub_data.py` have no Streamlit or FastAPI imports. Both UIs import from them.
+**Analysis layer is framework-agnostic** — `analysis.py`, `gmm.py`, `thresholds.py`, `unit_conversions.py`, `parsing.py` and `stub_data.py` have no FastAPI imports. The web layer imports from them; tests import directly.
 
-**Streamlit `app.py` contains no analysis logic** — all computation lives in `analysis.py`. `app.py` only reads from `st.session_state` and renders.
-
-**No `@st.cache_data` on analysis functions** — DataFrame hashing overhead exceeded the benefit. Session state is the cache; analysis only runs when a new file is uploaded.
+**`web/main.py` route handlers contain no analysis logic** — all computation lives in `analysis.py` / `gmm.py` / `parsing.py`. Routes parse query params, call analysis, build template context.
 
 ### Per-marker GMM (`fit_optimal_gmm` in `gmm.py`)
 
@@ -99,9 +88,7 @@ git add demo_cache.pkl
 
 ### Cohort filter — full vs filtered state
 
-**Streamlit** keeps two parallel sets of analysis results in `st.session_state`: `*_full` (unfiltered source, populated once on upload or demo load) and the active set (filtered subset). Re-runs on filter change.
-
-**FastAPI** stores only the unfiltered source in `state.df_long_full` etc.; filtered analysis is computed by `_filtered_data_cached(spec)` (LRU cache, max 32 entries to bound memory on the 512 MB tier). `_load_demo` and `/upload` both call `_filtered_data_cached.cache_clear()`.
+The unfiltered source lives in `state.df_long_full` etc. Filtered analysis is computed lazily by `_filtered_data_cached(spec)` — `functools.lru_cache(maxsize=32)` keeps memory bounded on the 512 MB Render tier (~400 KB per cached entry). Both `_load_demo` and `/upload` call `_filtered_data_cached.cache_clear()`.
 
 Filter state lives in URL query params (`age_min`, `age_max`, repeated `m=Marker:lo:hi`) so cohorts are bookmarkable and tab-switching preserves the filter.
 
@@ -114,7 +101,7 @@ If you change the return shape, update both `bake_demo.py` consumers and the tes
 - **`analyse_upload`** per-marker dict now includes `gmm` (the fitted model) and `order_inverse` (for posterior label remapping). Required for `build_labelled_df` to use `gmm.predict`.
 - **`analyse_population`** dict now includes `posteriors`, `log_likelihood`, `mahalanobis_sq`, and `z_scores` alongside the original fields.
 
-### FastAPI design system (`web/static/styles.css`)
+### Design system (`web/static/styles.css`)
 
 Typography scale: `t-eyebrow` (uppercase 0.72rem) / `t-h1` (2.0rem 600 weight) / `t-h2` / `t-body` / `t-meta`. One accent (`--accent: #4C72B0`); 5-step grayscale; cluster colours used only inside chart areas. Most chrome (cards, disclosures, control-bar, tab-strip) is custom CSS; Tailwind is loaded via CDN for utility classes only.
 
@@ -143,8 +130,7 @@ Do not update it for routine changes like adding a test or tweaking a threshold 
 
 ## What to avoid
 
-- Do not add analysis logic directly in `app.py` or `web/main.py` route handlers — it belongs in `analysis.py` / `gmm.py` / `parsing.py`.
-- Do not add `@st.cache_data` to functions that take DataFrames as arguments.
+- Do not add analysis logic directly in `web/main.py` route handlers — it belongs in `analysis.py` / `gmm.py` / `parsing.py`.
 - Do not remove `demo_cache.pkl` from git or the `.gitignore` exception.
 - Do not bypass the ΔBIC ≥ 6 floor when picking K — uniform markers should report K=1.
 - Do not switch the population GMM back to `covariance_type='full'` without checking the demo still picks K=2 (full covariance over-penalises K>1 in 10-D space).
@@ -153,4 +139,6 @@ Do not update it for routine changes like adding a test or tweaking a threshold 
 
 ## Deployment
 
-Hosted on Render free tier (512 MB RAM). The free tier spins down after 15 min inactivity — 30–60s cold start is unavoidable, but all analysis is instant once Python is running because `demo_cache.pkl` is pre-baked. The Streamlit deployment uses `streamlit run app.py`; the FastAPI deployment is `uvicorn web.main:app`.
+Hosted on Render free tier (512 MB RAM). The free tier spins down after 15 min inactivity — 30–60s cold start is unavoidable, but all analysis is instant once Python is running because `demo_cache.pkl` is pre-baked.
+
+`render.yaml` declares the build/start commands and the `/healthz` health-check path. Existing dashboard-created services do not auto-pick-up `render.yaml`; either set the start command to `uvicorn web.main:app --host 0.0.0.0 --port $PORT` manually, or recreate the service from the Blueprint.

@@ -1,6 +1,6 @@
 # analysis.py
-# Pure analysis functions — no Streamlit imports.
-# Used by app.py at runtime and bake_demo.py at build time.
+# Pure analysis functions — framework-agnostic.
+# Imported by web/main.py at request time and bake_demo.py at build time.
 
 import numpy as np
 import pandas as pd

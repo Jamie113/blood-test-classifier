@@ -1,17 +1,8 @@
 # Blood Test Classifier
 
-An app for discovering patterns in blood test results using unsupervised machine learning. Upload a wide-format CSV of blood test results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
+A FastAPI + HTMX + Tailwind app for discovering patterns in blood test results using unsupervised machine learning. Upload a wide-format CSV of blood test results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
 
 Each row in the dataset is treated as one **blood test** (a single panel of marker results), not a patient-as-such.
-
----
-
-## Two front-ends, one analysis layer
-
-The same modelling code (`analysis.py`, `gmm.py`, `parsing.py`, `thresholds.py`, `unit_conversions.py`) powers two UIs:
-
-- **FastAPI + HTMX + Tailwind** at `web/` — current development target. Notion-style design system, four tabs, full layout control.
-- **Streamlit** at the project root (`app.py`) — kept for comparison; not where new UI work lands.
 
 ---
 
@@ -27,7 +18,7 @@ Cluster labels are abstract numbers — Cluster 1, 2, 3 — not pre-labelled as 
 
 ---
 
-## Running the apps
+## Running the app
 
 ```bash
 # First time setup
@@ -35,16 +26,13 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# FastAPI (current target) — http://localhost:8000
+# Start the app — http://localhost:8000
 uvicorn web.main:app --reload
-
-# Streamlit (legacy) — http://localhost:8501
-streamlit run app.py
 ```
 
 ---
 
-## The four tabs (FastAPI)
+## The four tabs
 
 1. **Groups** — per-marker GMM. For each marker, shows whether tests fall into one consistent range or split into distinct groups. Auto-picks the marker with the clearest separation.
 2. **Clusters** — multivariate clustering. Treats every test as a point in marker space and groups tests with similar overall profiles. Includes a fingerprint heatmap of which markers most distinguish each cluster.
@@ -107,18 +95,18 @@ To update a threshold, edit `thresholds.py` — all downstream logic picks it up
 ```
 analysis.py         — Core analysis (per-marker GMM, multivariate clustering, filter, ranking helpers)
 gmm.py              — Low-level GMM (fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters)
-parsing.py          — Shared CSV parser (parse_csv) used by both UIs
+parsing.py          — CSV parser (parse_csv): wide-format upload → long DataFrame
 thresholds.py       — Male reference ranges for all 27 markers + classify_test()
 column_map.py       — Maps CSV column headers to marker names
 unit_conversions.py — Unit auto-detection + display unit transforms
 stub_data.py        — 80 synthetic demo blood tests (fixed seed, two designed sub-populations)
 demo_cache.pkl      — Pre-baked demo analysis (committed for instant cold start)
 bake_demo.py        — Regenerates demo_cache.pkl after data/analysis changes
-app.py              — Streamlit UI (legacy)
 web/
   main.py           — FastAPI app: routes, context builders, chart helpers
   templates/        — Jinja2 templates (base + partials per tab)
   static/styles.css — Design system: typography, colour, components
+render.yaml         — Render Blueprint (build/start commands, /healthz check)
 tests/              — pytest suite (191 tests across all modules)
 .claude/agents/     — Custom subagents (ml-reviewer for periodic methodology review)
 ```
@@ -151,6 +139,20 @@ python -m pytest tests/test_analysis.py   # core analysis only
 | `test_unit_conversions.py` | All 6 conversion rules, boundary detection |
 | `test_column_map.py` | All 27 export columns mapped to valid thresholds |
 | `test_analysis.py` | analyse_upload, analyse_population (incl. K=1 + Mahalanobis fields), build_labelled_df, filter_long, most_separated_marker, strongest_marker_pair |
+
+---
+
+## Deployment
+
+Hosted on Render free tier (512 MB RAM). The free tier spins down after 15 minutes of inactivity — 30–60s cold start is unavoidable, but all analysis is instant once Python is running because `demo_cache.pkl` is pre-baked.
+
+Render config lives in `render.yaml`:
+- Build: `pip install -r requirements.txt`
+- Start: `uvicorn web.main:app --host 0.0.0.0 --port $PORT`
+- Health check: `/healthz`
+- Python: 3.13.2 (also pinned in `runtime.txt`)
+
+For an existing Render service that wasn't created from a Blueprint, update the start command in the dashboard manually (Render does not auto-pick-up `render.yaml` for services already created).
 
 ---
 

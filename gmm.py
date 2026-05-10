@@ -1,5 +1,5 @@
 # gmm.py
-# Core GMM fitting functions shared between app.py and any offline scripts.
+# Core GMM fitting functions used by analysis.py and bake_demo.py.
 
 import numpy as np
 from sklearn.mixture import GaussianMixture

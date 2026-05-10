@@ -2,7 +2,6 @@ pandas
 scikit-learn
 scipy
 numpy
-streamlit
 plotly
 pytest
 fastapi
