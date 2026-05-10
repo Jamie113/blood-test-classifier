@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Blood Test Classifier{% endblock %}</title>
+
+  <!-- Tailwind via CDN for the prototype. Production: compile locally. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: { preflight: false },  // keep our own typography
+    };
+  </script>
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
+  <!-- Plotly: load once at the top so HTMX-swapped chart fragments can use it. -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <link rel="stylesheet" href="/static/styles.css" />
+
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="left-rail">
+      {% block left_rail %}{% endblock %}
+    </aside>
+    <main class="main">
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

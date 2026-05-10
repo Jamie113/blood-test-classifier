@@ -5,3 +5,8 @@ numpy
 streamlit
 plotly
 pytest
+fastapi
+uvicorn[standard]
+jinja2
+python-multipart
+httpx

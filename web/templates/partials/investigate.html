@@ -1,0 +1,86 @@
+{% set i = inv %}
+
+{% if i.error is defined %}
+  <div class="cohort-error">{{ i.error }}</div>
+{% elif i.n_flagged == 0 %}
+
+  <div class="finding-empty">
+    <strong>Nothing stands out</strong> across your {{ i.n_patients }} blood tests.
+    Every test sits squarely inside its cluster — no boundary cases, no multivariate outliers.
+    A clean cohort, or a small one.
+  </div>
+
+  <div class="next-step">
+    → Now look at how markers relate to each other in
+    <a href="/?tab=pairs{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-get="/tab/pairs{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+       hx-target="#page-body"
+       hx-swap="innerHTML"
+       hx-push-url="true"><strong>4. Correlations</strong></a>
+  </div>
+
+{% else %}
+
+  <div class="investigate-summary">
+    <div class="investigate-stat">
+      <div class="investigate-stat-num">{{ i.n_boundary }}</div>
+      <div class="investigate-stat-label">Borderline</div>
+      <div class="investigate-stat-help">Profile split between two clusters</div>
+    </div>
+    <div class="investigate-stat">
+      <div class="investigate-stat-num">{{ i.n_outlier }}</div>
+      <div class="investigate-stat-label">Outliers</div>
+      <div class="investigate-stat-help">Unusual overall blood profile</div>
+    </div>
+    <div class="investigate-stat">
+      <div class="investigate-stat-num">{{ "%.0f"|format(i.n_flagged / i.n_patients * 100) }}%</div>
+      <div class="investigate-stat-label">Flagged</div>
+      <div class="investigate-stat-help">{{ i.n_flagged }} of {{ i.n_patients }} tests</div>
+    </div>
+  </div>
+
+  <div class="investigate-list">
+    {% for r in i.rows %}
+      <div class="investigate-row">
+        <div class="investigate-row-head">
+          <div class="investigate-row-id">
+            <strong>{{ r.patient }}</strong>
+            {% if r.age != "—" %}<span class="t-quiet">· age {{ r.age }}</span>{% endif %}
+          </div>
+          <div class="investigate-row-tags">
+            {% for t in r.tags %}
+              <span class="investigate-tag investigate-tag-{{ t }}">{{ t }}</span>
+            {% endfor %}
+          </div>
+          <div class="investigate-row-cluster">
+            <span class="group-chip-dot" style="background: {{ r.type_colour }};"></span>{{ r.cluster }}
+            <span class="t-quiet">&nbsp;{{ r.confidence }}% confidence</span>
+          </div>
+        </div>
+        <div class="investigate-row-why">{{ r.why }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="finding">
+    <strong>{{ i.n_flagged }}</strong> of {{ i.n_patients }} tests flagged.
+    {% if i.n_boundary and i.n_outlier %}
+      {{ i.n_boundary }} on the boundary between clusters; {{ i.n_outlier }} with unusual overall profiles.
+    {% elif i.n_boundary %}
+      All on the boundary between clusters.
+    {% elif i.n_outlier %}
+      All have unusual overall profiles.
+    {% endif %}
+    <span class="t-quiet">Sorted by lowest cluster confidence first.</span>
+  </div>
+
+  <div class="next-step">
+    → Now look at how markers relate to each other in
+    <a href="/?tab=pairs{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-get="/tab/pairs{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+       hx-target="#page-body"
+       hx-swap="innerHTML"
+       hx-push-url="true"><strong>4. Correlations</strong></a>
+  </div>
+
+{% endif %}

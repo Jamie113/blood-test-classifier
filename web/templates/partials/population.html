@@ -1,0 +1,102 @@
+{% set p = pop %}
+{% if p.error is defined %}
+  <div class="card">
+    <p class="t-body">{{ p.error }}</p>
+  </div>
+{% else %}
+
+{% if p.has_age %}
+<div class="control-bar">
+  <label>Colour by</label>
+  <select
+    name="colour_by"
+    hx-get="/population/scatter{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#population-scatter"
+    hx-swap="outerHTML"
+    hx-include="this"
+  >
+    <option value="type" {% if p.colour_by == "type" %}selected{% endif %}>Cluster</option>
+    <option value="age"  {% if p.colour_by == "age"  %}selected{% endif %}>Age</option>
+  </select>
+  <span class="t-quiet" style="margin-left: auto;">{{ p.n_patients }} blood tests · {{ p.n_markers }} markers used</span>
+</div>
+{% endif %}
+
+{% include "partials/_population_scatter.html" %}
+
+<div class="finding">
+  <strong>{{ p.n_clusters }} {{ p.type_word }}</strong> across your blood tests.
+  {% for s in p.sub_summaries %}{{ s | safe }}{% if not loop.last %} &nbsp;·&nbsp; {% endif %}{% endfor %}
+  {% if p.small_sample %}
+    <div class="t-quiet" style="margin-top: 0.5rem;">
+      Small sample ({{ p.n_patients }} tests) — clusters are a starting point; results stabilise around 200+ tests.
+    </div>
+  {% endif %}
+</div>
+
+<section class="section">
+  <div class="t-eyebrow">What defines each cluster</div>
+  <p class="t-meta" style="max-width: 70ch; margin-bottom: 1rem;">
+    The markers below are what most distinguish each cluster from the rest of your blood tests.
+  </p>
+
+  <div class="group-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+    {% for t in p.types %}
+      <div class="group-chip" style="padding: 1rem;">
+        <div class="group-chip-name" style="font-size: 0.95rem;">
+          <span class="group-chip-dot" style="background: {{ t.colour }};"></span>{{ t.name }}
+        </div>
+        <div class="group-chip-stat">
+          {{ t.count }} tests{% if t.median_age is not none %} · median age <strong style="color: var(--ink-2);">{{ t.median_age }}</strong> ({{ t.age_range[0] }}–{{ t.age_range[1] }}){% endif %}
+        </div>
+        {% if t.bullets %}
+          <ul style="list-style: none; padding: 0; margin: 0.75rem 0 0; font-size: 0.86rem;">
+            {% for b in t.bullets %}
+              <li style="margin-bottom: 0.25rem; color: var(--ink-2);">
+                <strong style="color: var(--ink);">{{ b.marker }}</strong>
+                — {{ b.strength }} {{ b.direction }}
+                <span class="t-quiet">({{ "%+.1f"|format(b.z) }})</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="t-meta" style="margin-top: 0.5rem;">No strong distinguishing markers.</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<details class="disclosure">
+  <summary>Full marker heatmap</summary>
+  <p class="t-meta" style="margin-bottom: 0.5rem;">
+    Red = this cluster is higher than the average across all tests for the marker.
+    Blue = lower. Darker = stronger signal.
+  </p>
+  <div class="chart-host">
+    {{ p.heatmap_html | safe }}
+  </div>
+</details>
+
+<details class="disclosure">
+  <summary>Technical details</summary>
+  <p class="t-meta">
+    Analysis used {{ p.n_cluster_dims }} dimensions capturing {{ p.var_pct }}% of total variation.
+    Number of clusters selected by BIC (lower = better fit):
+    {% for n, bic in p.bic_pairs %}
+      <strong>{{ n }} clusters</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
+    {% endfor %}.
+  </p>
+</details>
+
+<div class="next-step">
+  → Some tests don't fit cleanly into a cluster — see which need a closer look in
+  <a href="/?tab=investigate{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+     hx-get="/tab/investigate{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+     hx-target="#page-body"
+     hx-swap="innerHTML"
+     hx-push-url="true"><strong>3. Outliers</strong></a>
+</div>
+
+{% endif %}

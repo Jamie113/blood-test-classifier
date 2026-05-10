@@ -1,0 +1,40 @@
+<div id="data-section">
+  {% if is_demo %}
+    <div class="t-meta" style="margin-bottom: 0.6rem;">
+      Demo · {{ n_full }} synthetic blood tests
+    </div>
+    <form
+      hx-post="/upload"
+      hx-encoding="multipart/form-data"
+      hx-target="#upload-result"
+      hx-swap="innerHTML"
+      autocomplete="off"
+    >
+      <label class="upload-button" for="upload-input">Upload CSV</label>
+      <input
+        id="upload-input"
+        type="file"
+        name="file"
+        accept=".csv,text/csv"
+        onchange="this.form.requestSubmit()"
+        style="display: none;"
+      />
+    </form>
+    <div id="upload-result"></div>
+    <div class="t-meta upload-help">
+      Wide-format export, one row per blood test. Column headers are matched against the known marker list.
+    </div>
+  {% else %}
+    <div class="t-meta" style="margin-bottom: 0.4rem;">
+      <strong style="color: var(--ink-2);">{{ upload_filename or "Uploaded CSV" }}</strong>
+    </div>
+    <div class="t-meta" style="margin-bottom: 0.6rem;">
+      {{ n_full }} blood tests · {{ n_markers }} markers
+    </div>
+    <form hx-post="/upload/reset" hx-swap="none">
+      <button type="submit" class="filter-reset" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
+        Use demo data instead
+      </button>
+    </form>
+  {% endif %}
+</div>

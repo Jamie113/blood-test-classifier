@@ -1,0 +1,33 @@
+<details class="rail-disclosure" {% if any_unit_override %}open{% endif %}>
+  <summary>
+    <span class="rail-label" style="margin: 0;">Display units</span>
+    {% if any_unit_override %}<span class="rail-pill">{{ n_unit_overrides }}</span>{% endif %}
+  </summary>
+
+  <form
+    hx-get="/units/set"
+    hx-trigger="change"
+    hx-target="#page-body"
+    hx-swap="innerHTML"
+    autocomplete="off"
+    style="margin-top: 0.5rem;"
+  >
+    <input type="hidden" name="tab" value="{{ active }}" />
+    {% if filters.age_min is not none %}<input type="hidden" name="age_min" value="{{ filters.age_min }}" />{% endif %}
+    {% if filters.age_max is not none %}<input type="hidden" name="age_max" value="{{ filters.age_max }}" />{% endif %}
+    {% for chip in filter_chips %}
+      <input type="hidden" name="m" value="{{ chip.marker }}:{{ chip.lo }}:{{ chip.hi }}" />
+    {% endfor %}
+
+    {% for row in unit_options %}
+      <div class="unit-row">
+        <span class="unit-row-name">{{ row.marker }}</span>
+        <select name="u" class="unit-row-select">
+          {% for opt in row.options %}
+            <option value="{{ row.marker }}:{{ opt }}" {% if opt == row.current %}selected{% endif %}>{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% endfor %}
+  </form>
+</details>

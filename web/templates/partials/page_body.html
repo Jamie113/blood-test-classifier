@@ -1,0 +1,42 @@
+{% if filtered %}
+  <div class="cohort-banner">
+    <span>
+      <strong>Filtered cohort:</strong>
+      analysing {{ n_active }} of {{ n_full }} blood tests.
+    </span>
+    <span style="margin-left: auto;">
+      <a class="filter-reset" style="margin: 0;"
+         hx-get="/filters/reset?tab={{ active }}"
+         hx-target="#page-body"
+         hx-swap="innerHTML"
+         hx-push-url="true">Clear filters</a>
+    </span>
+  </div>
+{% endif %}
+
+{% include "partials/tab_strip.html" %}
+
+<div id="tab-body">
+  {% include "partials/_tab_intro.html" %}
+  {% include "partials/_tab_methodology.html" %}
+
+  {% if data_error %}
+    <div class="cohort-error">{{ data_error }}</div>
+  {% elif active == "explorer" %}
+    {% if explorer is defined %}
+      {% include "partials/marker_explorer.html" %}
+    {% else %}
+      <div class="cohort-error">No analysis available — filters may have removed all markers.</div>
+    {% endif %}
+  {% elif active == "population" %}
+    {% include "partials/population.html" %}
+  {% elif active == "investigate" %}
+    {% include "partials/investigate.html" %}
+  {% elif active == "pairs" %}
+    {% if pair is defined %}
+      {% include "partials/pairs.html" %}
+    {% else %}
+      <div class="cohort-error">Need at least two markers in the cohort to compare pairs.</div>
+    {% endif %}
+  {% endif %}
+</div>

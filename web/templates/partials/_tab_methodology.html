@@ -1,0 +1,165 @@
+<details class="disclosure methodology">
+  <summary>Methodology &mdash; how this view is computed</summary>
+
+  {% if active == "explorer" %}
+
+    <p class="t-body"><strong>What we fit.</strong>
+      A <strong>Gaussian Mixture Model (GMM)</strong> is fit to each marker
+      independently. The model assumes the observed values come from a mixture
+      of K bell-shaped (Gaussian) components, each with its own mean µ, standard
+      deviation σ, and mixing weight w (the weights sum to 1).
+    </p>
+
+    <p class="t-body"><strong>How we choose K.</strong>
+      For each marker we fit K = 1, 2, … up to a cap of
+      <code>min(4, max(2, n // 5))</code> where n is the number of tests for
+      that marker. We pick the K with the lowest
+      <strong>Bayesian Information Criterion (BIC)</strong>:
+      BIC = &minus;2·log&thinsp;L&thinsp;+&thinsp;k·log&thinsp;n,
+      where L is the maximum likelihood and k the number of free parameters.
+      Lower BIC = better fit, with a penalty for complexity. We only adopt a
+      K&thinsp;&gt;&thinsp;1 solution when its BIC beats K=1 by at least
+      <strong>6 BIC units</strong> &mdash; the conventional "strong evidence"
+      threshold &mdash; otherwise we report a single Gaussian. This stops the
+      view from inventing groups in genuinely uniform markers.
+    </p>
+
+    <p class="t-body"><strong>Library and parameters.</strong>
+      <code>sklearn.mixture.GaussianMixture(n_components=K, n_init=5, random_state=42)</code>.
+      Five random restarts mitigate local optima; the random seed makes results
+      reproducible. The marker-by-marker BIC scores for the currently shown
+      marker are listed in the per-marker Technical details below the chart.
+    </p>
+
+    <p class="t-body"><strong>Group boundaries and labels.</strong>
+      Hard labels for each test come from the GMM's posterior assignments
+      (<code>gmm.predict</code>), then remapped into mean-sorted order so
+      "Group 1" is always the lowest-mean cluster. The boundary lines drawn
+      on the chart are the x-values where adjacent components' weighted PDFs
+      cross, found with <code>scipy.optimize.brentq</code> (midpoint fallback
+      if no crossing exists). They approximate the posterior decision rule
+      visually but do not drive the labels themselves.
+    </p>
+
+    <p class="t-body"><strong>Assumptions and limitations.</strong></p>
+    <ul class="methodology-list">
+      <li>Each marker is treated as 1-dimensional and independent of the others (the Clusters tab handles the multivariate case).</li>
+      <li>A mixture of Gaussians is a good fit for many clinical markers, but heavily skewed or bounded distributions can be over-fit to multiple components.</li>
+      <li>With small samples (&lt;&nbsp;30 tests) the choice between 2 and 3 components can be unstable. Small-sample warnings are surfaced explicitly in the headline.</li>
+      <li>The model uses no clinical reference range as input. Reference lines on the chart are added afterwards purely as context.</li>
+    </ul>
+
+  {% elif active == "population" %}
+
+    <p class="t-body"><strong>Pipeline.</strong></p>
+    <ol class="methodology-list">
+      <li>Pivot long-format data to wide (rows = blood tests, columns = markers).</li>
+      <li>Drop markers where &gt;&nbsp;50% of tests have a missing value.</li>
+      <li>Median-impute the remaining missing values.</li>
+      <li>Standardise (zero mean, unit variance per marker) with <code>StandardScaler</code>.</li>
+      <li>Reduce dimensionality with <strong>Principal Component Analysis (PCA)</strong>. We keep the smallest number of principal components whose cumulative explained variance &ge;&nbsp;80% (minimum 2).</li>
+      <li>Fit a <strong>GMM</strong> in that reduced space with K = 1, 2, …, up to a sample-size cap of <code>max(2, min(5, n // 25))</code>. Pick the K with the lowest BIC; only adopt K&thinsp;&gt;&thinsp;1 if its BIC beats K=1 by at least <strong>6 units</strong>.</li>
+      <li>For each test, store the hard cluster label, the full posterior probability vector, the log-likelihood, and the squared Mahalanobis distance to the assigned cluster's mean &mdash; the last two feed the Outliers tab.</li>
+    </ol>
+
+    <p class="t-body"><strong>Library and parameters.</strong>
+      <code>sklearn.decomposition.PCA(random_state=42)</code> for dimensionality
+      reduction; <code>sklearn.mixture.GaussianMixture(n_components=K, covariance_type='diag', n_init=5, random_state=42)</code>
+      for the cluster fit. <strong>Diagonal covariance</strong> is appropriate
+      because PCA already decorrelates the global data; full covariance over-
+      penalises K&thinsp;&gt;&thinsp;1 in small cohorts (~5&times; more
+      parameters per cluster). The K cap and ΔBIC=6 floor together prevent
+      over-clustering on cohorts of fewer than ~125 patients.
+    </p>
+
+    <p class="t-body"><strong>The 2-D scatter.</strong>
+      The chart shows the first two principal components. <strong>Clustering
+      happens in the higher-dimensional reduced space</strong>, not on the 2-D
+      view &mdash; so two tests can sit close together on the chart but belong
+      to different clusters if they differ on axes that aren't shown.
+    </p>
+
+    <p class="t-body"><strong>Assumptions and limitations.</strong></p>
+    <ul class="methodology-list">
+      <li>PCA assumes the structure in the data is approximately linear.</li>
+      <li>GMM assumes Gaussian-shaped clusters in the reduced space; very non-Gaussian shapes (e.g. concentric rings, manifolds) will be misfit.</li>
+      <li>The 80% variance threshold is conventional but arbitrary; raising it would use more dimensions and potentially split into more clusters.</li>
+      <li>With K up to 5 and small samples (&lt;&nbsp;200 tests) the model has plenty of freedom and may over-cluster. The headline carries a small-sample warning when applicable.</li>
+    </ul>
+
+  {% elif active == "investigate" %}
+
+    <p class="t-body"><strong>Two flagging rules.</strong>
+      Both rules use outputs of the cluster model on the Clusters tab &mdash;
+      nothing is re-fit here.
+    </p>
+
+    <p class="t-body"><strong>1. Boundary cases.</strong>
+      The cluster model assigns each test a posterior probability per cluster
+      (the probabilities sum to 1). We flag tests whose
+      <strong>maximum posterior is below 0.7</strong>, meaning no single
+      cluster claims more than 70% of the test's profile &mdash; the remainder
+      is split between two or more clusters. The "Why investigate" line names
+      the top two competing clusters and their probabilities.
+    </p>
+
+    <p class="t-body"><strong>2. Multivariate outliers.</strong>
+      For each test we compute the <strong>squared Mahalanobis distance</strong>
+      to its assigned cluster's mean in the PCA-reduced space:
+      d² = Σ&thinsp;(xᵢ&minus;μᵢ)²&thinsp;/&thinsp;σᵢ². Under the model this
+      follows a <strong>χ² distribution with df&thinsp;=&thinsp;n_cluster_dims</strong>
+      degrees of freedom, so we flag tests whose d² exceeds the
+      <strong>χ² critical value at p&thinsp;=&thinsp;0.01</strong>
+      (<code>scipy.stats.chi2.ppf(0.99, df)</code>). This is an absolute
+      threshold &mdash; if no test is genuinely unusual, none are flagged. The
+      previous quantile-based rule (bottom 5% of log-likelihood) always flagged
+      ~5% of tests by construction and has been retired.
+    </p>
+
+    <p class="t-body"><strong>Confidence and sorting.</strong>
+      The Confidence column is the maximum posterior probability, expressed
+      as a percentage. Rows are sorted ascending by Confidence so the tests
+      the model is least sure about appear first.
+    </p>
+
+    <p class="t-body"><strong>Assumptions and limitations.</strong></p>
+    <ul class="methodology-list">
+      <li>The χ² threshold is calibrated under the Gaussian-mixture assumption. If a cluster's true within-cluster distribution is non-Gaussian (heavy-tailed, skewed), expected outlier rates may differ from the nominal 1%.</li>
+      <li>The 0.7 boundary threshold is a heuristic. Tighter (0.6) catches more boundary cases; looser (0.8) fewer.</li>
+      <li>Both rules inherit the assumptions of the cluster model itself: approximately linear structure (PCA), diagonal within-cluster covariance, and Gaussian-shaped clusters (GMM).</li>
+      <li>Diagonal covariance ignores within-cluster correlation between PCs; if real clusters are elongated along non-axis directions, the Mahalanobis distance under-states actual distance and outliers may be missed.</li>
+    </ul>
+
+  {% elif active == "pairs" %}
+
+    <p class="t-body"><strong>Metric.</strong>
+      For the selected pair (X, Y) we compute the
+      <strong>Pearson correlation coefficient r</strong> across all blood
+      tests with non-missing values for both markers. r ranges from
+      &minus;1 (perfect inverse linear relationship) through
+      0 (no linear relationship) to +1 (perfect direct linear relationship).
+    </p>
+
+    <p class="t-body"><strong>Library and parameters.</strong>
+      <code>pandas.DataFrame.corr(min_periods=10)</code> &mdash; we require
+      at least 10 overlapping observations for r to be reported. The starting
+      pair is the one with the largest |r| in the data.
+    </p>
+
+    <p class="t-body"><strong>Reference range overlay.</strong>
+      The dotted green lines on the chart show the upper bound of the
+      canonical normal range for each marker (from the project's reference
+      table; currently male ranges only). They are <strong>context, not
+      input</strong> &mdash; they are not used in the correlation calculation.
+    </p>
+
+    <p class="t-body"><strong>Assumptions and limitations.</strong></p>
+    <ul class="methodology-list">
+      <li>Pearson r captures <strong>linear association only</strong>. Non-linear coupling (e.g. U-shaped) will read as weak even when a real relationship exists. Spearman's rank correlation would be more appropriate for monotonic non-linear cases.</li>
+      <li>Outliers can dominate r in small cohorts; the metric is not robust.</li>
+      <li>Correlation does not imply causation. Two markers can correlate because they're both driven by a third underlying factor (e.g. liver function affecting several enzymes).</li>
+      <li>The "strongest pair" auto-pick is based on |r| alone, not on biological plausibility or statistical significance.</li>
+    </ul>
+
+  {% endif %}
+</details>

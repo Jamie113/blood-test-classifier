@@ -1,0 +1,100 @@
+{% set e = explorer %}
+{% set biggest = e.groups[0] %}
+{% set second  = e.groups[1] if e.groups|length > 1 else none %}
+
+<div class="control-bar">
+  <label for="marker-picker">Showing</label>
+  <select
+    id="marker-picker"
+    name="name"
+    hx-get="/marker{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#page-body"
+    hx-swap="innerHTML"
+    hx-include="this"
+  >
+    {% for m in e.available %}
+      <option value="{{ m }}" {% if m == e.marker %}selected{% endif %}>{{ m }}</option>
+    {% endfor %}
+  </select>
+  <span class="t-quiet" style="margin-left: auto;">
+    {% if e.is_auto %}auto-picked: clearest split &nbsp;·&nbsp; {% endif %}{{ e.n_components }} groups · {{ e.n_patients }} tests
+  </span>
+</div>
+
+<div class="chart-host">
+  {{ e.chart_html | safe }}
+</div>
+
+<div class="finding">
+  {% if e.n_components >= 2 and second %}
+    <strong>{{ e.n_components }} natural groups</strong> in {{ e.marker }}.
+    Largest ({{ "%.0f"|format(biggest.percent) }}% of tests) around
+    <strong>{{ "%.2f"|format(biggest.mean) }} {{ e.disp_unit }}</strong>;
+    next ({{ "%.0f"|format(second.percent) }}%) around
+    <strong>{{ "%.2f"|format(second.mean) }} {{ e.disp_unit }}</strong>.
+  {% else %}
+    <strong>Uniform</strong> across all tests &mdash; no clear sub-groups in {{ e.marker }}.
+  {% endif %}
+</div>
+
+<div class="group-grid">
+  {% for g in e.groups %}
+    <div class="group-chip">
+      <div class="group-chip-name">
+        <span class="group-chip-dot" style="background: {{ g.colour }};"></span>{{ g.name }}
+      </div>
+      <div class="group-chip-stat">
+        avg {{ "%.2f"|format(g.mean) }} {{ e.disp_unit }} · {{ g.count }} tests ({{ "%.0f"|format(g.percent) }}%)
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<details class="disclosure">
+  <summary>Group statistics</summary>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Group</th>
+        <th>Average</th>
+        <th>Spread (±)</th>
+        <th>Tests</th>
+        <th>%</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in e.groups %}
+        <tr>
+          <td>
+            <span class="group-chip-dot" style="background: {{ g.colour }};"></span>{{ g.name }}
+          </td>
+          <td>{{ "%.2f"|format(g.mean) }} {{ e.disp_unit }}</td>
+          <td>{{ "%.2f"|format(g.std) }}</td>
+          <td>{{ g.count }}</td>
+          <td>{{ "%.1f"|format(g.percent) }}%</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
+
+<details class="disclosure">
+  <summary>Technical details</summary>
+  <p class="t-meta">
+    Group count chosen by BIC scoring (lower = better fit):
+    {% for n, bic in e.bic_pairs %}
+      <strong>{{ n }} groups</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
+    {% endfor %}.
+    {{ e.n_components }} groups selected.
+  </p>
+</details>
+
+<div class="next-step">
+  → Now see how these groups map onto full test profiles in
+  <a href="/?tab=population{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+     hx-get="/tab/population{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+     hx-target="#page-body"
+     hx-swap="innerHTML"
+     hx-push-url="true"><strong>2. Clusters</strong></a>
+</div>

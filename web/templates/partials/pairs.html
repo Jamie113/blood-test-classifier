@@ -1,0 +1,62 @@
+{% set q = pair %}
+
+<div class="control-bar">
+  <label>X axis</label>
+  <select
+    name="x"
+    hx-get="/pair{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#page-body"
+    hx-swap="innerHTML"
+    hx-include="closest div"
+  >
+    {% for m in q.markers %}
+      <option value="{{ m }}" {% if m == q.x %}selected{% endif %}>{{ m }}</option>
+    {% endfor %}
+  </select>
+  <label style="margin-left: 0.75rem;">Y axis</label>
+  <select
+    name="y"
+    hx-get="/pair{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#page-body"
+    hx-swap="innerHTML"
+    hx-include="closest div"
+  >
+    {% for m in q.y_options %}
+      <option value="{{ m }}" {% if m == q.y %}selected{% endif %}>{{ m }}</option>
+    {% endfor %}
+  </select>
+  {% if q.r is not none %}
+    <span class="t-quiet" style="margin-left: auto;">
+      {% if q.showing_auto %}auto-picked: strongest pair &nbsp;·&nbsp; {% endif %}r = {{ "%+.2f"|format(q.r) }} · {{ q.n_overlap }} tests
+    </span>
+  {% endif %}
+</div>
+
+<div class="chart-host">
+  {{ q.chart_html | safe }}
+</div>
+
+<div class="finding">
+  {% if q.r is not none %}
+    <strong>r = {{ "%+.2f"|format(q.r) }}</strong> &mdash;
+    {{ q.strength_word }} {{ q.dir_word }} correlation between
+    <strong>{{ q.x }}</strong> and <strong>{{ q.y }}</strong>
+    across {{ q.n_overlap }} tests.
+    {% if q.r|abs > 0.3 %}
+      Knowing one tells you something about the other.
+    {% else %}
+      The two markers move largely independently in this cohort.
+    {% endif %}
+  {% else %}
+    Pick an X and Y marker above to compare. Coupled patterns
+    (e.g. testosterone &amp; SHBG, HbA1c &amp; HDL) jump out here in a way
+    the per-marker view cannot show.
+  {% endif %}
+</div>
+
+<div class="next-step">
+  → Want to slice this view to a specific cohort?
+  Use the <strong>Cohort filters</strong> in the left rail to narrow the population.
+</div>

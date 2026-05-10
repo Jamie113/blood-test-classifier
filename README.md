@@ -1,21 +1,33 @@
 # Blood Test Classifier
 
-A Streamlit app for discovering patterns in blood test results using unsupervised machine learning. Upload a dataset of patient results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
+An app for discovering patterns in blood test results using unsupervised machine learning. Upload a wide-format CSV of blood test results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
+
+Each row in the dataset is treated as one **blood test** (a single panel of marker results), not a patient-as-such.
+
+---
+
+## Two front-ends, one analysis layer
+
+The same modelling code (`analysis.py`, `gmm.py`, `parsing.py`, `thresholds.py`, `unit_conversions.py`) powers two UIs:
+
+- **FastAPI + HTMX + Tailwind** at `web/` — current development target. Notion-style design system, four tabs, full layout control.
+- **Streamlit** at the project root (`app.py`) — kept for comparison; not where new UI work lands.
 
 ---
 
 ## How it works
 
-1. **Upload a CSV** export of blood test results (wide format: one row per patient, one column per marker). Without a CSV the app loads 80 synthetic demo patients.
-2. **GMM clustering** (Gaussian Mixture Model) is fitted per marker directly from your data. The number of clusters is chosen automatically using BIC scoring.
-3. **Blood marker explorer** (tab 1) shows the discovered clusters for each marker — their means, ranges, and patient counts — alongside reference range lines for context.
-4. **Patient population** (tab 2) clusters patients by their full blood test profile (all markers combined), revealing which patient types exist in your population and what distinguishes them.
+1. **Upload a CSV** export of blood test results (wide format: one row per test, one column per marker). Without an upload the app loads 80 synthetic demo blood tests across two designed sub-populations.
+2. **Per-marker GMM** (Gaussian Mixture Model) is fitted to each marker's distribution. The number of components is chosen by BIC, with a ΔBIC ≥ 6 floor against K = 1 so uniform markers are honestly reported as having a single group.
+3. **Multivariate clustering** runs a Principal Component Analysis on the standardised wide table, then fits a diagonal-covariance GMM in the reduced space. K is sample-size capped (`max(2, min(5, n // 25))`) and again subject to the ΔBIC ≥ 6 floor.
+4. **Outlier flagging** uses two rules from the cluster model: tests whose maximum cluster posterior is below 0.7 (boundary cases) and tests whose squared Mahalanobis distance to their assigned cluster's mean exceeds the χ² critical value at p = 0.01 (multivariate outliers).
+5. **Pearson correlation** between every pair of markers; the strongest pair is auto-selected as the starting view.
 
-Clusters are labelled Group 1, 2, 3 — not pre-labelled as Normal/Borderline/Abnormal. The goal is to let the data speak first, then you add the meaning.
+Cluster labels are abstract numbers — Cluster 1, 2, 3 — not pre-labelled as Normal/Borderline/Abnormal. The data speaks first; you add the meaning.
 
 ---
 
-## Running the app
+## Running the apps
 
 ```bash
 # First time setup
@@ -23,21 +35,35 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Start the app
+# FastAPI (current target) — http://localhost:8000
+uvicorn web.main:app --reload
+
+# Streamlit (legacy) — http://localhost:8501
 streamlit run app.py
 ```
 
 ---
 
+## The four tabs (FastAPI)
+
+1. **Groups** — per-marker GMM. For each marker, shows whether tests fall into one consistent range or split into distinct groups. Auto-picks the marker with the clearest separation.
+2. **Clusters** — multivariate clustering. Treats every test as a point in marker space and groups tests with similar overall profiles. Includes a fingerprint heatmap of which markers most distinguish each cluster.
+3. **Outliers** — boundary cases (split between two clusters) and multivariate outliers (fit no cluster well). Each row carries the patient ID, age, assigned cluster, confidence percentage, and the reason for flagging.
+4. **Correlations** — pairwise marker correlations. Auto-picks the strongest |r| pair; X/Y selectors swap into any other pair.
+
+A left-rail **cohort filter** (age range + per-marker value ranges) re-runs all four tabs on a filtered subset. Filter state lives in URL query params, so cohorts are bookmarkable and tab-switching preserves them.
+
+---
+
 ## CSV format
 
-The app expects a wide-format export with one row per patient. Column names must match those in `column_map.py`. Example columns:
+Wide-format export with one row per blood test. Column names must match those in `column_map.py`. Example:
 
 | Blood Test Info Blood Test ID | Current Age | Blood Test Info Haemoglobin Levels | Blood Test Info HBA1C Levels | ... |
 |---|---|---|---|---|
 | 100015 | 42 | 163 | 56.83 | ... |
 
-All 27 markers from standard blood panel exports are supported. `Current Age` is optional — if present it enables age-based colouring on the patient scatter plot.
+All 27 markers from standard blood panel exports are supported. `Current Age` is optional — if present it enables age-based colouring on the cluster scatter plot.
 
 See `column_map.py` for the full column list.
 
@@ -52,13 +78,13 @@ See `column_map.py` for the full column list.
 | Oestradiol | value > 200 → pmol/L | ÷ 3.671 → pg/mL |
 | Prolactin | value < 50 → ng/mL | × 21.2 → mIU/L |
 
-All values are stored internally in canonical units. The **⚙ Units** button (top-right of the tab bar) lets you switch display units instantly without re-running the analysis.
+All values are stored internally in canonical units. The **Display units** section in the left rail lets you override the display unit per marker without re-running the analysis.
 
 ---
 
 ## Reference ranges
 
-All 27 markers have male reference ranges defined in `thresholds.py`. These are shown as dotted context lines on cluster histograms — they are not used to label clusters.
+All 27 markers have **male reference ranges** defined in `thresholds.py`. These are shown as dotted context lines on cluster histograms and pair scatters — they are not used to label clusters or to fit any model.
 
 To update a threshold, edit `thresholds.py` — all downstream logic picks it up automatically.
 
@@ -66,12 +92,12 @@ To update a threshold, edit `thresholds.py` — all downstream logic picks it up
 
 ## Sample size guidance
 
-| Patients | What's reliable |
+| Tests | What's reliable |
 |---|---|
 | < 30 | Illustrative only |
 | 30–100 | Per-marker clustering for well-separated distributions |
-| 100–200 | Per-marker clustering reliable; population clustering noisy |
-| 200–500 | Population grouping meaningful |
+| 100–200 | Per-marker clustering reliable; multivariate clusters noisy (K capped at 4 by sample-size rule) |
+| 200–500 | Multivariate clustering meaningful; K can reach 5 |
 | 500+ | Strong confidence in both |
 
 ---
@@ -79,23 +105,29 @@ To update a threshold, edit `thresholds.py` — all downstream logic picks it up
 ## Project structure
 
 ```
-app.py              — Streamlit UI (two tabs: marker explorer + population view)
-analysis.py         — Core analysis functions (GMM per marker, population clustering)
-gmm.py              — Low-level GMM functions (fit, sort, boundaries, assignment)
+analysis.py         — Core analysis (per-marker GMM, multivariate clustering, filter, ranking helpers)
+gmm.py              — Low-level GMM (fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters)
+parsing.py          — Shared CSV parser (parse_csv) used by both UIs
 thresholds.py       — Male reference ranges for all 27 markers + classify_test()
 column_map.py       — Maps CSV column headers to marker names
-unit_conversions.py — Upload-time unit auto-detection + display unit transforms
-stub_data.py        — Generates 80 synthetic demo patients (fixed seed)
-demo_cache.pkl      — Pre-baked demo analysis results (loaded instantly on cold start)
-bake_demo.py        — Script to regenerate demo_cache.pkl after data/analysis changes
-tests/              — Tests across all modules
+unit_conversions.py — Unit auto-detection + display unit transforms
+stub_data.py        — 80 synthetic demo blood tests (fixed seed, two designed sub-populations)
+demo_cache.pkl      — Pre-baked demo analysis (committed for instant cold start)
+bake_demo.py        — Regenerates demo_cache.pkl after data/analysis changes
+app.py              — Streamlit UI (legacy)
+web/
+  main.py           — FastAPI app: routes, context builders, chart helpers
+  templates/        — Jinja2 templates (base + partials per tab)
+  static/styles.css — Design system: typography, colour, components
+tests/              — pytest suite (191 tests across all modules)
+.claude/agents/     — Custom subagents (ml-reviewer for periodic methodology review)
 ```
 
 ---
 
 ## Updating the demo cache
 
-`demo_cache.pkl` is committed to the repo so Render loads it instantly on cold start instead of running all GMM fits. Regenerate it whenever `stub_data.py` or `analysis.py` changes:
+`demo_cache.pkl` is committed so Render loads it instantly on cold start instead of running all GMM fits. Regenerate it whenever `stub_data.py`, `analysis.py`, or `gmm.py` changes:
 
 ```bash
 python3 bake_demo.py
@@ -108,21 +140,24 @@ git commit -m "Regenerate demo cache"
 ## Tests
 
 ```bash
-python -m pytest
+python -m pytest                          # 191 tests across all modules
+python -m pytest tests/test_analysis.py   # core analysis only
 ```
 
 | File | Coverage |
 |---|---|
 | `test_thresholds.py` | All 27 markers, boundary cases, error handling |
-| `test_gmm_functions.py` | fit, sort, boundaries, cluster assignment |
+| `test_gmm_functions.py` | fit_optimal_gmm (incl. K=1 floor, ΔBIC margin, sample-size cap), sort_gmm (incl. order remap), boundaries, cluster assignment |
 | `test_unit_conversions.py` | All 6 conversion rules, boundary detection |
 | `test_column_map.py` | All 27 export columns mapped to valid thresholds |
-| `test_analysis.py` | analyse_upload, analyse_population, build_labelled_df |
+| `test_analysis.py` | analyse_upload, analyse_population (incl. K=1 + Mahalanobis fields), build_labelled_df, filter_long, most_separated_marker, strongest_marker_pair |
 
 ---
 
 ## Future directions
 
-- Female reference ranges (currently male only)
-- Persist uploaded data for longitudinal analysis — population clusters improve as more data arrives
+- Female reference ranges (currently male only).
+- Persist uploaded data for longitudinal analysis — clusters improve as more data arrives.
 - Sequenced blood tests — can the result of one predict the next?
+- Spearman correlation default in the Correlations tab (Pearson assumes linearity and is outlier-sensitive).
+- Replace BIC with ICL or a parallel-analysis-based dimensionality choice for the multivariate cluster model.

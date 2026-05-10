@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block left_rail %}
+  <div class="brand">Classifier</div>
+  <div class="brand-sub">Patterns in blood test results.</div>
+
+  <div id="rail-state">
+    {% include "partials/_rail_state.html" %}
+  </div>
+
+  <div class="rail-section rail-foot">
+    <div class="rail-label">Data</div>
+    {% include "partials/_data_section.html" %}
+  </div>
+{% endblock %}
+
+{% block main %}
+  {% if is_demo %}
+    <div class="demo-banner">
+      Demo mode — exploring 80 synthetic blood tests. Upload your own CSV in the rail.
+    </div>
+  {% endif %}
+
+  <div id="page-body">
+    {% include "partials/page_body.html" %}
+  </div>
+{% endblock %}

@@ -1,0 +1,9 @@
+{# Returned by routes that mutate filter or unit state. The main response
+   replaces #page-body, and the OOB swap below replaces the rail-state block
+   so filter chips, the units selectors, and their hidden form inputs all
+   stay in sync with the filter/unit state. #}
+{% include "partials/page_body.html" %}
+
+<div id="rail-state" hx-swap-oob="outerHTML">
+  {% include "partials/_rail_state.html" %}
+</div>

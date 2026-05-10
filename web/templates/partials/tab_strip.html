@@ -1,0 +1,36 @@
+{% set fq = ("?" + filter_qs) if filter_qs else "" %}
+{% set href_sep = "&" if filter_qs else "?" %}
+<nav class="tab-strip" aria-label="Sections">
+  <a class="tab {% if active == 'explorer' %}is-active{% endif %}"
+     href="/?tab=explorer{{ href_sep }}{{ filter_qs }}"
+     hx-get="/tab/explorer{{ fq }}"
+     hx-target="#page-body"
+     hx-swap="innerHTML"
+     hx-push-url="true">
+    <span class="tab-num">1.</span>Groups
+  </a>
+  <a class="tab {% if active == 'population' %}is-active{% endif %}"
+     href="/?tab=population{{ href_sep }}{{ filter_qs }}"
+     hx-get="/tab/population{{ fq }}"
+     hx-target="#page-body"
+     hx-swap="innerHTML"
+     hx-push-url="true">
+    <span class="tab-num">2.</span>Clusters
+  </a>
+  <a class="tab {% if active == 'investigate' %}is-active{% endif %}"
+     href="/?tab=investigate{{ href_sep }}{{ filter_qs }}"
+     hx-get="/tab/investigate{{ fq }}"
+     hx-target="#page-body"
+     hx-swap="innerHTML"
+     hx-push-url="true">
+    <span class="tab-num">3.</span>Outliers
+  </a>
+  <a class="tab {% if active == 'pairs' %}is-active{% endif %}"
+     href="/?tab=pairs{{ href_sep }}{{ filter_qs }}"
+     hx-get="/tab/pairs{{ fq }}"
+     hx-target="#page-body"
+     hx-swap="innerHTML"
+     hx-push-url="true">
+    <span class="tab-num">4.</span>Correlations
+  </a>
+</nav>

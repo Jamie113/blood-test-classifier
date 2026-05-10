@@ -50,12 +50,29 @@ def test_trimodal_data_selects_3_components():
     assert n == 3
 
 
-def test_small_dataset_caps_at_2_components():
-    # 9 points → max_n = min(4, max(2, 9//5)) = min(4, max(2, 1)) = 2
+def test_small_dataset_caps_max_k_at_2():
+    # 9 points → max_k_search = min(4, max(2, 9//5)) = 2.
+    # Random data with no real sub-structure should report K=1 thanks to the
+    # ΔBIC≥6 floor; the BIC dict still contains entries up to and including 2.
     rng = np.random.default_rng(0)
     values = rng.normal(10, 1, 9)
+    _, n, bics = fit_optimal_gmm(values)
+    assert n in (1, 2)
+    assert max(bics) == 2
+
+
+def test_uniform_data_selects_k1():
+    """A genuinely uniform sample should not be forced into K≥2."""
+    rng = np.random.default_rng(0)
+    values = rng.normal(10, 1, 200)
     _, n, _ = fit_optimal_gmm(values)
-    assert n == 2
+    assert n == 1
+
+
+def test_bic_scores_always_include_k1():
+    """The K=1 fit must always be present so callers can apply the ΔBIC margin."""
+    _, _, bics = fit_optimal_gmm(make_bimodal())
+    assert 1 in bics
 
 
 def test_bic_scores_cover_tried_components():
@@ -69,34 +86,60 @@ def test_bic_scores_cover_tried_components():
 
 def test_means_sorted_ascending():
     gmm, _, _ = fit_optimal_gmm(make_trimodal())
-    means, _, _ = sort_gmm(gmm)
+    means, _, _, _ = sort_gmm(gmm)
     assert list(means) == sorted(means)
 
 
-def test_sort_returns_three_arrays():
+def test_sort_returns_four_arrays():
     gmm, _, _ = fit_optimal_gmm(make_bimodal())
     result = sort_gmm(gmm)
-    assert len(result) == 3
+    assert len(result) == 4
 
 
 def test_weights_sum_to_one():
     gmm, _, _ = fit_optimal_gmm(make_trimodal())
-    _, _, weights = sort_gmm(gmm)
+    _, _, weights, _ = sort_gmm(gmm)
     assert abs(weights.sum() - 1.0) < 1e-6
+
+
+def test_sort_order_is_a_permutation():
+    gmm, _, _ = fit_optimal_gmm(make_trimodal())
+    _, _, _, order = sort_gmm(gmm)
+    assert sorted(order) == list(range(gmm.n_components))
+
+
+def test_sort_order_remaps_predict_correctly():
+    """Inverse-order remapping must match a posterior-sorted prediction."""
+    import numpy as np
+    values = make_trimodal()
+    gmm, _, _ = fit_optimal_gmm(values)
+    means, _, _, order = sort_gmm(gmm)
+    inverse = np.argsort(order)
+    raw = gmm.predict(values.reshape(-1, 1))
+    sorted_labels = inverse[raw]
+    # Every label index must point to a real sorted component
+    assert sorted_labels.min() >= 0
+    assert sorted_labels.max() < gmm.n_components
+    # Within each sorted-label group, the mean of values should be close to
+    # the corresponding sorted mean (sanity check that the remap is correct)
+    for k in range(gmm.n_components):
+        mask = sorted_labels == k
+        if mask.sum() > 0:
+            assert abs(values[mask].mean() - means[k]) < 2.0  # generous: clusters overlap a bit
 
 
 # ── get_boundaries ────────────────────────────────────────────────────────────
 
 def test_boundary_count_is_n_minus_1():
     gmm, n, _ = fit_optimal_gmm(make_trimodal())
-    means, stds, weights = sort_gmm(gmm)
+    means, stds, weights, _ = sort_gmm(gmm)
     boundaries = get_boundaries(means, stds, weights)
     assert len(boundaries) == n - 1
 
 
 def test_boundary_lies_between_adjacent_means():
     gmm, _, _ = fit_optimal_gmm(make_trimodal())
-    means, stds, weights = sort_gmm(gmm)
+    means, stds, weights, _ = sort_gmm(gmm)
     boundaries = get_boundaries(means, stds, weights)
     for i, b in enumerate(boundaries):
         assert means[i] < b < means[i + 1], (
