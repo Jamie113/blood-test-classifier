@@ -1,0 +1,32 @@
+name: Claude PR review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this pull request for:
+            - Correctness and obvious bugs
+            - Consistency with existing patterns in the repo (see CLAUDE.md)
+            - Code quality, readability, and over-engineering
+            - Test coverage of changed behaviour
+
+            Leave inline comments on specific lines where useful. End with a short summary.
+            Do not approve or block — only comment.
