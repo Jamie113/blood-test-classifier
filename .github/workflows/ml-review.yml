@@ -1,0 +1,46 @@
+name: ML methodology review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'analysis.py'
+      - 'gmm.py'
+      - 'web/main.py'
+      - 'parsing.py'
+      - 'unit_conversions.py'
+      - 'thresholds.py'
+      - 'tests/test_analysis.py'
+      - 'tests/test_gmm_functions.py'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  ml-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run ml-reviewer agent
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: '--model claude-opus-4-7'
+          prompt: |
+            You are reviewing a pull request that touches ML / analysis code.
+
+            Use the ml-reviewer subagent defined in .claude/agents/ml-reviewer.md.
+            Focus on:
+            - Statistical assumptions (GMM, PCA, Mahalanobis, Pearson r)
+            - Parameter choices (K range, n_init, ΔBIC floor, posterior 0.7, χ² 0.99)
+            - Reproducibility and edge cases (tiny cohorts, all-NaN markers)
+            - Whether user-facing methodology copy matches the code
+
+            Leave inline comments at `path:line`. End with the structured output
+            format described in the subagent definition (highest-priority issues,
+            improvements, documentation gaps, what's done well).
