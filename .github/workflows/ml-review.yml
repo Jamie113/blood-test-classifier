@@ -31,17 +31,37 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: '--model claude-opus-4-7'
+          claude_args: >-
+            --model claude-opus-4-7
+            --max-turns 20
+            --allowedTools "Bash(gh:*),Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment"
           prompt: |
-            You are reviewing a pull request that touches ML / analysis code.
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Use the ml-reviewer subagent defined in .claude/agents/ml-reviewer.md.
+            You are reviewing a PR that touches ML / analysis code. Use the
+            ml-reviewer subagent defined in .claude/agents/ml-reviewer.md
+            as your style guide. Be selective — only flag real
+            methodological issues, not style preferences.
+
             Focus on:
             - Statistical assumptions (GMM, PCA, Mahalanobis, Pearson r)
             - Parameter choices (K range, n_init, ΔBIC floor, posterior 0.7, χ² 0.99)
             - Reproducibility and edge cases (tiny cohorts, all-NaN markers)
             - Whether user-facing methodology copy matches the code
 
-            Leave inline comments at `path:line`. End with the structured output
-            format described in the subagent definition (highest-priority issues,
-            improvements, documentation gaps, what's done well).
+            Steps:
+            1. Read CLAUDE.md and .claude/agents/ml-reviewer.md.
+            2. Run `gh pr diff ${{ github.event.pull_request.number }}` to
+               see the changes.
+            3. For each real methodological issue, call
+               `mcp__github_inline_comment__create_inline_comment` with the
+               file, line, and a paragraph-level explanation. Cap at 5
+               inline comments.
+            4. Post one summary comment with
+               `gh pr comment ${{ github.event.pull_request.number }} --body "..."`
+               using the structured output described in the agent definition
+               (highest-priority issues, improvements, documentation gaps,
+               what's done well).
+
+            Do not approve or block — only comment.
