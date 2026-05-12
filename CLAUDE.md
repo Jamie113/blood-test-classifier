@@ -118,6 +118,14 @@ Each tab follows the same shape:
 
 `.claude/agents/ml-reviewer.md` defines an `ml-reviewer` subagent (read-only, opus). Invoke it to assess methodology, parameter choices, statistical assumptions, and surface improvements. The agent description is wired for proactive triggering when changes touch `analysis.py`, `gmm.py`, `_investigate_context`, or chart helpers.
 
+## Workflow for major changes
+
+Anything that spans more than one PR — a new feature, a multi-step refactor, a methodology change — must start with a GitHub milestone and child issues, one per intended PR. Use the `/feature` slash command to scaffold the milestone + issues; do not start writing code until the breakdown is approved by the user.
+
+- One issue = one PR. If an issue grows past that, split it.
+- Every PR description must reference its issue with `Closes #N`.
+- Trivial single-PR work (typo fixes, dependency bumps, isolated bug fixes) is exempt — go straight to a branch.
+
 ## Keeping this file current
 
 Update `CLAUDE.md` whenever the project structure, key decisions, or constraints change — for example:
