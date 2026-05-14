@@ -913,9 +913,27 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 .methodology-table tbody tr:last-child td { border-bottom: 0; }
 
 .methodology-table tbody td:first-child,
-.methodology-table thead th:first-child {
+.methodology-table thead th:first-child,
+.methodology-table tbody th {
   font-weight: 600;
   color: var(--ink);
+}
+
+.methodology-table tbody th {
+  text-align: left;
+  padding: 0.3rem 0.55rem;
+  border-bottom: 1px solid var(--accent-100);
+}
+
+.methodology-example__eq {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.83rem;
+  background: var(--bg);
+  padding: 0.5rem 0.7rem;
+  border-radius: 4px;
+  border: 1px solid var(--accent-100);
+  margin: 0.4rem 0 0.8rem;
+  overflow-x: auto;
 }
 
 body.methodology-drawer-open { overflow: hidden; }
