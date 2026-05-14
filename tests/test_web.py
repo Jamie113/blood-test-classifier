@@ -170,7 +170,9 @@ def test_filters_set_age_range_shows_cohort_banner() -> None:
 
 def test_filters_set_full_age_range_treated_as_no_filter() -> None:
     """Selecting the data's full age range should normalise to 'no filter'."""
-    res = client.get("/filters/set?tab=explorer&age_min=30&age_max=65")
+    age_min = int(state.df_long_full["age"].min())
+    age_max = int(state.df_long_full["age"].max())
+    res = client.get(f"/filters/set?tab=explorer&age_min={age_min}&age_max={age_max}")
     assert res.status_code == 200
     assert "cohort-banner" not in res.text
 
