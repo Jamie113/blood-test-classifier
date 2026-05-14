@@ -888,6 +888,36 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
   font-size: 0.78rem;
 }
 
+.methodology-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  margin: 0.6rem 0 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.methodology-table thead th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--ink-2);
+  padding: 0.35rem 0.55rem;
+  border-bottom: 1px solid var(--accent-100);
+}
+
+.methodology-table tbody td {
+  padding: 0.3rem 0.55rem;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--accent-100);
+}
+
+.methodology-table tbody tr:last-child td { border-bottom: 0; }
+
+.methodology-table tbody td:first-child,
+.methodology-table thead th:first-child {
+  font-weight: 600;
+  color: var(--ink);
+}
+
 body.methodology-drawer-open { overflow: hidden; }
 
 @media (max-width: 640px) {
