@@ -13,7 +13,8 @@ import textwrap
 import pytest
 from fastapi.testclient import TestClient
 
-from web.main import _filtered_data_cached, _load_demo, app, state
+from web.main import app
+from web.state import _filtered_data_cached, _load_demo, state
 
 client = TestClient(app)
 
@@ -327,7 +328,7 @@ def test_units_set_switches_display_unit() -> None:
     persist in state.unit_prefs."""
     # Pick a multi-unit marker present in the demo.
     from unit_conversions import available_units
-    from web.main import MULTI_UNIT_MARKERS
+    from web.state import MULTI_UNIT_MARKERS
     present = set(state.df_long_full["test_name"].unique())
     candidate = next((m for m in MULTI_UNIT_MARKERS if m in present), None)
     if candidate is None:
