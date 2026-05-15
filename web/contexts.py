@@ -178,8 +178,9 @@ def _population_context(data: dict, colour_by: str = "type") -> dict:
 # ── Investigate (Outliers tab) ───────────────────────────────────────────────
 
 def _investigate_context(data: dict) -> dict:
-    """Identify boundary patients (low max posterior) and multivariate outliers
-    (low log-likelihood). Returned dict has either {error: ...} or the rows."""
+    """Identify boundary tests (max posterior < 0.7) and multivariate outliers
+    (Mahalanobis² > χ²₀.₉₉ in the cluster-dim PCA space). Returned dict has
+    either {error: ...} or the rows."""
     pop = data["pop_results"]
     if "error" in pop:
         return {"error": pop["error"]}
