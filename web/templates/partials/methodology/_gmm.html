@@ -1,0 +1,114 @@
+<h3 class="t-h2 methodology-drawer__section-title">Per-marker Gaussian mixture model</h3>
+
+<p class="t-body"><strong>What we fit.</strong>
+  A <strong>Gaussian Mixture Model (GMM)</strong> is fit to each marker
+  independently. The model assumes the observed values come from a mixture
+  of K bell-shaped (Gaussian) components, each with its own mean µ, standard
+  deviation σ, and mixing weight w (the weights sum to 1).
+</p>
+
+<p class="t-body"><strong>How we choose K.</strong>
+  For each marker we fit K = 1, 2, … up to a cap of
+  <code>min(4, max(2, n // 5))</code> where n is the number of tests for
+  that marker. We pick the K with the lowest
+  <strong>Bayesian Information Criterion (BIC)</strong>:
+  BIC = &minus;2·log&thinsp;L&thinsp;+&thinsp;k·log&thinsp;n,
+  where L is the maximum likelihood and k the number of free parameters.
+  Lower BIC = better fit, with a penalty for complexity. We only adopt a
+  K&thinsp;&gt;&thinsp;1 solution when its BIC beats K=1 by at least
+  <strong>6 BIC units</strong> &mdash; the conventional "strong evidence"
+  threshold &mdash; otherwise we report a single Gaussian. This stops the
+  view from inventing groups in genuinely uniform markers.
+</p>
+
+<p class="t-body"><strong>Library and parameters.</strong>
+  <code>sklearn.mixture.GaussianMixture(n_components=K, n_init=5, random_state=42)</code>.
+  Five random restarts mitigate local optima; the random seed makes results
+  reproducible. The marker-by-marker BIC scores for the currently shown
+  marker are listed in the per-marker Technical details below the chart.
+</p>
+
+<p class="t-body"><strong>Group boundaries and labels.</strong>
+  Hard labels for each test come from the GMM's posterior assignments
+  (<code>gmm.predict</code>), then remapped into mean-sorted order so
+  "Group 1" is always the lowest-mean cluster. The boundary lines drawn
+  on the chart are the x-values where adjacent components' weighted PDFs
+  cross, found with <code>scipy.optimize.brentq</code> (midpoint fallback
+  if no crossing exists). They approximate the posterior decision rule
+  visually but do not drive the labels themselves.
+</p>
+
+<div class="methodology-example">
+  <p class="t-eyebrow methodology-example__label">Worked example</p>
+
+  <p class="t-body"><strong>The data.</strong>
+    Eight fictional fasting-glucose readings (mmol/L):
+    <code>4.8, 5.1, 5.2, 5.4, 7.9, 8.1, 8.3, 8.6</code>. n = 8.
+  </p>
+
+  <p class="t-body"><strong>1. Fit K = 1.</strong>
+    One Gaussian over all eight points:
+    µ = 6.675, σ = 1.568. Free parameters k = 2 (µ, σ²).
+    log&thinsp;L = &minus;14.95.
+    BIC<sub>1</sub> = &minus;2·(&minus;14.95) + 2·log(8)
+    = 29.90 + 4.16 = <strong>34.06</strong>.
+  </p>
+
+  <p class="t-body"><strong>2. Fit K = 2.</strong>
+    With well-separated points, EM converges to:
+  </p>
+  <ul class="methodology-list">
+    <li>Group 1: µ<sub>1</sub> = 5.125, σ<sub>1</sub> = 0.217, w<sub>1</sub> = 0.500</li>
+    <li>Group 2: µ<sub>2</sub> = 8.225, σ<sub>2</sub> = 0.259, w<sub>2</sub> = 0.500</li>
+  </ul>
+  <p class="t-body">
+    Free parameters k = 5 (two means, two variances, one mixing
+    weight; the second weight is fixed by 1 &minus; w<sub>1</sub>).
+    log&thinsp;L = &minus;5.37.
+    BIC<sub>2</sub> = &minus;2·(&minus;5.37) + 5·log(8)
+    = 10.73 + 10.40 = <strong>21.13</strong>.
+  </p>
+
+  <p class="t-body"><strong>3. Apply the rule.</strong>
+    ΔBIC = 34.06 &minus; 21.13 = <strong>12.93</strong>.
+    12.93 &ge; 6, so we adopt K = 2.
+  </p>
+
+  <p class="t-body"><strong>4. Label a new test.</strong>
+    For a hypothetical reading at x = 6.5 mmol/L the weighted
+    component densities are:
+  </p>
+  <ul class="methodology-list">
+    <li>w<sub>1</sub>·N(6.5 | 5.125, 0.217) &approx; 1.6 × 10<sup>&minus;9</sup></li>
+    <li>w<sub>2</sub>·N(6.5 | 8.225, 0.259) &approx; 1.7 × 10<sup>&minus;10</sup></li>
+  </ul>
+  <p class="t-body">
+    The posterior is the ratio:
+    P(Group 1 | x = 6.5) &approx; <strong>0.91</strong>,
+    P(Group 2 | x = 6.5) &approx; <strong>0.09</strong>.
+    The new test is labelled Group 1.
+  </p>
+
+  <p class="t-body">
+    For a dataset point well inside its cluster (e.g. x = 5.4),
+    the posterior is decisive: P(Group 1 | x = 5.4) &approx; 1.0
+    to six decimal places. Tight, separated clusters give
+    confident assignments; values near the cross-over between
+    components produce intermediate posteriors and flag boundary
+    cases on the <strong>Outliers</strong> tab.
+  </p>
+
+  <p class="t-meta methodology-example__foot">
+    Numbers above match
+    <code>sklearn.mixture.GaussianMixture(n_components=K, n_init=5, random_state=42)</code>
+    fit to the eight values.
+  </p>
+</div>
+
+<p class="t-body"><strong>Assumptions and limitations.</strong></p>
+<ul class="methodology-list">
+  <li>Each marker is treated as 1-dimensional and independent of the others (the Clusters tab handles the multivariate case).</li>
+  <li>A mixture of Gaussians is a good fit for many clinical markers, but heavily skewed or bounded distributions can be over-fit to multiple components.</li>
+  <li>With small samples (&lt;&nbsp;30 tests) the choice between 2 and 3 components can be unstable. Small-sample warnings are surfaced explicitly in the headline.</li>
+  <li>The model uses no clinical reference range as input. Reference lines on the chart are added afterwards purely as context.</li>
+</ul>
