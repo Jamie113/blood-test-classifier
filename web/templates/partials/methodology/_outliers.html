@@ -1,0 +1,145 @@
+<h3 class="t-h2 methodology-drawer__section-title">Outlier flagging</h3>
+
+<p class="t-body"><strong>Two flagging rules.</strong>
+  Both rules use outputs of the cluster model on the Clusters tab &mdash;
+  nothing is re-fit here.
+</p>
+
+<p class="t-body"><strong>1. Boundary cases.</strong>
+  The cluster model assigns each test a posterior probability per cluster
+  (the probabilities sum to 1). We flag tests whose
+  <strong>maximum posterior is below 0.7</strong>, meaning no single
+  cluster claims more than 70% of the test's profile &mdash; the remainder
+  is split between two or more clusters. The "Why investigate" line names
+  the top two competing clusters and their probabilities.
+</p>
+
+<p class="t-body"><strong>2. Multivariate outliers.</strong>
+  For each test we compute the <strong>squared Mahalanobis distance</strong>
+  to its assigned cluster's mean in the PCA-reduced space:
+  d² = Σ&thinsp;(xᵢ&minus;μᵢ)²&thinsp;/&thinsp;σᵢ². Under the model this
+  follows a <strong>χ² distribution with df&thinsp;=&thinsp;n_cluster_dims</strong>
+  degrees of freedom, so we flag tests whose d² exceeds the
+  <strong>χ² critical value at p&thinsp;=&thinsp;0.01</strong>
+  (<code>scipy.stats.chi2.ppf(0.99, df)</code>). This is an absolute
+  threshold &mdash; if no test is genuinely unusual, none are flagged. The
+  previous quantile-based rule (bottom 5% of log-likelihood) always flagged
+  ~5% of tests by construction and has been retired.
+</p>
+
+<p class="t-body"><strong>Confidence and sorting.</strong>
+  The Confidence column is the maximum posterior probability, expressed
+  as a percentage. Rows are sorted ascending by Confidence so the tests
+  the model is least sure about appear first.
+</p>
+
+<div class="methodology-example">
+  <p class="t-eyebrow methodology-example__label">Worked example &mdash; boundary case</p>
+
+  <p class="t-body">
+    Suppose a K = 3 cluster model assigned a test T<sub>b</sub> the
+    following posterior probability vector:
+  </p>
+  <table class="methodology-table">
+    <thead>
+      <tr><th>Cluster</th><th>Posterior</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Cluster 1</td><td>0.55</td></tr>
+      <tr><td>Cluster 2</td><td>0.40</td></tr>
+      <tr><td>Cluster 3</td><td>0.05</td></tr>
+    </tbody>
+  </table>
+
+  <p class="t-body">
+    The probabilities sum to 1.00. The hard label is
+    <code>argmax</code> &rarr; Cluster 1. The maximum posterior is
+    0.55, which is below the 0.7 threshold, so T<sub>b</sub> is
+    <strong>flagged as a boundary case</strong>.
+  </p>
+
+  <p class="t-body">The "Why investigate" line is built from the top two posteriors:</p>
+  <ul class="methodology-list">
+    <li>55% Cluster 1 · 40% Cluster 2</li>
+  </ul>
+  <p class="t-body">
+    The third cluster is omitted (only the two competing components
+    matter for the investigation prompt). Confidence in the table is
+    <code>round(0.55 · 100) = 55%</code>.
+  </p>
+</div>
+
+<div class="methodology-example">
+  <p class="t-eyebrow methodology-example__label">Worked example &mdash; multivariate outlier</p>
+
+  <p class="t-body">
+    Now consider a different test T<sub>o</sub> that <em>does</em>
+    land confidently in a cluster (max posterior &gt; 0.7, so the
+    boundary rule does not flag it). Suppose the cluster model
+    kept three principal components and assigned T<sub>o</sub> to
+    Cluster 1, with:
+  </p>
+  <ul class="methodology-list">
+    <li>T<sub>o</sub> in PCA-reduced space: x = (4.5, &minus;2.0, 1.5)</li>
+    <li>Cluster 1 mean: µ = (1.5, &minus;0.5, 0.5)</li>
+    <li>Cluster 1 diagonal covariance: σ² = (0.6, 0.4, 0.5)</li>
+  </ul>
+
+  <p class="t-body">
+    With diagonal covariance, the squared Mahalanobis distance reduces
+    to a sum of squared z-scores:
+  </p>
+  <table class="methodology-table">
+    <thead>
+      <tr><th>Axis</th><th>(xᵢ &minus; µᵢ)²</th><th>÷ σᵢ²</th><th>Contribution</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PC1</td><td>(3.0)² = 9.00</td><td>÷ 0.6</td><td>15.00</td></tr>
+      <tr><td>PC2</td><td>(&minus;1.5)² = 2.25</td><td>÷ 0.4</td><td>5.625</td></tr>
+      <tr><td>PC3</td><td>(1.0)² = 1.00</td><td>÷ 0.5</td><td>2.00</td></tr>
+      <tr><td>Sum</td><td colspan="2"></td><td><strong>22.625</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p class="t-body">
+    The χ² critical value at p = 0.01 with df = 3 is
+    <code>scipy.stats.chi2.ppf(0.99, df=3) &approx; 11.345</code>.
+    Since 22.625 &gt; 11.345, T<sub>o</sub> is
+    <strong>flagged as a multivariate outlier</strong>: under the
+    assumed Gaussian-mixture model, only ~1% of tests should sit this
+    far from their assigned cluster's mean by chance.
+  </p>
+
+  <p class="t-body">
+    PC1 dominates (15.00 of the 22.625), so T<sub>o</sub>'s anomaly
+    is concentrated on the most explanatory axis &mdash; if PC1
+    captured, say, an overall metabolic-load score, this test is
+    unusually far from its cluster on that axis.
+  </p>
+</div>
+
+<div class="methodology-example">
+  <p class="t-eyebrow methodology-example__label">Why the old 5% rule was retired</p>
+
+  <p class="t-body">
+    Previously the Outliers tab flagged the tests in the bottom 5%
+    of log-likelihood within each cluster. That rule
+    <strong>always</strong> flags ~5% of the cohort by construction:
+    on a uniform cohort with no genuine outliers it still surfaces
+    five of every hundred tests, which is misleading. The χ² rule
+    above is an <strong>absolute</strong> threshold &mdash; if no
+    test is genuinely unusual, none are flagged. On a cohort with
+    many genuine outliers (e.g. heavy-tailed marker distributions),
+    it flags more than 1%; on a clean Gaussian cohort, it flags
+    close to 1%; on a uniform cohort with no outliers, it flags
+    zero.
+  </p>
+</div>
+
+<p class="t-body"><strong>Assumptions and limitations.</strong></p>
+<ul class="methodology-list">
+  <li>The χ² threshold is calibrated under the Gaussian-mixture assumption. If a cluster's true within-cluster distribution is non-Gaussian (heavy-tailed, skewed), expected outlier rates may differ from the nominal 1%.</li>
+  <li>The 0.7 boundary threshold is a heuristic. Tighter (0.6) catches more boundary cases; looser (0.8) fewer.</li>
+  <li>Both rules inherit the assumptions of the cluster model itself: approximately linear structure (PCA), diagonal within-cluster covariance, and Gaussian-shaped clusters (GMM).</li>
+  <li>Diagonal covariance ignores within-cluster correlation between PCs; if real clusters are elongated along non-axis directions, the Mahalanobis distance under-states actual distance and outliers may be missed.</li>
+</ul>
