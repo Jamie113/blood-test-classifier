@@ -1,5 +1,33 @@
 <h3 class="t-h2 methodology-drawer__section-title">Outlier flagging</h3>
 
+<p class="t-body"><strong>The point.</strong>
+  Every blood test gets placed into one of the cluster profiles from
+  the previous tab. Most land squarely inside one. A few don't &mdash;
+  either they're stuck <em>between</em> two profiles, or they're a long
+  way from <em>every</em> profile. Those are the tests worth a second
+  look, and that's what this view surfaces.
+</p>
+
+<p class="t-body"><strong>What you're looking at.</strong>
+  A ranked list of the least-confident tests, with the reason each was
+  flagged. "Boundary case" means the test sits between two clusters
+  &mdash; the model genuinely can't decide. "Multivariate outlier" means
+  the test lands in one cluster but sits unusually far from that
+  cluster's typical pattern, by a model-based distance, not just a
+  single odd marker.
+</p>
+
+<p class="t-body"><strong>When it's interesting.</strong>
+  A short list = most of the cohort fits the cluster profiles cleanly.
+  A long list of <em>boundary cases</em> = your clusters overlap; the
+  profile boundaries are fuzzy. A long list of <em>multivariate
+  outliers</em> = the cohort has heavy tails and the Gaussian model is
+  fighting them. Either way, the listed tests are the ones to start with.
+</p>
+
+<details class="disclosure">
+  <summary>How it works &mdash; technical detail</summary>
+
 <p class="t-body"><strong>Two flagging rules.</strong>
   Both rules use outputs of the cluster model on the Clusters tab &mdash;
   nothing is re-fit here.
@@ -143,3 +171,5 @@
   <li>Both rules inherit the assumptions of the cluster model itself: approximately linear structure (PCA), diagonal within-cluster covariance, and Gaussian-shaped clusters (GMM).</li>
   <li>Diagonal covariance ignores within-cluster correlation between PCs; if real clusters are elongated along non-axis directions, the Mahalanobis distance under-states actual distance and outliers may be missed.</li>
 </ul>
+
+</details>

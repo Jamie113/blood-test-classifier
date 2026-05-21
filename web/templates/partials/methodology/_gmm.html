@@ -1,5 +1,30 @@
 <h3 class="t-h2 methodology-drawer__section-title">Per-marker Gaussian mixture model</h3>
 
+<p class="t-body"><strong>The point.</strong>
+  Does this marker split into natural sub-populations, or is it one tight
+  band? Fasting glucose really does form two humps &mdash; a healthy band
+  and a diabetic band. Sodium is one band for almost everyone. This chart
+  shows whichever the data actually contains, with no reference range fed
+  into the model.
+</p>
+
+<p class="t-body"><strong>What you're looking at.</strong>
+  Each coloured curve is one sub-group the model detected. The bars are
+  the raw count of tests at each value. Vertical lines mark where one
+  group hands over to the next. A single curve means no detectable
+  sub-structure for this cohort.
+</p>
+
+<p class="t-body"><strong>When it's interesting.</strong>
+  Two well-separated curves = a genuinely bimodal marker, worth
+  investigating clinically. Overlapping curves with a faint dip = soft
+  sub-populations. One curve = a uniform marker for this cohort, no
+  story to tell.
+</p>
+
+<details class="disclosure">
+  <summary>How it works &mdash; technical detail</summary>
+
 <p class="t-body"><strong>What we fit.</strong>
   A <strong>Gaussian Mixture Model (GMM)</strong> is fit to each marker
   independently. The model assumes the observed values come from a mixture
@@ -112,3 +137,5 @@
   <li>With small samples (&lt;&nbsp;30 tests) the choice between 2 and 3 components can be unstable. Small-sample warnings are surfaced explicitly in the headline.</li>
   <li>The model uses no clinical reference range as input. Reference lines on the chart are added afterwards purely as context.</li>
 </ul>
+
+</details>

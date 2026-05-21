@@ -1,5 +1,35 @@
 <h3 class="t-h2 methodology-drawer__section-title">Population clustering (PCA → GMM)</h3>
 
+<p class="t-body"><strong>The point.</strong>
+  Forget one marker at a time &mdash; when you look at <em>every</em>
+  marker together, do these blood tests fall into distinct profiles?
+  A "metabolic-syndrome" profile, a "low-cholesterol-low-glucose"
+  profile, and so on. This view answers whether such profiles actually
+  exist in the cohort, or whether the tests are one continuous blob.
+</p>
+
+<p class="t-body"><strong>What you're looking at.</strong>
+  Each dot is one blood test, plotted by the two most informative
+  combinations of markers (the first two principal components). Each
+  colour is one profile (cluster). Two dots close together = similar
+  across all markers; two far apart = different overall patterns.
+</p>
+
+<p class="t-body"><strong>When it's interesting.</strong>
+  Clean separated colour blobs = the cohort really does contain distinct
+  sub-types. Overlapping colours = soft groupings, still useful but less
+  crisp. One colour = no detectable sub-types at this cohort size.
+</p>
+
+<p class="t-body"><strong>One subtlety.</strong>
+  The clustering happens in a higher-dimensional space than the 2-D
+  chart. Two tests can look adjacent on screen yet belong to different
+  clusters if they differ on an axis that isn't shown.
+</p>
+
+<details class="disclosure">
+  <summary>How it works &mdash; technical detail</summary>
+
 <p class="t-body"><strong>Pipeline.</strong></p>
 <ol class="methodology-list">
   <li>Pivot long-format data to wide (rows = blood tests, columns = markers).</li>
@@ -197,3 +227,5 @@
   <li>The 80% variance threshold is conventional but arbitrary; raising it would use more dimensions and potentially split into more clusters.</li>
   <li>With K up to 5 and small samples (&lt;&nbsp;200 tests) the model has plenty of freedom and may over-cluster. The headline carries a small-sample warning when applicable.</li>
 </ul>
+
+</details>
