@@ -10,6 +10,7 @@
   </summary>
 
   <div class="cohort-popover">
+    <div class="cohort-popover-head">Restrict the analysis to a subset of blood tests.</div>
     {% if age_full %}
       <form
         class="cohort-row"
@@ -32,6 +33,7 @@
         <input class="cohort-num" type="number" name="age_max"
                min="{{ age_full[0] }}" max="{{ age_full[1] }}"
                value="{{ filters.age_max if filters.age_max is not none else age_full[1] }}" />
+        <span class="cohort-trailing"></span>
       </form>
     {% endif %}
 
@@ -54,7 +56,7 @@
             <input type="hidden" name="m" value="{{ other.marker }}:{{ other.lo }}:{{ other.hi }}" />
           {% endif %}
         {% endfor %}
-        <span class="cohort-row-label">{{ chip.marker }}</span>
+        <span class="cohort-row-label" title="{{ chip.marker }}">{{ chip.marker }}</span>
         <input class="cohort-num" type="number" name="lo" step="any"
                min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
                value="{{ "%g"|format(chip.lo) }}"
@@ -63,13 +65,15 @@
         <input class="cohort-num" type="number" name="hi" step="any"
                min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
                value="{{ "%g"|format(chip.hi) }}" />
-        {% if chip.unit %}<span class="cohort-unit">{{ chip.unit }}</span>{% endif %}
-        <a class="cohort-remove"
-           title="Remove {{ chip.marker }} filter"
-           hx-get="/filters/remove?marker={{ chip.marker | urlencode }}&tab={{ active }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
-           hx-target="#page-body"
-           hx-swap="innerHTML"
-           hx-push-url="true">×</a>
+        <span class="cohort-trailing">
+          {% if chip.unit %}<span class="cohort-unit">{{ chip.unit }}</span>{% endif %}
+          <a class="cohort-remove"
+             title="Remove {{ chip.marker }} filter"
+             hx-get="/filters/remove?marker={{ chip.marker | urlencode }}&tab={{ active }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+             hx-target="#page-body"
+             hx-swap="innerHTML"
+             hx-push-url="true">×</a>
+        </span>
       </form>
     {% endfor %}
 
