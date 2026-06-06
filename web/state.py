@@ -14,6 +14,8 @@ from typing import Any
 
 import pandas as pd
 
+from web.filters import FilterSpec
+
 from analysis import (
     analyse_population,
     analyse_upload,
@@ -22,7 +24,6 @@ from analysis import (
 )
 from thresholds import THRESHOLDS
 from unit_conversions import available_units
-from web.filters import FilterSpec
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 

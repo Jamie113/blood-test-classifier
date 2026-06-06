@@ -12,8 +12,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2
 
-from analysis import most_separated_marker, strongest_marker_pair
-from unit_conversions import transform_for_display
 from web.charts import (
     CLUSTER_COLOURS,
     _heatmap_html,
@@ -28,6 +26,9 @@ from web.state import (
     _units_ui_context,
     state,
 )
+
+from analysis import most_separated_marker, strongest_marker_pair
+from unit_conversions import transform_for_display
 
 # ── Marker explorer (Groups tab) ─────────────────────────────────────────────
 

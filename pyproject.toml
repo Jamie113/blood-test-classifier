@@ -12,6 +12,17 @@ target-version = "py311"
 # C90 = mccabe complexity (the guard against function bloat)
 select = ["F", "E", "W", "I", "C90"]
 
+[tool.ruff.lint.isort]
+# The web package must import before the project-root analysis modules so
+# web/__init__.py (which puts PROJECT_ROOT on sys.path) is unambiguously the
+# first thing to run. Encode that as section order: first-party (web) precedes
+# local-folder (the root modules), so ruff enforces the contract automatically.
+known-first-party = ["web"]
+known-local-folder = [
+    "analysis", "gmm", "parsing", "thresholds",
+    "unit_conversions", "column_map", "stub_data",
+]
+
 [tool.ruff.lint.mccabe]
 # Ratchet: the current worst function scores 7. Cap at 10 so existing code
 # passes and only genuinely new complexity is blocked. Tighten over time.

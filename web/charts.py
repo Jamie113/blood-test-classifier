@@ -15,9 +15,10 @@ import plotly.graph_objects as go
 from plotly.io import to_html as plotly_to_html
 from scipy.stats import norm as scipy_norm
 
+from web.state import _display_unit
+
 from thresholds import THRESHOLDS
 from unit_conversions import from_canonical, transform_for_display
-from web.state import _display_unit
 
 CLUSTER_COLOURS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B2"]
 CHART_FONT = ("-apple-system, BlinkMacSystemFont, 'Inter', system-ui, "

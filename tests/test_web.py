@@ -403,8 +403,9 @@ def test_units_set_switches_display_unit() -> None:
     """HbA1C supports multiple units (%, mmol/mol). Setting the alt should
     persist in state.unit_prefs."""
     # Pick a multi-unit marker present in the demo.
-    from unit_conversions import available_units
     from web.state import MULTI_UNIT_MARKERS
+
+    from unit_conversions import available_units
     present = set(state.df_long_full["test_name"].unique())
     candidate = next((m for m in MULTI_UNIT_MARKERS if m in present), None)
     if candidate is None:
