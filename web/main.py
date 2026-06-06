@@ -71,8 +71,9 @@ def _page_response(
 def _filter_response(
     request: Request, spec: FilterSpec, tab: str, full: bool,
 ) -> HTMLResponse:
-    """Response for a filter mutation. `full=True` also OOB-swaps the rail
-    filter section; otherwise just the page body."""
+    """Response for a filter mutation. The filter bar lives inside the page
+    body, so a plain `page_body` swap keeps it in sync. `full=True` is only
+    needed when the rail must also update (units), via an OOB rail swap."""
     template = "partials/full_render.html" if full else "partials/page_body.html"
     return _page_response(request, spec, tab, template)
 
@@ -178,7 +179,7 @@ def add_filter_partial(
         if rng is not None:
             new_m.append(f"{marker}:{rng[0]}:{rng[1]}")
     spec = FilterSpec.from_request(age_min, age_max, new_m)
-    return _filter_response(request, spec, tab, full=True)
+    return _filter_response(request, spec, tab, full=False)
 
 
 @app.get("/filters/set-marker", response_class=HTMLResponse)
@@ -215,12 +216,12 @@ def remove_filter_partial(
 ) -> HTMLResponse:
     age_min, age_max = _normalise_age(age_min, age_max)
     spec = FilterSpec.from_request(age_min, age_max, m).without_marker(marker)
-    return _filter_response(request, spec, tab, full=True)
+    return _filter_response(request, spec, tab, full=False)
 
 
 @app.get("/filters/reset", response_class=HTMLResponse)
 def reset_filters_partial(request: Request, tab: str = "explorer") -> HTMLResponse:
-    return _filter_response(request, FilterSpec(), tab, full=True)
+    return _filter_response(request, FilterSpec(), tab, full=False)
 
 
 # ── Upload ───────────────────────────────────────────────────────────────────

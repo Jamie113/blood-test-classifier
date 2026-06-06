@@ -1,0 +1,102 @@
+{# Cohort filter bar — sits in the main column under the tab strip so the
+   control and the results it changes share one space. Age is a persistent
+   compact control; each marker filter is an inline pill with an editable
+   range; the live cohort count and reset live on the same row. #}
+<div class="filter-bar{% if filtered %} is-filtered{% endif %}" id="filter-bar">
+  {% if age_full %}
+    <form
+      class="filter-bar-group"
+      hx-get="/filters/set"
+      hx-trigger="change delay:200ms"
+      hx-target="#page-body"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      autocomplete="off"
+    >
+      <input type="hidden" name="tab" value="{{ active }}" />
+      {% for chip in filter_chips %}
+        <input type="hidden" name="m" value="{{ chip.marker }}:{{ chip.lo }}:{{ chip.hi }}" />
+      {% endfor %}
+      <span class="filter-bar-label">Age</span>
+      <input class="filter-bar-num" type="number" name="age_min"
+             min="{{ age_full[0] }}" max="{{ age_full[1] }}"
+             value="{{ filters.age_min if filters.age_min is not none else age_full[0] }}" />
+      <span class="filter-range-sep">–</span>
+      <input class="filter-bar-num" type="number" name="age_max"
+             min="{{ age_full[0] }}" max="{{ age_full[1] }}"
+             value="{{ filters.age_max if filters.age_max is not none else age_full[1] }}" />
+    </form>
+  {% endif %}
+
+  {% for chip in filter_chips %}
+    <form
+      class="filter-pill"
+      hx-get="/filters/set-marker"
+      hx-trigger="change delay:300ms"
+      hx-target="#page-body"
+      hx-swap="innerHTML"
+      hx-push-url="true"
+      autocomplete="off"
+    >
+      <input type="hidden" name="tab" value="{{ active }}" />
+      <input type="hidden" name="marker" value="{{ chip.marker }}" />
+      {% if filters.age_min is not none %}<input type="hidden" name="age_min" value="{{ filters.age_min }}" />{% endif %}
+      {% if filters.age_max is not none %}<input type="hidden" name="age_max" value="{{ filters.age_max }}" />{% endif %}
+      {% for other in filter_chips %}
+        {% if other.marker != chip.marker %}
+          <input type="hidden" name="m" value="{{ other.marker }}:{{ other.lo }}:{{ other.hi }}" />
+        {% endif %}
+      {% endfor %}
+      <span class="filter-pill-name">{{ chip.marker }}</span>
+      <input class="filter-bar-num" type="number" name="lo" step="any"
+             min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
+             value="{{ "%g"|format(chip.lo) }}" />
+      <span class="filter-range-sep">–</span>
+      <input class="filter-bar-num" type="number" name="hi" step="any"
+             min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
+             value="{{ "%g"|format(chip.hi) }}" />
+      {% if chip.unit %}<span class="filter-pill-unit">{{ chip.unit }}</span>{% endif %}
+      <a class="filter-pill-remove"
+         title="Remove {{ chip.marker }} filter"
+         hx-get="/filters/remove?marker={{ chip.marker | urlencode }}&tab={{ active }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+         hx-target="#page-body"
+         hx-swap="innerHTML"
+         hx-push-url="true">×</a>
+    </form>
+  {% endfor %}
+
+  {% if addable_markers %}
+    <form
+      class="filter-bar-add-form"
+      hx-get="/filters/add"
+      hx-trigger="change"
+      hx-target="#page-body"
+      hx-swap="innerHTML"
+      autocomplete="off"
+    >
+      <input type="hidden" name="tab" value="{{ active }}" />
+      {% if filters.age_min is not none %}<input type="hidden" name="age_min" value="{{ filters.age_min }}" />{% endif %}
+      {% if filters.age_max is not none %}<input type="hidden" name="age_max" value="{{ filters.age_max }}" />{% endif %}
+      {% for chip in filter_chips %}
+        <input type="hidden" name="m" value="{{ chip.marker }}:{{ chip.lo }}:{{ chip.hi }}" />
+      {% endfor %}
+      <select name="marker" class="filter-bar-add">
+        <option value="">+ Add filter</option>
+        {% for m in addable_markers %}
+          <option value="{{ m }}">{{ m }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  {% endif %}
+
+  <span class="filter-bar-count">{{ n_active }} of {{ n_full }} tests</span>
+
+  {% if filtered %}
+    <a class="filter-bar-reset"
+       title="Reset all filters"
+       hx-get="/filters/reset?tab={{ active }}"
+       hx-target="#page-body"
+       hx-swap="innerHTML"
+       hx-push-url="true">Reset</a>
+  {% endif %}
+</div>
