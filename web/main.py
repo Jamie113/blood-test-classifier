@@ -13,6 +13,7 @@ from fastapi import Depends, FastAPI, File, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from markupsafe import escape
 
 # web.* imports first so web/__init__.py is unambiguously responsible for
 # putting PROJECT_ROOT on sys.path before any project-root module is touched.
@@ -263,43 +264,50 @@ def reset_filters_partial(request: Request, tab: str = "explorer") -> HTMLRespon
 
 # ── Upload ───────────────────────────────────────────────────────────────────
 
+def _upload_error(msg: str) -> Response:
+    """Inline upload-error fragment. Returned with status 200 on purpose:
+    HTMX does not swap the body of a 4xx/5xx response, so an error code would
+    show the user nothing. The message goes into #upload-result instead."""
+    state.last_upload_error = msg
+    return Response(
+        content=f'<div class="cohort-error">{escape(msg)}</div>',
+        status_code=200, media_type="text/html",
+    )
+
+
 @app.post("/upload")
 async def upload_csv(file: UploadFile = File(...)) -> Response:
     """Parse the uploaded CSV, run the full analysis, and replace the demo state.
 
-    Returns an HX-Redirect so HTMX reloads the page (clears all in-page state
-    cleanly). On parse failure, returns an HTML fragment for inline display.
+    On success returns an HX-Redirect so HTMX reloads the page cleanly. Every
+    failure mode returns a visible inline error (status 200) — never a silent
+    4xx/5xx that HTMX would drop.
     """
     contents = await file.read()
     try:
         df_long, _recognised, _unrecognised = parse_csv(io.BytesIO(contents))
     except Exception as exc:  # noqa: BLE001
-        state.last_upload_error = f"Could not read CSV: {exc}"
-        return Response(
-            content=f'<div class="cohort-error">Could not read CSV: {exc}</div>',
-            status_code=400, media_type="text/html",
-        )
+        return _upload_error(f"Could not read CSV: {exc}")
 
     if df_long.empty:
-        state.last_upload_error = "No recognised columns in the upload."
-        return Response(
-            content='<div class="cohort-error">No recognised columns in the upload.</div>',
-            status_code=400, media_type="text/html",
+        return _upload_error(
+            "No recognised columns in the upload. Check the column headers match "
+            "the known marker names."
         )
 
     n_patients = df_long["patient_id"].nunique()
     if n_patients < 4:
-        state.last_upload_error = (
-            f"Only {n_patients} blood tests in the upload — need at least 4 to run analysis."
-        )
-        return Response(
-            content=f'<div class="cohort-error">{state.last_upload_error}</div>',
-            status_code=400, media_type="text/html",
+        return _upload_error(
+            f"Only {n_patients} blood test{'s' if n_patients != 1 else ''} in the "
+            "upload — need at least 4 to run analysis."
         )
 
-    gmm = analyse_upload(df_long)
-    pop = analyse_population(df_long)
-    df_labelled = build_labelled_df(df_long, gmm)
+    try:
+        gmm = analyse_upload(df_long)
+        pop = analyse_population(df_long)
+        df_labelled = build_labelled_df(df_long, gmm)
+    except Exception as exc:  # noqa: BLE001
+        return _upload_error(f"Could not analyse the upload: {exc}")
 
     state.df_long_full     = df_long
     state.gmm_results_full = gmm

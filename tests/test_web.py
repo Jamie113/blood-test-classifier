@@ -508,21 +508,24 @@ def test_upload_happy_path_replaces_demo_state() -> None:
     assert state.df_long_full["patient_id"].nunique() == 5
 
 
-def test_upload_too_few_rows_returns_400() -> None:
+# Upload errors return 200 (not 4xx) on purpose: HTMX does not swap the body
+# of an error response, so a 4xx would show the user nothing. The error is
+# rendered inline as a .cohort-error fragment instead.
+
+def test_upload_too_few_rows_shows_inline_error() -> None:
     csv = _valid_upload_csv(n_rows=2)
     res = client.post(
         "/upload",
         files={"file": ("small.csv", io.BytesIO(csv), "text/csv")},
     )
-    assert res.status_code == 400
-    assert "need at least 4" in res.text
-    # Demo state should still be intact.
-    assert state.is_demo is True
+    assert res.status_code == 200
+    assert "cohort-error" in res.text and "need at least 4" in res.text
+    assert state.is_demo is True  # demo state intact
 
 
-def test_upload_unrecognised_columns_returns_400() -> None:
+def test_upload_unrecognised_columns_shows_inline_error() -> None:
     """A CSV with no recognised column maps still has the ID column, parses
-    to an empty long-frame, and is rejected with a clear message."""
+    to an empty long-frame, and is rejected with a clear visible message."""
     csv = textwrap.dedent("""\
         Blood Test Info Blood Test ID,Wholly Unknown Column,Another Random One
         P001,1,2
@@ -535,22 +538,39 @@ def test_upload_unrecognised_columns_returns_400() -> None:
         "/upload",
         files={"file": ("unknown.csv", io.BytesIO(csv), "text/csv")},
     )
-    assert res.status_code == 400
-    assert "No recognised columns" in res.text
+    assert res.status_code == 200
+    assert "cohort-error" in res.text and "No recognised columns" in res.text
     assert state.is_demo is True
 
 
-def test_upload_unparseable_input_returns_400() -> None:
+def test_upload_unparseable_input_shows_inline_error() -> None:
     """Bytes that pandas can't read as CSV produce the parse-error branch."""
-    # parse_csv expects the ID column; omitting it makes the row-filter raise.
     bad = b"not,a,valid\ncsv,without,id\n"
     res = client.post(
         "/upload",
         files={"file": ("garbage.csv", io.BytesIO(bad), "text/csv")},
     )
-    assert res.status_code == 400
-    assert "Could not read CSV" in res.text
+    assert res.status_code == 200
+    assert "cohort-error" in res.text and "Could not read CSV" in res.text
     assert state.is_demo is True
+
+
+def test_upload_analysis_failure_shows_inline_error(monkeypatch) -> None:
+    """If the analysis raises on an otherwise-valid CSV, the user gets a
+    visible error — not a silent 500 that HTMX drops."""
+    import web.main as wm
+
+    def _boom(*_a, **_k):
+        raise ValueError("degenerate marker")
+
+    monkeypatch.setattr(wm, "analyse_upload", _boom)
+    res = client.post(
+        "/upload",
+        files={"file": ("ok.csv", io.BytesIO(_valid_upload_csv(n_rows=5)), "text/csv")},
+    )
+    assert res.status_code == 200
+    assert "cohort-error" in res.text and "Could not analyse" in res.text
+    assert state.is_demo is True  # failed upload must not wipe the demo
 
 
 def test_upload_reset_restores_demo() -> None:
