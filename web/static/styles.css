@@ -407,6 +407,15 @@ details.disclosure > *:not(summary) { margin-top: 0.75rem; }
 
 .upload-button:hover { background: #2c2c2c; }
 
+.upload-status {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+
+/* While the upload is analysing, dim the button so the wait reads as busy. */
+form.htmx-request .upload-button { opacity: 0.5; pointer-events: none; }
+
 /* ── Rail disclosure (Display units etc.) ──────────────────────────────── */
 
 details.rail-disclosure summary {
