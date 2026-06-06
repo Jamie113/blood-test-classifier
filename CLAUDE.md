@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## What this project is
 
-A FastAPI + HTMX + Tailwind app that discovers natural clusters in blood test results using unsupervised machine learning. Each row in the dataset is one **blood test** (a single panel result), not a patient-as-such. The app does **not** classify results as Normal/Borderline/Abnormal — it finds what groups exist.
+A FastAPI + HTMX app (with a hand-written CSS design system) that discovers natural clusters in blood test results using unsupervised machine learning. Each row in the dataset is one **blood test** (a single panel result), not a patient-as-such. The app does **not** classify results as Normal/Borderline/Abnormal — it finds what groups exist.
 
 Four tabs:
 - **1. Groups** — per-marker GMM, histogram + density curves, reference range lines.
@@ -119,7 +119,7 @@ If you change the return shape, update both `bake_demo.py` consumers and the tes
 
 ### Design system (`web/static/styles.css`)
 
-Typography scale: `t-eyebrow` (uppercase 0.72rem) / `t-h1` (2.0rem 600 weight) / `t-h2` / `t-body` / `t-meta`. One accent (`--accent: #4C72B0`); 5-step grayscale; cluster colours used only inside chart areas. Most chrome (cards, disclosures, control-bar, tab-strip) is custom CSS; Tailwind is loaded via CDN for utility classes only.
+Typography scale: `t-eyebrow` (uppercase 0.72rem) / `t-h1` (2.0rem 600 weight) / `t-h2` / `t-body` / `t-meta`. One accent (`--accent: #4C72B0`); 5-step grayscale; cluster colours used only inside chart areas. All chrome (cards, disclosures, toolbar, tab-strip, cohort popover) is custom CSS in `styles.css` — no CSS framework. There is no front-end build step; `styles.css` is served as-is.
 
 Each tab follows the same shape:
 1. **Intro card** (boxed) — what the view shows + named ML technique
