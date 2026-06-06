@@ -1,4 +1,3 @@
-import pytest
 from column_map import COLUMN_MAP, ID_COLUMN
 from thresholds import THRESHOLDS
 

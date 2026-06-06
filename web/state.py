@@ -22,7 +22,6 @@ from analysis import (
 )
 from thresholds import THRESHOLDS
 from unit_conversions import available_units
-
 from web.filters import FilterSpec
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -85,7 +84,10 @@ def _filtered_data_cached(spec: FilterSpec) -> dict:
     n = df_filtered["patient_id"].nunique() if not df_filtered.empty else 0
 
     if n < 4:
-        msg = f"Only {n} blood test{'s' if n != 1 else ''} match the current filters — need at least 4 to run analysis."
+        msg = (
+            f"Only {n} blood test{'s' if n != 1 else ''} match the current filters "
+            "— need at least 4 to run analysis."
+        )
         return {
             "error":       msg,
             "df_long":     df_filtered,
@@ -185,7 +187,11 @@ def _filter_ui_context(spec: FilterSpec) -> dict:
 def _units_ui_context() -> dict:
     """Per-marker display-unit options. Only markers with > 1 supported unit
     AND a value in the current cohort are shown."""
-    present = set(state.df_long_full["test_name"].unique()) if state.df_long_full is not None else set()
+    present = (
+        set(state.df_long_full["test_name"].unique())
+        if state.df_long_full is not None
+        else set()
+    )
     rows: list[dict] = []
     for marker in MULTI_UNIT_MARKERS:
         if marker not in present:

@@ -1,6 +1,6 @@
 import pytest
-from thresholds import classify_test, THRESHOLDS
 
+from thresholds import THRESHOLDS, classify_test
 
 # ── Every marker in THRESHOLDS should have required keys ──────────────────────
 

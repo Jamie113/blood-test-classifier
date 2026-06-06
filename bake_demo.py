@@ -12,15 +12,17 @@ import pickle
 import time
 from pathlib import Path
 
+from analysis import analyse_population, analyse_upload, build_labelled_df
 from stub_data import generate_stub_data
-from analysis import analyse_upload, analyse_population, build_labelled_df
 
 out = Path(__file__).parent / "demo_cache.pkl"
 
 print("Generating demo data…")
 t0 = time.perf_counter()
 df_long = generate_stub_data()
-print(f"  {len(df_long['patient_id'].unique())} patients, {len(df_long['test_name'].unique())} markers  ({time.perf_counter()-t0:.1f}s)")
+n_pat = len(df_long["patient_id"].unique())
+n_mark = len(df_long["test_name"].unique())
+print(f"  {n_pat} patients, {n_mark} markers  ({time.perf_counter() - t0:.1f}s)")
 
 print("Fitting per-marker GMMs…")
 t1 = time.perf_counter()

@@ -4,11 +4,11 @@
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
 
-from gmm import fit_optimal_gmm, sort_gmm, get_boundaries
+from gmm import fit_optimal_gmm, get_boundaries, sort_gmm
 
 
 def analyse_upload(df_long: pd.DataFrame) -> dict:
@@ -61,7 +61,7 @@ def build_labelled_df(df_long: pd.DataFrame, gmm_results: dict) -> pd.DataFrame:
         values = df.loc[mask, "value"].values
         raw = res["gmm"].predict(values.reshape(-1, 1))
         sorted_labels = res["order_inverse"][raw]
-        df.loc[mask, "Group"] = [f"Group {l + 1}" for l in sorted_labels]
+        df.loc[mask, "Group"] = [f"Group {lbl + 1}" for lbl in sorted_labels]
     return df
 
 
@@ -136,7 +136,7 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
 
     z_scores     = pd.DataFrame(X_scaled, index=df_wide.index, columns=df_wide.columns)
     fingerprint  = z_scores.copy()
-    fingerprint["Group"] = [f"Group {l + 1}" for l in labels]
+    fingerprint["Group"] = [f"Group {lbl + 1}" for lbl in labels]
     fingerprint  = fingerprint.groupby("Group").mean().T
 
     return {

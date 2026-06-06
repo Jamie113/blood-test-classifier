@@ -5,6 +5,7 @@ scipy
 numpy
 plotly
 pytest
+ruff
 fastapi
 uvicorn[standard]
 jinja2

@@ -1,11 +1,16 @@
 import numpy as np
 import pandas as pd
 import pytest
-from stub_data import generate_stub_data
+
 from analysis import (
-    analyse_upload, analyse_population, build_labelled_df,
-    filter_long, most_separated_marker, strongest_marker_pair,
+    analyse_population,
+    analyse_upload,
+    build_labelled_df,
+    filter_long,
+    most_separated_marker,
+    strongest_marker_pair,
 )
+from stub_data import generate_stub_data
 
 
 @pytest.fixture(scope="module")
@@ -153,8 +158,8 @@ def test_uniform_population_reports_k1():
     for i in range(120):
         rows.append({"patient_id": f"P{i}", "age": 40,
                      "test_name": "TSH", "value": float(rng.normal(2.0, 0.3)), "unit": "mIU/L"})
-        rows.append({"patient_id": f"P{i}", "age": 40,
-                     "test_name": "Free T4", "value": float(rng.normal(15.0, 1.5)), "unit": "pmol/L"})
+        rows.append({"patient_id": f"P{i}", "age": 40, "test_name": "Free T4",
+                     "value": float(rng.normal(15.0, 1.5)), "unit": "pmol/L"})
     df = pd.DataFrame(rows)
     result = analyse_population(df)
     assert result["n_clusters"] == 1
@@ -253,7 +258,8 @@ def test_strongest_marker_pair_empty():
 
 def test_strongest_marker_pair_single_marker():
     df = pd.DataFrame([
-        {"patient_id": f"P{i}", "age": 40, "test_name": "TSH", "value": 2.0 + i * 0.1, "unit": "mIU/L"}
+        {"patient_id": f"P{i}", "age": 40, "test_name": "TSH",
+         "value": 2.0 + i * 0.1, "unit": "mIU/L"}
         for i in range(20)
     ])
     assert strongest_marker_pair(df) is None

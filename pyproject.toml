@@ -1,0 +1,23 @@
+[tool.ruff]
+# Lint-only configuration (no repo-wide formatter). The codebase is hand-aligned,
+# so we keep a readable 100-col limit on logic and exempt the pure reference-table
+# modules below from line-length.
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# F  = pyflakes (unused imports/vars — the dead-code class)
+# E,W = pycodestyle errors/warnings
+# I  = import sorting
+# C90 = mccabe complexity (the guard against function bloat)
+select = ["F", "E", "W", "I", "C90"]
+
+[tool.ruff.lint.mccabe]
+# Ratchet: the current worst function scores 7. Cap at 10 so existing code
+# passes and only genuinely new complexity is blocked. Tighten over time.
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Hand-aligned reference tables — line-length would force pointless re-wrapping.
+"column_map.py" = ["E501"]
+"unit_conversions.py" = ["E501"]

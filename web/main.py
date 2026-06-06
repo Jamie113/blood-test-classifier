@@ -14,6 +14,11 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from analysis import analyse_population, analyse_upload, build_labelled_df
+from parsing import parse_csv
+from thresholds import THRESHOLDS
+from unit_conversions import available_units
+
 # web.* imports first so web/__init__.py is unambiguously responsible for
 # putting PROJECT_ROOT on sys.path before any project-root module is touched.
 from web.contexts import (
@@ -33,11 +38,6 @@ from web.state import (
     _normalise_age,
     state,
 )
-
-from analysis import analyse_population, analyse_upload, build_labelled_df
-from parsing import parse_csv
-from thresholds import THRESHOLDS
-from unit_conversions import available_units
 
 ROOT = Path(__file__).resolve().parent
 
