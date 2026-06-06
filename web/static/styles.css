@@ -205,38 +205,67 @@ body {
 
 .card + .card { margin-top: 0.75rem; }
 
-/* ── Sub-section bar (selector / control row) ──────────────────────────── */
+/* ── Toolbar (per-view control + cohort + help, under the tab strip) ────── */
 
-.control-bar {
+.toolbar {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1rem 0 1.25rem;
-  padding: 0.65rem 0.9rem;
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  font-size: 0.9rem;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  margin: -0.75rem 0 1.5rem;
 }
 
-.control-bar label {
+.toolbar-view {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;            /* status drops below the control instead of clipping */
+  gap: 0.5rem 0.6rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.toolbar-global {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;            /* cohort + help stay on the top row, right-aligned */
+  margin-left: auto;
+}
+
+.toolbar-control {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+  min-width: 0;
+}
+
+.toolbar-control label {
   color: var(--ink-3);
   font-size: 0.83rem;
 }
 
-.control-bar select {
+.toolbar-control select {
+  font-family: inherit;
   font-size: 0.93rem;
-  font-weight: 500;
+  font-weight: 600;
+  max-width: 15rem;
   color: var(--ink);
-  background: transparent;
-  border: 0;
-  padding: 0.15rem 0.25rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
   cursor: pointer;
-  border-radius: 4px;
+  transition: border-color 120ms ease;
 }
 
-.control-bar select:hover { background: var(--accent-50); }
-.control-bar select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.toolbar-control select:hover { border-color: var(--accent); }
+.toolbar-control select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.toolbar-status {
+  color: var(--ink-3);
+  font-size: 0.82rem;
+}
 
 /* ── Group chips (per-cluster summary) ─────────────────────────────────── */
 
@@ -444,55 +473,77 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 .unit-row-select:hover { border-color: var(--accent); }
 .unit-row-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-/* ── Cohort filter bar (under the tab strip) ───────────────────────────── */
+/* ── Cohort filter (collapsed popover in the toolbar) ──────────────────── */
 
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin: -1rem 0 1.75rem;          /* pull up under the tab strip's margin */
-  padding: 0.5rem 0.7rem;
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  font-size: 0.85rem;
-}
+.cohort { position: relative; }
 
-.filter-bar.is-filtered {
-  background: var(--accent-50);
-  border-color: var(--accent-100);
-}
-
-.filter-bar-group,
-.filter-pill,
-.filter-bar-add-form {
+.cohort-summary {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  margin: 0;
-}
-
-.filter-pill {
-  padding: 0.2rem 0.2rem 0.2rem 0.55rem;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  list-style: none;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 120ms ease, background 120ms ease;
 }
 
-.filter-bar-label,
-.filter-pill-name {
+.cohort-summary::-webkit-details-marker { display: none; }
+.cohort-summary:hover { border-color: var(--accent); }
+
+.cohort.is-filtered .cohort-summary {
+  border-color: var(--accent-100);
+  background: var(--accent-50);
+  color: var(--ink);
+}
+
+.cohort-summary-label { font-weight: 600; }
+.cohort-summary-count { color: var(--ink-3); }
+.cohort.is-filtered .cohort-summary-count { color: var(--accent); font-weight: 600; }
+
+.cohort-caret { font-size: 0.65rem; color: var(--ink-3); }
+.cohort[open] .cohort-caret { transform: rotate(180deg); }
+
+.cohort-popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  z-index: 50;
+  min-width: 17rem;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+}
+
+.cohort-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.cohort-row-label {
+  min-width: 4.5rem;
+  font-size: 0.83rem;
   font-weight: 600;
   color: var(--ink-2);
   white-space: nowrap;
 }
 
-.filter-pill-unit { color: var(--ink-3); font-size: 0.78rem; }
-
-.filter-bar-num {
+.cohort-num {
   font-family: inherit;
-  font-size: 0.82rem;
-  width: 3.6rem;
+  font-size: 0.83rem;
+  width: 3.4rem;
   padding: 0.25rem 0.35rem;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -501,57 +552,55 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
-.filter-bar-num:focus {
+.cohort-num:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-50);
 }
 
-.filter-pill-remove {
+.cohort-unit { font-size: 0.78rem; color: var(--ink-3); }
+
+.cohort-remove {
+  margin-left: auto;
   font-size: 1rem;
   line-height: 1;
   color: var(--ink-3);
   cursor: pointer;
-  padding: 0.15rem 0.4rem;
-  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
   text-decoration: none;
   transition: background 120ms ease, color 120ms ease;
 }
 
-.filter-pill-remove:hover { background: var(--line-2); color: var(--ink); }
+.cohort-remove:hover { background: var(--line-2); color: var(--ink); }
 
-.filter-bar-add {
+.cohort-add {
   font-family: inherit;
-  font-size: 0.82rem;
-  padding: 0.3rem 0.5rem;
+  font-size: 0.83rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
   background: var(--bg);
   border: 1px dashed var(--line);
-  border-radius: 999px;
+  border-radius: 6px;
   color: var(--ink-2);
   cursor: pointer;
   transition: border-color 120ms ease, color 120ms ease;
 }
 
-.filter-bar-add:hover { border-color: var(--accent); color: var(--ink); }
-.filter-bar-add:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cohort-add:hover { border-color: var(--accent); color: var(--ink); }
+.cohort-add:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-.filter-bar-count {
-  margin-left: auto;
-  color: var(--ink-3);
-  white-space: nowrap;
-}
+.cohort-foot { margin-top: 0.1rem; }
 
-.filter-bar.is-filtered .filter-bar-count { color: var(--ink-2); font-weight: 500; }
-
-.filter-bar-reset {
+.cohort-reset {
+  font-size: 0.82rem;
   color: var(--accent);
   cursor: pointer;
   text-decoration: none;
   font-weight: 500;
-  white-space: nowrap;
 }
 
-.filter-bar-reset:hover { text-decoration: underline; }
+.cohort-reset:hover { text-decoration: underline; }
 
 .filter-range-sep { color: var(--ink-3); font-size: 0.85rem; }
 
@@ -601,28 +650,27 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
   color: var(--ink-2);
 }
 
-/* ── Methodology trigger (per-tab "How this works" button) ────────────── */
+/* ── Methodology trigger (the "How this works" ⓘ icon in the toolbar) ──── */
 
 .methodology-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  margin: 0.5rem 0 1.5rem;
-  padding: 0.4rem 0.75rem;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  margin: 0;
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: var(--ink-2);
+  border-radius: 999px;
+  color: var(--accent);
   font: inherit;
-  font-size: 0.83rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: border-color 120ms ease, color 120ms ease, background 120ms ease;
+  transition: border-color 120ms ease, background 120ms ease;
 }
 
 .methodology-trigger:hover {
   border-color: var(--accent);
-  color: var(--ink);
   background: var(--accent-50);
 }
 
@@ -632,12 +680,7 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 }
 
 .methodology-trigger__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1;
   color: var(--accent);
 }

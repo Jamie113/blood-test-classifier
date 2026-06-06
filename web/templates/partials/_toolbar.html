@@ -1,0 +1,19 @@
+{# One toolbar under the tab strip, arranged by scope:
+   left = the active view's own control (primary); right = the global cohort
+   filter (collapsed) and the "How this works" help icon (meta). #}
+<div class="toolbar">
+  <div class="toolbar-view">
+    {% if active == "explorer" and explorer %}
+      {% include "partials/_controls_explorer.html" %}
+    {% elif active == "population" and pop is defined and pop.error is not defined %}
+      {% include "partials/_controls_population.html" %}
+    {% elif active == "pairs" and pair %}
+      {% include "partials/_controls_pairs.html" %}
+    {% endif %}
+  </div>
+
+  <div class="toolbar-global">
+    {% include "partials/_cohort_popover.html" %}
+    {% include "partials/_methodology_trigger.html" %}
+  </div>
+</div>

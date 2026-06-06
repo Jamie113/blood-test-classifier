@@ -60,22 +60,28 @@ def get_filter_spec(
 
 def _page_response(
     request: Request, spec: FilterSpec, tab: str, template: str,
+    extra: dict | None = None,
 ) -> HTMLResponse:
     """Render a full tab view: filtered data → cross-tab + tab-specific context."""
     data = _filtered_data(spec)
     tab = _resolve_tab(tab)
     ctx = {"active": tab, **_common(spec, data), **_build_tab_ctx(data, tab)}
+    if extra:
+        ctx.update(extra)
     return templates.TemplateResponse(request, template, ctx)
 
 
 def _filter_response(
     request: Request, spec: FilterSpec, tab: str, full: bool,
+    cohort_open: bool = False,
 ) -> HTMLResponse:
-    """Response for a filter mutation. The filter bar lives inside the page
+    """Response for a filter mutation. The cohort filter lives inside the page
     body, so a plain `page_body` swap keeps it in sync. `full=True` is only
-    needed when the rail must also update (units), via an OOB rail swap."""
+    needed when the rail must also update (units), via an OOB rail swap.
+    `cohort_open` re-renders the cohort popover expanded, so it stays open
+    while the user edits a range."""
     template = "partials/full_render.html" if full else "partials/page_body.html"
-    return _page_response(request, spec, tab, template)
+    return _page_response(request, spec, tab, template, {"cohort_open": cohort_open})
 
 
 # ── Page + tab routes ────────────────────────────────────────────────────────
@@ -160,7 +166,7 @@ def set_filter_partial(
 ) -> HTMLResponse:
     age_min, age_max = _normalise_age(age_min, age_max)
     spec = FilterSpec.from_request(age_min, age_max, m)
-    return _filter_response(request, spec, tab, full=False)
+    return _filter_response(request, spec, tab, full=False, cohort_open=True)
 
 
 @app.get("/filters/add", response_class=HTMLResponse)
@@ -179,7 +185,7 @@ def add_filter_partial(
         if rng is not None:
             new_m.append(f"{marker}:{rng[0]}:{rng[1]}")
     spec = FilterSpec.from_request(age_min, age_max, new_m)
-    return _filter_response(request, spec, tab, full=False)
+    return _filter_response(request, spec, tab, full=False, cohort_open=True)
 
 
 @app.get("/filters/set-marker", response_class=HTMLResponse)
@@ -202,7 +208,7 @@ def set_marker_filter_partial(
     if marker in state.df_long_full["test_name"].unique():
         new_m.append(f"{marker}:{lo}:{hi}")
     spec = FilterSpec.from_request(age_min, age_max, new_m)
-    return _filter_response(request, spec, tab, full=False)
+    return _filter_response(request, spec, tab, full=False, cohort_open=True)
 
 
 @app.get("/filters/remove", response_class=HTMLResponse)
@@ -216,7 +222,7 @@ def remove_filter_partial(
 ) -> HTMLResponse:
     age_min, age_max = _normalise_age(age_min, age_max)
     spec = FilterSpec.from_request(age_min, age_max, m).without_marker(marker)
-    return _filter_response(request, spec, tab, full=False)
+    return _filter_response(request, spec, tab, full=False, cohort_open=True)
 
 
 @app.get("/filters/reset", response_class=HTMLResponse)

@@ -1,0 +1,18 @@
+{% set p = pop %}
+{% if p.has_age %}
+<div class="toolbar-control">
+  <label>Colour by</label>
+  <select
+    name="colour_by"
+    hx-get="/population/scatter{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#population-scatter"
+    hx-swap="outerHTML"
+    hx-include="this"
+  >
+    <option value="type" {% if p.colour_by == "type" %}selected{% endif %}>Cluster</option>
+    <option value="age"  {% if p.colour_by == "age"  %}selected{% endif %}>Age</option>
+  </select>
+  <span class="toolbar-status">{{ p.n_patients }} blood tests · {{ p.n_markers }} markers used</span>
+</div>
+{% endif %}
