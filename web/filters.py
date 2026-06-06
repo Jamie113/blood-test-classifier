@@ -31,9 +31,6 @@ class FilterSpec:
             or len(self.markers) > 0
         )
 
-    def cache_key(self) -> tuple:
-        return (self.age_min, self.age_max, self.markers)
-
     @classmethod
     def from_request(
         cls,

@@ -316,7 +316,6 @@ def _common(spec: FilterSpec, data: dict) -> dict:
     return {
         "is_demo":         state.is_demo,
         "upload_filename": state.upload_filename,
-        "upload_error":    state.last_upload_error,
         "filters":         spec,
         "filter_qs":       spec.to_query_string(),
         "filtered":        spec.is_active(),

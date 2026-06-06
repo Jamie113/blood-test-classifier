@@ -23,7 +23,7 @@ from web.contexts import (
     _pair_context,
     _population_context,
 )
-from web.filters import FilterSpec, VALID_TABS, _resolve_tab
+from web.filters import FilterSpec, _resolve_tab
 from web.state import (
     MULTI_UNIT_MARKERS,
     _filtered_data,
