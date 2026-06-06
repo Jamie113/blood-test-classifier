@@ -9,7 +9,7 @@ from __future__ import annotations
 import io
 from pathlib import Path
 
-from fastapi import FastAPI, File, Query, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -46,16 +46,35 @@ app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
 
 
-def _filter_response(
-    request: Request, spec: FilterSpec, tab: str, full: bool,
+def get_filter_spec(
+    age_min: int | None = None,
+    age_max: int | None = None,
+    m: list[str] = Query(default_factory=list),
+) -> FilterSpec:
+    """FastAPI dependency: parse the cohort-filter query params into a spec.
+
+    Page routes share this. Filter-mutation routes build the spec themselves
+    because they normalise age and rewrite the marker list first."""
+    return FilterSpec.from_request(age_min, age_max, m)
+
+
+def _page_response(
+    request: Request, spec: FilterSpec, tab: str, template: str,
 ) -> HTMLResponse:
-    """Build the response for a filter mutation. `full=True` means OOB swap the
-    rail filter section as well as page-body; otherwise just page-body."""
+    """Render a full tab view: filtered data → cross-tab + tab-specific context."""
     data = _filtered_data(spec)
     tab = _resolve_tab(tab)
     ctx = {"active": tab, **_common(spec, data), **_build_tab_ctx(data, tab)}
-    template = "partials/full_render.html" if full else "partials/page_body.html"
     return templates.TemplateResponse(request, template, ctx)
+
+
+def _filter_response(
+    request: Request, spec: FilterSpec, tab: str, full: bool,
+) -> HTMLResponse:
+    """Response for a filter mutation. `full=True` also OOB-swaps the rail
+    filter section; otherwise just the page body."""
+    template = "partials/full_render.html" if full else "partials/page_body.html"
+    return _page_response(request, spec, tab, template)
 
 
 # ── Page + tab routes ────────────────────────────────────────────────────────
@@ -68,42 +87,27 @@ def healthz() -> dict:
 @app.get("/", response_class=HTMLResponse)
 def index(
     request: Request,
+    spec: FilterSpec = Depends(get_filter_spec),
     tab: str = "explorer",
-    age_min: int | None = None,
-    age_max: int | None = None,
-    m: list[str] = Query(default_factory=list),
 ) -> HTMLResponse:
-    tab = _resolve_tab(tab)
-    spec = FilterSpec.from_request(age_min, age_max, m)
-    data = _filtered_data(spec)
-    ctx = {"active": tab, **_common(spec, data), **_build_tab_ctx(data, tab)}
-    return templates.TemplateResponse(request, "index.html", ctx)
+    return _page_response(request, spec, tab, "index.html")
 
 
 @app.get("/tab/{name}", response_class=HTMLResponse)
 def tab_partial(
     request: Request,
     name: str,
-    age_min: int | None = None,
-    age_max: int | None = None,
-    m: list[str] = Query(default_factory=list),
+    spec: FilterSpec = Depends(get_filter_spec),
 ) -> HTMLResponse:
-    name = _resolve_tab(name)
-    spec = FilterSpec.from_request(age_min, age_max, m)
-    data = _filtered_data(spec)
-    ctx = {"active": name, **_common(spec, data), **_build_tab_ctx(data, name)}
-    return templates.TemplateResponse(request, "partials/page_body.html", ctx)
+    return _page_response(request, spec, name, "partials/page_body.html")
 
 
 @app.get("/marker", response_class=HTMLResponse)
 def marker_partial(
     request: Request,
     name: str,
-    age_min: int | None = None,
-    age_max: int | None = None,
-    m: list[str] = Query(default_factory=list),
+    spec: FilterSpec = Depends(get_filter_spec),
 ) -> HTMLResponse:
-    spec = FilterSpec.from_request(age_min, age_max, m)
     data = _filtered_data(spec)
     explorer = _marker_context(data, name) if not data.get("error") else None
     ctx: dict = {"active": "explorer", **_common(spec, data)}
@@ -116,13 +120,10 @@ def marker_partial(
 def population_scatter_partial(
     request: Request,
     colour_by: str = "type",
-    age_min: int | None = None,
-    age_max: int | None = None,
-    m: list[str] = Query(default_factory=list),
+    spec: FilterSpec = Depends(get_filter_spec),
 ) -> HTMLResponse:
     if colour_by not in {"type", "age"}:
         colour_by = "type"
-    spec = FilterSpec.from_request(age_min, age_max, m)
     data = _filtered_data(spec)
     if data.get("error"):
         return HTMLResponse("")
@@ -136,11 +137,8 @@ def pair_partial(
     request: Request,
     x: str | None = None,
     y: str | None = None,
-    age_min: int | None = None,
-    age_max: int | None = None,
-    m: list[str] = Query(default_factory=list),
+    spec: FilterSpec = Depends(get_filter_spec),
 ) -> HTMLResponse:
-    spec = FilterSpec.from_request(age_min, age_max, m)
     data = _filtered_data(spec)
     pair = _pair_context(data, x, y) if not data.get("error") else None
     ctx: dict = {"active": "pairs", **_common(spec, data)}
