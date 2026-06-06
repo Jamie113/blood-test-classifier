@@ -27,11 +27,23 @@ uvicorn web.main:app --reload
 ## Tests
 
 ```bash
-python -m pytest                          # all tests (191)
+python -m pytest                          # all tests (236)
 python -m pytest tests/test_analysis.py   # core analysis only
 ```
 
-**191 tests, all should pass.** Run before and after any change to analysis logic.
+**236 tests, all should pass.** Run before and after any change to analysis logic.
+
+## Linting
+
+```bash
+ruff check .                              # lint the whole tree
+```
+
+Ruff is **lint-only** (no repo-wide formatter — the code is hand-aligned).
+Config lives in `pyproject.toml`: rule sets `F, E, W, I, C90, B, NPY`, a
+`max-complexity = 10` mccabe cap, and per-file `E501` exemptions for the
+hand-aligned reference tables. CI (`.github/workflows/tests.yml`) gates every
+PR on both `ruff check .` and the pytest suite — keep both green.
 
 ## File map
 
@@ -46,7 +58,11 @@ python -m pytest tests/test_analysis.py   # core analysis only
 | `stub_data.py` | 80 synthetic demo blood tests across two designed sub-populations |
 | `demo_cache.pkl` | Pre-baked demo analysis — committed so cold start is instant |
 | `bake_demo.py` | Regenerates `demo_cache.pkl` — run after changing `stub_data.py`, `analysis.py`, or `gmm.py` |
-| `web/main.py` | FastAPI app: routes, context builders, chart helpers, request pipeline |
+| `web/main.py` | FastAPI app: route handlers + the request pipeline (`get_filter_spec`, response builders) |
+| `web/contexts.py` | Per-tab template context builders, incl. `_investigate_context` (outlier flagging) |
+| `web/charts.py` | Plotly chart helpers (`_marker_chart_html`, `_population_scatter_html`, `_pair_chart_html`, `_heatmap_html`) |
+| `web/filters.py` | `FilterSpec` + cohort-filter parsing/normalisation |
+| `web/state.py` | `AppState`, demo loading (`_load_demo`), and the `_filtered_data_cached` LRU |
 | `web/templates/` | Jinja2 templates: `base.html`, `index.html`, and `partials/*.html` |
 | `web/static/styles.css` | Design system: typography scale, colour tokens, components |
 | `render.yaml` | Render Blueprint — build command, start command, health check |
@@ -65,7 +81,7 @@ git add demo_cache.pkl
 
 **Analysis layer is framework-agnostic** — `analysis.py`, `gmm.py`, `thresholds.py`, `unit_conversions.py`, `parsing.py` and `stub_data.py` have no FastAPI imports. The web layer imports from them; tests import directly.
 
-**`web/main.py` route handlers contain no analysis logic** — all computation lives in `analysis.py` / `gmm.py` / `parsing.py`. Routes parse query params, call analysis, build template context.
+**`web/main.py` route handlers contain no analysis logic** — all computation lives in `analysis.py` / `gmm.py` / `parsing.py`, context building in `web/contexts.py`, and charts in `web/charts.py`. Routes parse query params, call analysis, and assemble the template context.
 
 ### Per-marker GMM (`fit_optimal_gmm` in `gmm.py`)
 
@@ -81,7 +97,7 @@ git add demo_cache.pkl
 - ΔBIC ≥ 6 floor against K=1, same as per-marker.
 - Returns `posteriors`, `mahalanobis_sq` (squared distance to assigned cluster's mean — used by Outliers tab), plus the standard fields.
 
-### Outlier flagging (`_investigate_context` in `web/main.py`)
+### Outlier flagging (`_investigate_context` in `web/contexts.py`)
 
 - **Boundary cases**: max posterior < 0.7 — split between two clusters.
 - **Multivariate outliers**: per-test Mahalanobis² > `chi2.ppf(0.99, df=n_cluster_dims)`. Absolute threshold from the Gaussian model (replaces the old "bottom 5% of log-likelihood" rule, which always flagged ~5% by construction).
@@ -116,7 +132,7 @@ Each tab follows the same shape:
 
 ## ML review agent
 
-`.claude/agents/ml-reviewer.md` defines an `ml-reviewer` subagent (read-only, opus). Invoke it to assess methodology, parameter choices, statistical assumptions, and surface improvements. The agent description is wired for proactive triggering when changes touch `analysis.py`, `gmm.py`, `_investigate_context`, or chart helpers.
+`.claude/agents/ml-reviewer.md` defines an `ml-reviewer` subagent (read-only, opus). Invoke it to assess methodology, parameter choices, statistical assumptions, and surface improvements. The agent description is wired for proactive triggering when changes touch `analysis.py`, `gmm.py`, `_investigate_context` (`web/contexts.py`), or the chart helpers in `web/charts.py`.
 
 ## Workflow for major changes
 
