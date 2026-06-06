@@ -129,7 +129,7 @@ def _population_context(data: dict, colour_by: str = "type") -> dict:
             if len(bullets) >= 5:
                 break
 
-        members = [pid for pid, lbl in zip(patient_ids, labels) if lbl == g]
+        members = [pid for pid, lbl in zip(patient_ids, labels, strict=True) if lbl == g]
         ages_g = [
             age_lookup.get(pid) for pid in members
             if age_lookup.get(pid) is not None and pd.notna(age_lookup.get(pid))

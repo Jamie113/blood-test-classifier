@@ -81,7 +81,7 @@ def _marker_chart_html(data: dict, marker: str) -> str:
             name="Test values",
         ))
 
-    for i, (m, s, w) in enumerate(zip(means_d, stds_d, weights)):
+    for i, (m, s, w) in enumerate(zip(means_d, stds_d, weights, strict=True)):
         colour = CLUSTER_COLOURS[i % len(CLUSTER_COLOURS)]
         fig.add_trace(go.Scatter(
             x=x, y=w * scipy_norm.pdf(x, m, s),
@@ -89,7 +89,8 @@ def _marker_chart_html(data: dict, marker: str) -> str:
             name=f"Group {i + 1} · avg {m:.2f}",
         ))
 
-    total = sum(w * scipy_norm.pdf(x, m, s) for m, s, w in zip(means_d, stds_d, weights))
+    total = sum(w * scipy_norm.pdf(x, m, s)
+                for m, s, w in zip(means_d, stds_d, weights, strict=True))
     fig.add_trace(go.Scatter(
         x=x, y=total,
         mode="lines", line=dict(color="#1f1f1f", width=1, dash="dash"),
@@ -165,7 +166,7 @@ def _population_scatter_html(data: dict, colour_by: str = "type") -> str:
                 x=X2[mask, 0], y=X2[mask, 1], mode="markers",
                 marker=dict(size=11, color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]),
                 name=f"Cluster {g + 1}",
-                text=[pid for pid, m in zip(patient_ids, mask) if m],
+                text=[pid for pid, m in zip(patient_ids, mask, strict=True) if m],
                 hovertemplate="<b>%{text}</b><extra></extra>",
             ))
 
@@ -210,7 +211,7 @@ def _pair_chart_html(data: dict, x_marker: str, y_marker: str, colour_by: str = 
 
     pop = data["pop_results"]
     pop_label_lookup = (
-        dict(zip(pop["patient_ids"], pop["labels"]))
+        dict(zip(pop["patient_ids"], pop["labels"], strict=True))
         if "labels" in pop else {}
     )
 
@@ -225,7 +226,7 @@ def _pair_chart_html(data: dict, x_marker: str, y_marker: str, colour_by: str = 
                 x=xs[mask], y=ys[mask], mode="markers",
                 marker=dict(size=10, color=CLUSTER_COLOURS[g % len(CLUSTER_COLOURS)]),
                 name=f"Cluster {g + 1}",
-                text=[pid for pid, m in zip(wide.index, mask) if m],
+                text=[pid for pid, m in zip(wide.index, mask, strict=True) if m],
                 hovertemplate=(
                     f"<b>%{{text}}</b><br>{x_marker}: %{{x:.2f}} {disp_x}"
                     f"<br>{y_marker}: %{{y:.2f}} {disp_y}<extra></extra>"

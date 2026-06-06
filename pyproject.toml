@@ -10,7 +10,10 @@ target-version = "py311"
 # E,W = pycodestyle errors/warnings
 # I  = import sorting
 # C90 = mccabe complexity (the guard against function bloat)
-select = ["F", "E", "W", "I", "C90"]
+# B  = flake8-bugbear (likely bugs: B023 closure capture, B006/B008 mutable
+#      defaults, B905 zip without strict=)
+# NPY = NumPy-specific deprecations/removals (np.float_, np.bool, np.in1d, …)
+select = ["F", "E", "W", "I", "C90", "B", "NPY"]
 
 [tool.ruff.lint.isort]
 # The web package must import before the project-root analysis modules so
@@ -22,6 +25,12 @@ known-local-folder = [
     "analysis", "gmm", "parsing", "thresholds",
     "unit_conversions", "column_map", "stub_data",
 ]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection defaults (Depends/Query/File) are the
+# framework's intended "call in the default" idiom, not the B008 mutable-default
+# trap. Treat them as immutable so B008 doesn't fight the framework.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.File"]
 
 [tool.ruff.lint.mccabe]
 # Ratchet: the current worst function scores 7. Cap at 10 so existing code

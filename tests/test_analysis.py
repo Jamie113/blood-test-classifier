@@ -39,7 +39,7 @@ def test_each_result_has_required_keys(stub_df):
 
 def test_labels_cover_all_values(stub_df):
     results = analyse_upload(stub_df)
-    for name, res in results.items():
+    for _name, res in results.items():
         if "error" in res:
             continue
         assert len(res["labels"]) == len(res["values"])
@@ -226,7 +226,7 @@ def test_most_separated_marker_returns_marker_with_clearest_split(stub_df):
     assert name in results
     assert score > 0
     # All other multi-cluster markers should have score <= the picked one
-    for n, r in results.items():
+    for _n, r in results.items():
         if "error" in r or r.get("n_components", 0) < 2:
             continue
         pooled = float(np.mean(r["stds"]))
