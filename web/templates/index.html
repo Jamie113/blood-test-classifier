@@ -21,8 +21,17 @@
     </div>
   {% endif %}
 
-  <div id="page-body">
-    {% include "partials/page_body.html" %}
+  {# Refit indicator: hx-indicator is inherited by every control inside
+     #page-body, so any request that recomputes the cohort dims the results
+     and shows the overlay. The instant "add marker" (~20ms) never flashes —
+     the CSS show-delay outlasts it. #}
+  <div id="results-wrap">
+    <div class="refit-overlay" aria-hidden="true">
+      <span class="refit-spinner"></span>Updating…
+    </div>
+    <div id="page-body" hx-indicator="#results-wrap">
+      {% include "partials/page_body.html" %}
+    </div>
   </div>
 
   {% include "partials/_methodology_drawer.html" %}
