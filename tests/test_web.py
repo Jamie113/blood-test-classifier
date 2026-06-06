@@ -109,7 +109,7 @@ def test_outliers_tab_has_no_per_view_control() -> None:
 
 
 def test_cohort_popover_closed_by_default_open_while_editing() -> None:
-    open_re = r'<details class="cohort[^"]*" open>'
+    open_re = r'id="cohort"[^>]* open>'
     plain = client.get("/?tab=explorer").text
     assert not re.search(open_re, plain)             # collapsed on a normal load
     # Editing a filter re-renders the popover expanded so it stays open.
@@ -247,6 +247,38 @@ def test_filters_add_marker_shows_in_bar(demo_marker: str) -> None:
     assert res.status_code == 200
     # The added marker appears as an editable pill in the filter bar.
     assert _is_filtered(res.text)
+    assert demo_marker in res.text
+
+
+def test_add_marker_is_fast_path_no_refit(demo_marker: str) -> None:
+    """Adding a marker returns only the cohort popover — no chart, and the
+    full-range filter leaves the cohort count unchanged. It must not refit."""
+    res = client.get(f"/filters/add?tab=explorer&marker={demo_marker}")
+    assert res.status_code == 200
+    # Only the popover fragment: an editable pill, but no chart and no shell.
+    assert 'id="cohort"' in res.text
+    assert "plotly-graph-div" not in res.text
+    assert "tab-strip" not in res.text
+    # Full-range add changes nothing: cohort still the whole dataset.
+    n_full = state.df_long_full["patient_id"].nunique()
+    assert _cohort_active_count(res.text) == n_full
+    # The new pill's lower bound is autofocused for immediate editing.
+    assert "autofocus" in res.text
+
+
+def test_add_marker_does_not_call_gmm(monkeypatch, demo_marker: str) -> None:
+    """Hard proof the add fast-path skips the GMM refit: make the fit explode
+    and confirm the add still succeeds."""
+    import web.state as st
+
+    def _boom(*_a, **_k):
+        raise AssertionError("unexpected GMM refit on add")
+
+    monkeypatch.setattr(st, "analyse_population", _boom)
+    monkeypatch.setattr(st, "analyse_upload", _boom)
+    st._filtered_data_cached.cache_clear()  # avoid a cache hit masking a refit
+    res = client.get(f"/filters/add?tab=explorer&marker={demo_marker}")
+    assert res.status_code == 200
     assert demo_marker in res.text
 
 

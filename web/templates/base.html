@@ -32,5 +32,17 @@
       {% block main %}{% endblock %}
     </main>
   </div>
+
+  <script>
+    // HTMX drops native autofocus on swapped-in content, so restore it: after
+    // any swap, focus the [autofocus] input (only the fast-path "add marker"
+    // fragment sets one) and select its value for immediate editing.
+    document.body.addEventListener("htmx:afterSwap", function (e) {
+      var scope = e.target;
+      if (!scope || !scope.querySelector) return;
+      var el = scope.querySelector("input[autofocus]");
+      if (el) { el.focus(); if (el.select) el.select(); }
+    });
+  </script>
 </body>
 </html>

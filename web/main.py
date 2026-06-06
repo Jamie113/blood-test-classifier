@@ -18,6 +18,7 @@ from fastapi.templating import Jinja2Templates
 # putting PROJECT_ROOT on sys.path before any project-root module is touched.
 from web.contexts import (
     _build_tab_ctx,
+    _cohort_context,
     _common,
     _marker_context,
     _pair_context,
@@ -178,14 +179,29 @@ def add_filter_partial(
     age_max: int | None = None,
     m: list[str] = Query(default_factory=list),
 ) -> HTMLResponse:
+    """Reveal a new marker's range editor — fast-path, no GMM refit.
+
+    The marker is added at its FULL range, which filters out nothing, so the
+    results don't change. We therefore re-render only the cohort popover (with
+    the new editable pill, focused) and leave the chart untouched. The refit
+    happens later, when the user actually narrows the range via /set-marker.
+    """
     age_min, age_max = _normalise_age(age_min, age_max)
     new_m = list(m)
+    added: str | None = None
     if marker and marker in state.df_long_full["test_name"].unique():
         rng = _marker_value_range(marker)
         if rng is not None:
             new_m.append(f"{marker}:{rng[0]}:{rng[1]}")
+            added = marker
     spec = FilterSpec.from_request(age_min, age_max, new_m)
-    return _filter_response(request, spec, tab, full=False, cohort_open=True)
+    ctx = {
+        "active": _resolve_tab(tab),
+        "cohort_open": True,
+        "focus_marker": added,
+        **_cohort_context(spec),
+    }
+    return templates.TemplateResponse(request, "partials/_cohort_popover.html", ctx)
 
 
 @app.get("/filters/set-marker", response_class=HTMLResponse)

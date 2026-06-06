@@ -67,11 +67,9 @@ def _full_data() -> dict:
     }
 
 
-@functools.lru_cache(maxsize=32)
-def _filtered_data_cached(spec: FilterSpec) -> dict:
-    """Compute and cache the filtered analysis. Bounded LRU keeps memory in
-    check on the 512 MB Render free tier — each entry is ~400 KB. Callers
-    must NOT mutate the returned dict; cache hits return the same object."""
+def _spec_filtered_long(spec: FilterSpec):
+    """Apply a FilterSpec to the full long-frame — the cheap pandas filter, no
+    GMM refit. Used both by the cached analysis and by the cohort count."""
     age_range: tuple | None = None
     if spec.age_min is not None or spec.age_max is not None:
         full_range = _age_full_range()
@@ -80,8 +78,21 @@ def _filtered_data_cached(spec: FilterSpec) -> dict:
         age_range = (lo, hi)
 
     marker_ranges = {mf.marker: (mf.lo, mf.hi) for mf in spec.markers}
+    return filter_long(state.df_long_full, age_range=age_range, marker_ranges=marker_ranges)
 
-    df_filtered = filter_long(state.df_long_full, age_range=age_range, marker_ranges=marker_ranges)
+
+def _cohort_count(spec: FilterSpec) -> int:
+    """Number of blood tests matching `spec` — cheap (no GMM refit)."""
+    df = _spec_filtered_long(spec)
+    return df["patient_id"].nunique() if not df.empty else 0
+
+
+@functools.lru_cache(maxsize=32)
+def _filtered_data_cached(spec: FilterSpec) -> dict:
+    """Compute and cache the filtered analysis. Bounded LRU keeps memory in
+    check on the 512 MB Render free tier — each entry is ~400 KB. Callers
+    must NOT mutate the returned dict; cache hits return the same object."""
+    df_filtered = _spec_filtered_long(spec)
     n = df_filtered["patient_id"].nunique() if not df_filtered.empty else 0
 
     if n < 4:

@@ -2,7 +2,7 @@
    popover holds age + per-marker ranges + add + reset. No JS: native
    disclosure. Filter routes pass `cohort_open` so the popover stays open
    while the user is editing (each mutation re-renders this fragment). #}
-<details class="cohort{% if filtered %} is-filtered{% endif %}"{% if cohort_open %} open{% endif %}>
+<details class="cohort{% if filtered %} is-filtered{% endif %}" id="cohort"{% if cohort_open %} open{% endif %}>
   <summary class="cohort-summary">
     <span class="cohort-summary-label">Cohort</span>
     <span class="cohort-summary-count">{{ n_active }} of {{ n_full }} tests</span>
@@ -57,7 +57,8 @@
         <span class="cohort-row-label">{{ chip.marker }}</span>
         <input class="cohort-num" type="number" name="lo" step="any"
                min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
-               value="{{ "%g"|format(chip.lo) }}" />
+               value="{{ "%g"|format(chip.lo) }}"
+               {% if focus_marker is defined and focus_marker == chip.marker %}autofocus{% endif %} />
         <span class="filter-range-sep">–</span>
         <input class="cohort-num" type="number" name="hi" step="any"
                min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
@@ -77,8 +78,8 @@
         class="cohort-row"
         hx-get="/filters/add"
         hx-trigger="change"
-        hx-target="#page-body"
-        hx-swap="innerHTML"
+        hx-target="#cohort"
+        hx-swap="outerHTML"
         autocomplete="off"
       >
         <input type="hidden" name="tab" value="{{ active }}" />
