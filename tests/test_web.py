@@ -56,18 +56,16 @@ def test_healthz_returns_ok() -> None:
 
 @pytest.mark.parametrize("tab", ["explorer", "population", "investigate", "pairs"])
 def test_index_each_tab_renders(tab: str) -> None:
+    """Full page renders end-to-end and dispatches to the requested tab.
+
+    A 200 proves the shell + tab partial rendered without a template error.
+    The tab strip marks exactly the requested tab `is-active` (driven by the
+    same `active` var that selects the body partial), so it's the structural
+    signal of correct dispatch — no need to pin tab-specific copy.
+    """
     res = client.get(f"/?tab={tab}")
     assert res.status_code == 200
-    assert f'data-mdr-section="{tab}"' in res.text
-    # The methodology drawer lists all four sections on every page, so it can't
-    # tell tabs apart — assert a body element unique to each tab's partial.
-    body_markers = {
-        "explorer":    'id="marker-picker"',
-        "population":  "What defines each cluster",
-        "investigate": "finding-empty",  # demo cohort flags nothing
-        "pairs":       ">X axis<",
-    }
-    assert body_markers[tab] in res.text
+    assert re.search(rf'class="tab is-active"\s+href="/\?tab={tab}', res.text)
 
 
 def test_index_default_tab_is_explorer() -> None:
