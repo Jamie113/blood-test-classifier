@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
 
-from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
+from gmm import fit_optimal_gmm, sort_gmm, get_boundaries
 
 
 def analyse_upload(df_long: pd.DataFrame) -> dict:
@@ -32,20 +32,6 @@ def analyse_upload(df_long: pd.DataFrame) -> dict:
         raw_labels = gmm.predict(values.reshape(-1, 1))
         labels = order_inverse[raw_labels]
 
-        cluster_stats = []
-        for i in range(n):
-            mask = labels == i
-            cv = values[mask]
-            cluster_stats.append({
-                "Group":      f"Group {i + 1}",
-                "Average":    round(float(means[i]), 3),
-                "Spread (±)": round(float(stds[i]), 3),
-                "Min":        round(float(cv.min()), 3) if len(cv) else "—",
-                "Max":        round(float(cv.max()), 3) if len(cv) else "—",
-                "Patients":   int(mask.sum()),
-                "% of Total": f"{mask.mean() * 100:.1f}%",
-            })
-
         results[test_name] = {
             "n_components":  n,
             "bic_scores":    bic_scores,
@@ -55,7 +41,6 @@ def analyse_upload(df_long: pd.DataFrame) -> dict:
             "boundaries":    boundaries,
             "labels":        labels,
             "values":        values,
-            "cluster_stats": cluster_stats,
             "small_sample":  len(values) < 30,
             "gmm":           gmm,
             "order_inverse": order_inverse,
@@ -137,7 +122,6 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
 
     labels       = best_gmm.predict(X_cluster)
     posteriors   = best_gmm.predict_proba(X_cluster)
-    log_likelihood = best_gmm.score_samples(X_cluster)
 
     # Per-test squared Mahalanobis distance to the assigned cluster's mean.
     # With diagonal covariance, covariances_[k] is a 1-D variance vector, so
@@ -159,7 +143,6 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         "patient_ids":     list(df_wide.index),
         "labels":          labels,
         "posteriors":      posteriors,
-        "log_likelihood":  log_likelihood,
         "mahalanobis_sq":  mahalanobis_sq,
         "n_clusters":      best_n,
         "bic_scores":      bic_scores,
@@ -167,7 +150,6 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         "pca_var":         pca.explained_variance_ratio_,
         "n_cluster_dims":  n_cluster_dims,
         "fingerprint":     fingerprint,
-        "z_scores":        z_scores,
         "df_wide":         df_wide,
         "small_sample":    n_patients < 30,
     }
