@@ -59,14 +59,15 @@ def test_index_each_tab_renders(tab: str) -> None:
     res = client.get(f"/?tab={tab}")
     assert res.status_code == 200
     assert f'data-mdr-section="{tab}"' in res.text
-    # The intro paragraph is the most stable per-tab content marker.
-    intros = {
-        "explorer":    "For each blood marker",
-        "population":  "treats each blood test as a whole",
-        "investigate": "don't fit cleanly into any cluster",
-        "pairs":       "compares any two markers",
+    # The methodology drawer lists all four sections on every page, so it can't
+    # tell tabs apart — assert a body element unique to each tab's partial.
+    body_markers = {
+        "explorer":    'id="marker-picker"',
+        "population":  "What defines each cluster",
+        "investigate": "finding-empty",  # demo cohort flags nothing
+        "pairs":       ">X axis<",
     }
-    assert intros[tab] in res.text
+    assert body_markers[tab] in res.text
 
 
 def test_index_default_tab_is_explorer() -> None:
