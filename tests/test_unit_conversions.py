@@ -1,6 +1,6 @@
 import pytest
-from unit_conversions import to_canonical
 
+from unit_conversions import to_canonical
 
 # ── Testosterone (nmol/L ↔ ng/dL, threshold > 100) ────────────────────────
 

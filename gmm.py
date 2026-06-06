@@ -2,9 +2,9 @@
 # Core GMM fitting functions used by analysis.py and bake_demo.py.
 
 import numpy as np
-from sklearn.mixture import GaussianMixture
 from scipy.optimize import brentq
 from scipy.stats import norm as scipy_norm
+from sklearn.mixture import GaussianMixture
 
 
 def fit_optimal_gmm(values: np.ndarray, delta_bic_threshold: float = 6.0) -> tuple:

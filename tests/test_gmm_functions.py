@@ -1,8 +1,7 @@
 import numpy as np
-import pytest
 from sklearn.mixture import GaussianMixture
-from gmm import fit_optimal_gmm, sort_gmm, get_boundaries, assign_clusters
 
+from gmm import assign_clusters, fit_optimal_gmm, get_boundaries, sort_gmm
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

@@ -12,9 +12,6 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2
 
-from analysis import most_separated_marker, strongest_marker_pair
-from unit_conversions import transform_for_display
-
 from web.charts import (
     CLUSTER_COLOURS,
     _heatmap_html,
@@ -30,6 +27,8 @@ from web.state import (
     state,
 )
 
+from analysis import most_separated_marker, strongest_marker_pair
+from unit_conversions import transform_for_display
 
 # ── Marker explorer (Groups tab) ─────────────────────────────────────────────
 
@@ -334,7 +333,9 @@ def _build_tab_ctx(data: dict, tab: str) -> dict:
         return {}
     if tab == "explorer":
         pick = most_separated_marker(data["gmm_results"])
-        available = sorted([t for t in data["gmm_results"] if "error" not in data["gmm_results"][t]])
+        available = sorted(
+            t for t in data["gmm_results"] if "error" not in data["gmm_results"][t]
+        )
         initial = pick[0] if pick else (available[0] if available else None)
         if initial is None:
             return {}
