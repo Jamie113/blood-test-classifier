@@ -132,10 +132,25 @@ def test_population_scatter_partial(colour_by: str) -> None:
     assert "plotly-graph-div" in res.text
 
 
+def test_population_scatter_colour_by_changes_the_chart() -> None:
+    """`type` and `age` must produce genuinely different charts: discrete
+    cluster traces vs a continuous age colour-scale. A route that ignored
+    `colour_by` would emit identical markup for both."""
+    by_type = client.get("/population/scatter?colour_by=type")
+    by_age = client.get("/population/scatter?colour_by=age")
+    assert by_type.status_code == 200 and by_age.status_code == 200
+    assert by_type.text != by_age.text
+    # type → named cluster traces; age → a continuous "Age" colour bar.
+    assert "Cluster 1" in by_type.text and "Cluster 1" not in by_age.text
+    assert "Age" in by_age.text and "Age" not in by_type.text
+
+
 def test_population_scatter_invalid_colour_by_defaults_to_type() -> None:
-    res = client.get("/population/scatter?colour_by=garbage")
-    assert res.status_code == 200
-    assert "plotly-graph-div" in res.text
+    garbage = client.get("/population/scatter?colour_by=garbage")
+    assert garbage.status_code == 200
+    # Invalid input must render as `type` (cluster traces, no age colour bar),
+    # not silently fall through to `age`.
+    assert "Cluster 1" in garbage.text and "Age" not in garbage.text
 
 
 # ── /pair partial ────────────────────────────────────────────────────────────
@@ -151,7 +166,23 @@ def test_pair_partial_explicit_pair(demo_marker_pair: tuple[str, str]) -> None:
     x, y = demo_marker_pair
     res = client.get(f"/pair?x={x}&y={y}")
     assert res.status_code == 200
-    assert "plotly-graph-div" in res.text
+    # The chart must actually plot x on the x-axis and y on the y-axis.
+    titles = _axis_titles(res.text)
+    assert len(titles) >= 2
+    assert titles[0].startswith(f"{x} (")
+    assert titles[1].startswith(f"{y} (")
+
+
+def test_pair_partial_respects_axis_assignment(
+    demo_marker_pair: tuple[str, str],
+) -> None:
+    """Swapping x and y must swap the axes — proves the route reads both
+    params rather than charting a fixed/strongest pair."""
+    x, y = demo_marker_pair
+    forward = _axis_titles(client.get(f"/pair?x={x}&y={y}").text)
+    flipped = _axis_titles(client.get(f"/pair?x={y}&y={x}").text)
+    assert forward[0].startswith(f"{x} (") and forward[1].startswith(f"{y} (")
+    assert flipped[0].startswith(f"{y} (") and flipped[1].startswith(f"{x} (")
 
 
 def test_pair_partial_same_marker_picks_alternate(demo_marker: str) -> None:
@@ -188,28 +219,66 @@ def test_filters_add_marker_returns_full_render(demo_marker: str) -> None:
     assert demo_marker in res.text
 
 
-def test_filters_remove_marker(demo_marker: str) -> None:
-    # Establish a marker filter first (broad range covering all values).
-    res = client.get(f"/filters/add?tab=explorer&marker={demo_marker}")
-    assert "cohort-banner" in res.text
-    # Now remove it.
-    res = client.get(f"/filters/remove?tab=explorer&marker={demo_marker}&m={demo_marker}:0:9999")
-    assert res.status_code == 200
-    assert "cohort-banner" not in res.text
-
-
-def test_filters_reset_clears_everything(demo_marker: str) -> None:
-    res = client.get(
-        f"/filters/reset?tab=explorer&age_min=35&age_max=55&m={demo_marker}:0:9999"
+def test_filters_remove_marker_restores_full_cohort(demo_marker: str) -> None:
+    """Removing a genuinely-narrowing marker filter must restore the full
+    cohort (banner disappears). A no-op remove would leave it narrowed."""
+    sub = state.df_long_full[state.df_long_full["test_name"] == demo_marker]["value"]
+    lo, hi = float(sub.min()), float(sub.median())
+    n_full = state.df_long_full["patient_id"].nunique()
+    # Narrow first, and confirm it actually subset the cohort.
+    narrowed = client.get(
+        f"/filters/set-marker?tab=explorer&marker={demo_marker}&lo={lo}&hi={hi}"
     )
-    assert res.status_code == 200
-    assert "cohort-banner" not in res.text
+    active = _cohort_active_count(narrowed.text)
+    assert active is not None and active < n_full
+    # Removing it returns to the full cohort.
+    removed = client.get(
+        f"/filters/remove?tab=explorer&marker={demo_marker}&m={demo_marker}:{lo}:{hi}"
+    )
+    assert removed.status_code == 200
+    assert "cohort-banner" not in removed.text
+
+
+def test_filters_reset_restores_full_cohort(demo_marker: str) -> None:
+    """Reset must drop both age and marker filters back to the full cohort."""
+    sub = state.df_long_full[state.df_long_full["test_name"] == demo_marker]["value"]
+    lo, hi = float(sub.min()), float(sub.median())
+    n_full = state.df_long_full["patient_id"].nunique()
+    narrowed = client.get(
+        f"/filters/set-marker?tab=explorer&age_min=35&age_max=55"
+        f"&marker={demo_marker}&lo={lo}&hi={hi}"
+    )
+    assert "cohort-banner" in narrowed.text
+    active = _cohort_active_count(narrowed.text)
+    assert active is not None and active < n_full
+    reset = client.get("/filters/reset?tab=explorer")
+    assert reset.status_code == 200
+    assert "cohort-banner" not in reset.text
 
 
 def _cohort_active_count(html: str) -> int | None:
     """Pull `n_active` out of the cohort banner ('analysing N of M blood tests')."""
     m = re.search(r"analysing\s+(\d+)\s+of\s+(\d+)\s+blood tests", html)
     return int(m.group(1)) if m else None
+
+
+def _axis_titles(html: str) -> list[str]:
+    """Plotly axis title texts in document order (x-axis first, then y-axis).
+
+    Plotly serialises axis titles as `"title":{"text":"…"}`. Trace names and
+    annotations use other keys, so on a charts with no colour-bar (the marker
+    and pair charts) the only matches are the two axis titles.
+    """
+    return re.findall(r'"title":\{"text":"([^"]*)"\}', html)
+
+
+def _marker_axis_unit(html: str, marker: str) -> str | None:
+    """Extract the unit from a marker chart's x-axis title (`Marker (unit)`).
+
+    Plotly escapes the slash in unit strings as `\\u002f`, so undo that.
+    """
+    m = re.search(re.escape(marker) + r" \(([^)]*)\)", html)
+    return m.group(1).replace("\\u002f", "/") if m else None
 
 
 def test_filters_add_marker_renders_editable_range_inputs(demo_marker: str) -> None:
@@ -416,6 +485,27 @@ def test_units_set_switches_display_unit() -> None:
     res = client.get(f"/units/set?tab=explorer&u={candidate}:{alt}")
     assert res.status_code == 200
     assert state.unit_prefs.get(candidate) == alt
+
+
+def test_units_set_changes_rendered_axis_label() -> None:
+    """A unit switch must change the *rendered* chart axis label, not merely
+    `state.unit_prefs`. Guards against a unit pref that never reaches a chart."""
+    from web.state import MULTI_UNIT_MARKERS
+
+    from unit_conversions import available_units
+    present = set(state.df_long_full["test_name"].unique())
+    candidate = next((m for m in MULTI_UNIT_MARKERS if m in present), None)
+    if candidate is None:
+        pytest.skip("No multi-unit marker present in the demo cohort.")
+    canonical = available_units(candidate)[0]
+    alt = next(u for u in available_units(candidate) if u != canonical)
+
+    before = client.get(f"/marker?name={candidate}").text
+    assert _marker_axis_unit(before, candidate) == canonical
+
+    client.get(f"/units/set?tab=explorer&u={candidate}:{alt}")
+    after = client.get(f"/marker?name={candidate}").text
+    assert _marker_axis_unit(after, candidate) == alt
 
 
 def test_units_set_ignores_invalid_marker_or_unit() -> None:
