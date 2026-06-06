@@ -444,33 +444,56 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 .unit-row-select:hover { border-color: var(--accent); }
 .unit-row-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
-/* ── Cohort filter ─────────────────────────────────────────────────────── */
+/* ── Cohort filter bar (under the tab strip) ───────────────────────────── */
 
-.filter-block + .filter-block { margin-top: 1rem; }
-
-.filter-block-label {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--ink-3);
-  margin-bottom: 0.4rem;
-}
-
-.filter-block-foot {
-  margin-top: 0.3rem;
-  font-size: 0.75rem;
-}
-
-.filter-range {
+.filter-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  margin: -1rem 0 1.75rem;          /* pull up under the tab strip's margin */
+  padding: 0.5rem 0.7rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
 }
 
-.filter-range input[type="number"] {
+.filter-bar.is-filtered {
+  background: var(--accent-50);
+  border-color: var(--accent-100);
+}
+
+.filter-bar-group,
+.filter-pill,
+.filter-bar-add-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.filter-pill {
+  padding: 0.2rem 0.2rem 0.2rem 0.55rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.filter-bar-label,
+.filter-pill-name {
+  font-weight: 600;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.filter-pill-unit { color: var(--ink-3); font-size: 0.78rem; }
+
+.filter-bar-num {
   font-family: inherit;
-  font-size: 0.88rem;
-  width: 100%;
-  padding: 0.4rem 0.55rem;
+  font-size: 0.82rem;
+  width: 3.6rem;
+  padding: 0.25rem 0.35rem;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -478,74 +501,61 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
-.filter-range input[type="number"]:focus {
+.filter-bar-num:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-50);
 }
 
-.filter-range-sep { color: var(--ink-3); font-size: 0.85rem; }
-
-.filter-chip {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.55rem 0.7rem;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  margin-bottom: 0.45rem;
-  transition: border-color 120ms ease;
-}
-
-.filter-chip:hover { border-color: var(--accent-100); }
-
-.filter-chip-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.filter-chip-name {
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.filter-chip-range {
-  font-size: 0.78rem;
-  color: var(--ink-3);
-}
-
-.filter-chip-remove {
-  font-size: 1.1rem;
+.filter-pill-remove {
+  font-size: 1rem;
   line-height: 1;
   color: var(--ink-3);
   cursor: pointer;
-  padding: 0.2rem 0.45rem;
-  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
   text-decoration: none;
   transition: background 120ms ease, color 120ms ease;
 }
 
-.filter-chip-remove:hover { background: var(--line-2); color: var(--ink); }
+.filter-pill-remove:hover { background: var(--line-2); color: var(--ink); }
 
-.filter-add {
+.filter-bar-add {
   font-family: inherit;
-  font-size: 0.86rem;
-  width: 100%;
-  padding: 0.5rem 0.6rem;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.5rem;
   background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px dashed var(--line);
+  border-radius: 999px;
   color: var(--ink-2);
   cursor: pointer;
-  transition: border-color 120ms ease;
+  transition: border-color 120ms ease, color 120ms ease;
 }
 
-.filter-add:hover { border-color: var(--accent); color: var(--ink); }
-.filter-add:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.filter-bar-add:hover { border-color: var(--accent); color: var(--ink); }
+.filter-bar-add:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.filter-bar-count {
+  margin-left: auto;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.filter-bar.is-filtered .filter-bar-count { color: var(--ink-2); font-weight: 500; }
+
+.filter-bar-reset {
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-bar-reset:hover { text-decoration: underline; }
+
+.filter-range-sep { color: var(--ink-3); font-size: 0.85rem; }
+
+/* ── Data-section reset link (left rail) ───────────────────────────────── */
 
 .filter-reset {
   display: inline-block;
@@ -558,23 +568,6 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 }
 
 .filter-reset:hover { text-decoration: underline; }
-
-/* ── Cohort banner (above tab strip when filters active) ────────────────── */
-
-.cohort-banner {
-  font-size: 0.88rem;
-  color: var(--ink-2);
-  background: var(--accent-50);
-  border: 1px solid var(--accent-100);
-  border-radius: var(--radius);
-  padding: 0.55rem 0.8rem;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cohort-banner strong { color: var(--ink); font-weight: 600; }
 
 .cohort-error {
   font-size: 0.95rem;

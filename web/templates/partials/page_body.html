@@ -1,20 +1,6 @@
-{% if filtered %}
-  <div class="cohort-banner">
-    <span>
-      <strong>Filtered cohort:</strong>
-      analysing {{ n_active }} of {{ n_full }} blood tests.
-    </span>
-    <span style="margin-left: auto;">
-      <a class="filter-reset" style="margin: 0;"
-         hx-get="/filters/reset?tab={{ active }}"
-         hx-target="#page-body"
-         hx-swap="innerHTML"
-         hx-push-url="true">Clear filters</a>
-    </span>
-  </div>
-{% endif %}
-
 {% include "partials/tab_strip.html" %}
+
+{% include "partials/_filter_bar.html" %}
 
 <div id="tab-body">
   {% include "partials/_methodology_trigger.html" %}

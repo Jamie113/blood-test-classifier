@@ -193,11 +193,11 @@ def test_pair_partial_same_marker_picks_alternate(demo_marker: str) -> None:
 
 # ── Filter routes ────────────────────────────────────────────────────────────
 
-def test_filters_set_age_range_shows_cohort_banner() -> None:
+def test_filters_set_age_range_marks_bar_filtered() -> None:
     res = client.get("/filters/set?tab=explorer&age_min=35&age_max=55")
     assert res.status_code == 200
-    assert "cohort-banner" in res.text
-    assert "Filtered cohort" in res.text
+    assert _is_filtered(res.text)
+    assert _cohort_active_count(res.text) < state.df_long_full["patient_id"].nunique()
 
 
 def test_filters_set_full_age_range_treated_as_no_filter() -> None:
@@ -206,21 +206,20 @@ def test_filters_set_full_age_range_treated_as_no_filter() -> None:
     age_max = int(state.df_long_full["age"].max())
     res = client.get(f"/filters/set?tab=explorer&age_min={age_min}&age_max={age_max}")
     assert res.status_code == 200
-    assert "cohort-banner" not in res.text
+    assert not _is_filtered(res.text)
 
 
-def test_filters_add_marker_returns_full_render(demo_marker: str) -> None:
+def test_filters_add_marker_shows_in_bar(demo_marker: str) -> None:
     res = client.get(f"/filters/add?tab=explorer&marker={demo_marker}")
     assert res.status_code == 200
-    # full_render.html injects an OOB rail-state swap on top of page-body.
-    assert 'id="rail-state"' in res.text
-    assert "cohort-banner" in res.text
+    # The added marker appears as an editable pill in the filter bar.
+    assert _is_filtered(res.text)
     assert demo_marker in res.text
 
 
 def test_filters_remove_marker_restores_full_cohort(demo_marker: str) -> None:
     """Removing a genuinely-narrowing marker filter must restore the full
-    cohort (banner disappears). A no-op remove would leave it narrowed."""
+    cohort. A no-op remove would leave it narrowed."""
     sub = state.df_long_full[state.df_long_full["test_name"] == demo_marker]["value"]
     lo, hi = float(sub.min()), float(sub.median())
     n_full = state.df_long_full["patient_id"].nunique()
@@ -235,7 +234,8 @@ def test_filters_remove_marker_restores_full_cohort(demo_marker: str) -> None:
         f"/filters/remove?tab=explorer&marker={demo_marker}&m={demo_marker}:{lo}:{hi}"
     )
     assert removed.status_code == 200
-    assert "cohort-banner" not in removed.text
+    assert not _is_filtered(removed.text)
+    assert _cohort_active_count(removed.text) == n_full
 
 
 def test_filters_reset_restores_full_cohort(demo_marker: str) -> None:
@@ -247,18 +247,24 @@ def test_filters_reset_restores_full_cohort(demo_marker: str) -> None:
         f"/filters/set-marker?tab=explorer&age_min=35&age_max=55"
         f"&marker={demo_marker}&lo={lo}&hi={hi}"
     )
-    assert "cohort-banner" in narrowed.text
+    assert _is_filtered(narrowed.text)
     active = _cohort_active_count(narrowed.text)
     assert active is not None and active < n_full
     reset = client.get("/filters/reset?tab=explorer")
     assert reset.status_code == 200
-    assert "cohort-banner" not in reset.text
+    assert not _is_filtered(reset.text)
+    assert _cohort_active_count(reset.text) == n_full
 
 
 def _cohort_active_count(html: str) -> int | None:
-    """Pull `n_active` out of the cohort banner ('analysing N of M blood tests')."""
-    m = re.search(r"analysing\s+(\d+)\s+of\s+(\d+)\s+blood tests", html)
+    """Pull `n_active` out of the filter bar's count ('N of M tests')."""
+    m = re.search(r"(\d+)\s+of\s+(\d+)\s+tests", html)
     return int(m.group(1)) if m else None
+
+
+def _is_filtered(html: str) -> bool:
+    """The filter bar carries `is-filtered` exactly when a cohort filter is active."""
+    return "is-filtered" in html
 
 
 def _axis_titles(html: str) -> list[str]:
@@ -297,7 +303,7 @@ def test_filters_set_marker_narrows_cohort(demo_marker: str) -> None:
         f"/filters/set-marker?tab=explorer&marker={demo_marker}&lo={lo}&hi={hi}"
     )
     assert res.status_code == 200
-    assert "cohort-banner" in res.text
+    assert _is_filtered(res.text)
     active = _cohort_active_count(res.text)
     assert active is not None and active < n_full
 
@@ -362,8 +368,7 @@ def test_full_parameterised_url_restores_cohort_tab_and_drawer(
     )
     assert res.status_code == 200
     assert 'data-mdr-section="population"' in res.text
-    assert "cohort-banner" in res.text
-    assert "Filtered cohort" in res.text
+    assert _is_filtered(res.text)
 
 
 # ── Upload ───────────────────────────────────────────────────────────────────
