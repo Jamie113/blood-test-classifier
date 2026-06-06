@@ -40,18 +40,49 @@
   {% if filter_chips %}
     <div class="filter-block">
       <div class="filter-block-label">Marker filters</div>
+      <div class="t-meta filter-block-foot" style="margin-bottom: 0.5rem;">
+        Adjust the range to narrow the cohort.
+      </div>
       {% for chip in filter_chips %}
-        <div class="filter-chip">
-          <div class="filter-chip-name">{{ chip.marker }}</div>
-          <div class="filter-chip-range">
-            {{ "%g"|format(chip.lo) }}–{{ "%g"|format(chip.hi) }} {{ chip.unit }}
+        <form
+          class="filter-chip"
+          hx-get="/filters/set-marker"
+          hx-trigger="change delay:300ms"
+          hx-target="#page-body"
+          hx-swap="innerHTML"
+          hx-push-url="true"
+          autocomplete="off"
+        >
+          <input type="hidden" name="tab" value="{{ active }}" />
+          <input type="hidden" name="marker" value="{{ chip.marker }}" />
+          {% if filters.age_min is not none %}<input type="hidden" name="age_min" value="{{ filters.age_min }}" />{% endif %}
+          {% if filters.age_max is not none %}<input type="hidden" name="age_max" value="{{ filters.age_max }}" />{% endif %}
+          {% for other in filter_chips %}
+            {% if other.marker != chip.marker %}
+              <input type="hidden" name="m" value="{{ other.marker }}:{{ other.lo }}:{{ other.hi }}" />
+            {% endif %}
+          {% endfor %}
+          <div class="filter-chip-head">
+            <div class="filter-chip-name">{{ chip.marker }}</div>
+            <a class="filter-chip-remove"
+               title="Remove filter"
+               hx-get="/filters/remove?marker={{ chip.marker | urlencode }}&tab={{ active }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+               hx-target="#page-body"
+               hx-swap="innerHTML">×</a>
           </div>
-          <a class="filter-chip-remove"
-             title="Remove filter"
-             hx-get="/filters/remove?marker={{ chip.marker | urlencode }}&tab={{ active }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
-             hx-target="#page-body"
-             hx-swap="innerHTML">×</a>
-        </div>
+          <div class="filter-range">
+            <input type="number" name="lo" step="any"
+                   min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
+                   value="{{ "%g"|format(chip.lo) }}" />
+            <span class="filter-range-sep">–</span>
+            <input type="number" name="hi" step="any"
+                   min="{{ chip.full_lo }}" max="{{ chip.full_hi }}"
+                   value="{{ "%g"|format(chip.hi) }}" />
+          </div>
+          <div class="t-meta filter-block-foot">
+            Full range: {{ "%g"|format(chip.full_lo) }}–{{ "%g"|format(chip.full_hi) }} {{ chip.unit }}
+          </div>
+        </form>
       {% endfor %}
     </div>
   {% endif %}
