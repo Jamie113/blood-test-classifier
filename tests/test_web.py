@@ -108,6 +108,16 @@ def test_outliers_tab_has_no_per_view_control() -> None:
     assert "cohort-summary" in html
 
 
+def test_refit_indicator_wired_to_results() -> None:
+    """The results carry an hx-indicator + overlay so cohort recomputes dim
+    the chart and show 'Updating…'. Controls inside #page-body inherit it."""
+    html = client.get("/").text
+    assert 'id="results-wrap"' in html
+    assert 'hx-indicator="#results-wrap"' in html
+    assert 'class="refit-overlay"' in html
+    assert "Updating" in html
+
+
 def test_cohort_popover_closed_by_default_open_while_editing() -> None:
     open_re = r'id="cohort"[^>]* open>'
     plain = client.get("/?tab=explorer").text

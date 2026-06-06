@@ -604,6 +604,59 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 
 .filter-range-sep { color: var(--ink-3); font-size: 0.85rem; }
 
+/* ── Refit loading indicator ───────────────────────────────────────────── */
+
+#results-wrap { position: relative; }
+
+#tab-body { transition: opacity 150ms ease; }
+
+/* HTMX adds .htmx-request to the indicator target (#results-wrap) while a
+   recompute is in flight. Dim only #tab-body so the toolbar/cohort controls
+   stay crisp and interactive. The 120ms show-delay means fast swaps (the
+   instant add, cache hits) finish before anything appears — no flash. */
+#results-wrap.htmx-request #tab-body {
+  opacity: 0.4;
+  pointer-events: none;
+  transition-delay: 120ms;
+}
+
+.refit-overlay {
+  position: absolute;
+  top: 8.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+#results-wrap.htmx-request .refit-overlay {
+  opacity: 1;
+  transition-delay: 120ms;
+}
+
+.refit-spinner {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid var(--accent-100);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: refit-spin 0.6s linear infinite;
+}
+
+@keyframes refit-spin { to { transform: rotate(360deg); } }
+
 /* ── Data-section reset link (left rail) ───────────────────────────────── */
 
 .filter-reset {
