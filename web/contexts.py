@@ -21,6 +21,7 @@ from web.charts import (
 )
 from web.filters import FilterSpec
 from web.state import (
+    _cohort_count,
     _display_unit,
     _filter_ui_context,
     _units_ui_context,
@@ -307,6 +308,20 @@ def _pair_context(data: dict, x: str | None, y: str | None) -> dict:
 
 
 # ── Cross-tab context (left rail + page chrome) ──────────────────────────────
+
+def _cohort_context(spec: FilterSpec) -> dict:
+    """Context for the cohort popover alone — the chips, count, and add control,
+    WITHOUT a GMM refit. Used by the fast-path add route so revealing a new
+    marker's range editor is instant (a full-range filter changes nothing)."""
+    return {
+        "filters":    spec,
+        "filter_qs":  spec.to_query_string(),
+        "filtered":   spec.is_active(),
+        "n_full":     state.df_long_full["patient_id"].nunique(),
+        "n_active":   _cohort_count(spec),
+        **_filter_ui_context(spec),
+    }
+
 
 def _common(spec: FilterSpec, data: dict) -> dict:
     n_full = state.df_long_full["patient_id"].nunique()
