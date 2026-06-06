@@ -90,13 +90,4 @@
   </p>
 </details>
 
-<div class="next-step">
-  → Some tests don't fit cleanly into a cluster — see which need a closer look in
-  <a href="/?tab=investigate{% if filter_qs %}&{{ filter_qs }}{% endif %}"
-     hx-get="/tab/investigate{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-     hx-target="#page-body"
-     hx-swap="innerHTML"
-     hx-push-url="true"><strong>3. Outliers</strong></a>
-</div>
-
 {% endif %}

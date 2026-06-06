@@ -89,12 +89,3 @@
     {{ e.n_components }} groups selected.
   </p>
 </details>
-
-<div class="next-step">
-  → Now see how these groups map onto full test profiles in
-  <a href="/?tab=population{% if filter_qs %}&{{ filter_qs }}{% endif %}"
-     hx-get="/tab/population{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-     hx-target="#page-body"
-     hx-swap="innerHTML"
-     hx-push-url="true"><strong>2. Clusters</strong></a>
-</div>

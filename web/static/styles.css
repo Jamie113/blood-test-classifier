@@ -205,29 +205,6 @@ body {
 
 .card + .card { margin-top: 0.75rem; }
 
-/* ── Next-step prompt ───────────────────────────────────────────────────── */
-
-.next-step {
-  margin-top: 2rem;
-  padding: 0.85rem 1rem;
-  background: var(--accent-50);
-  border-left: 3px solid var(--accent);
-  border-radius: 4px;
-  color: var(--ink-2);
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-.next-step strong { color: var(--ink); font-weight: 600; }
-
-.next-step a {
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.next-step a:hover { text-decoration: underline; }
-
 /* ── Sub-section bar (selector / control row) ──────────────────────────── */
 
 .control-bar {
@@ -400,13 +377,6 @@ details.disclosure > *:not(summary) { margin-top: 0.75rem; }
 }
 
 .upload-button:hover { background: #2c2c2c; }
-
-.upload-help {
-  margin-top: 0.6rem;
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: var(--ink-3);
-}
 
 /* ── Rail disclosure (Display units etc.) ──────────────────────────────── */
 
@@ -614,24 +584,6 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
   border-radius: var(--radius);
   padding: 1rem 1.2rem;
   margin: 1rem 0 2rem;
-}
-
-/* ── Tab intro (per-tab "what is this and how does it work") ──────────── */
-
-.tab-intro {
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: var(--ink-2);
-  margin: 0.25rem 0 0.5rem;
-  padding: 0.95rem 1.1rem;
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-
-.tab-intro strong {
-  color: var(--ink);
-  font-weight: 600;
 }
 
 /* ── Finding (quiet summary placed under the chart) ───────────────────── */

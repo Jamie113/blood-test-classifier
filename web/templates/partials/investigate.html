@@ -10,15 +10,6 @@
     A clean cohort, or a small one.
   </div>
 
-  <div class="next-step">
-    → Now look at how markers relate to each other in
-    <a href="/?tab=pairs{% if filter_qs %}&{{ filter_qs }}{% endif %}"
-       hx-get="/tab/pairs{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-       hx-target="#page-body"
-       hx-swap="innerHTML"
-       hx-push-url="true"><strong>4. Correlations</strong></a>
-  </div>
-
 {% else %}
 
   <div class="investigate-summary">
@@ -72,15 +63,6 @@
       All have unusual overall profiles.
     {% endif %}
     <span class="t-quiet">Sorted by lowest cluster confidence first.</span>
-  </div>
-
-  <div class="next-step">
-    → Now look at how markers relate to each other in
-    <a href="/?tab=pairs{% if filter_qs %}&{{ filter_qs }}{% endif %}"
-       hx-get="/tab/pairs{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-       hx-target="#page-body"
-       hx-swap="innerHTML"
-       hx-push-url="true"><strong>4. Correlations</strong></a>
   </div>
 
 {% endif %}
