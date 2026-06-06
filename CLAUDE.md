@@ -79,7 +79,7 @@ git add demo_cache.pkl
 - **K range is sample-size capped**: `range(1, max(2, min(5, n_patients // 25)) + 1)`. n=80 demo can reach at most K=3; K=5 needs ~125 patients.
 - **`n_init=5`** (was 3 — bumped after a review found the multivariate fit was occasionally hitting local optima).
 - ΔBIC ≥ 6 floor against K=1, same as per-marker.
-- Returns `posteriors`, `log_likelihood`, `mahalanobis_sq` (squared distance to assigned cluster's mean — used by Outliers tab), `z_scores`, plus the standard fields.
+- Returns `posteriors`, `mahalanobis_sq` (squared distance to assigned cluster's mean — used by Outliers tab), plus the standard fields.
 
 ### Outlier flagging (`_investigate_context` in `web/main.py`)
 
@@ -99,7 +99,7 @@ Filter state lives in URL query params (`age_min`, `age_max`, repeated `m=Marker
 If you change the return shape, update both `bake_demo.py` consumers and the tests in `tests/test_analysis.py`.
 
 - **`analyse_upload`** per-marker dict now includes `gmm` (the fitted model) and `order_inverse` (for posterior label remapping). Required for `build_labelled_df` to use `gmm.predict`.
-- **`analyse_population`** dict now includes `posteriors`, `log_likelihood`, `mahalanobis_sq`, and `z_scores` alongside the original fields.
+- **`analyse_population`** dict now includes `posteriors` and `mahalanobis_sq` alongside the original fields.
 
 ### Design system (`web/static/styles.css`)
 

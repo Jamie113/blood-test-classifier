@@ -24,7 +24,7 @@ def test_returns_dict_keyed_by_marker(stub_df):
 def test_each_result_has_required_keys(stub_df):
     results = analyse_upload(stub_df)
     required = {"n_components", "bic_scores", "means", "stds", "weights",
-                "boundaries", "labels", "values", "cluster_stats", "small_sample",
+                "boundaries", "labels", "values", "small_sample",
                 "gmm", "order_inverse"}
     for name, res in results.items():
         if "error" in res:
@@ -113,12 +113,11 @@ def test_population_error_on_too_few_patients():
     assert "error" in result
 
 
-def test_population_returns_posteriors_and_log_likelihood(stub_df):
+def test_population_returns_posteriors_and_mahalanobis(stub_df):
     result = analyse_population(stub_df)
     n = len(result["patient_ids"])
     assert result["posteriors"].shape == (n, result["n_clusters"])
     np.testing.assert_allclose(result["posteriors"].sum(axis=1), np.ones(n))
-    assert result["log_likelihood"].shape == (n,)
     assert result["mahalanobis_sq"].shape == (n,)
     assert (result["mahalanobis_sq"] >= 0).all()
 
