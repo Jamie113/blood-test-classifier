@@ -1,6 +1,6 @@
 # Blood Test Classifier
 
-A FastAPI + HTMX + Tailwind app for discovering patterns in blood test results using unsupervised machine learning. Upload a wide-format CSV of blood test results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
+A FastAPI + HTMX app for discovering patterns in blood test results using unsupervised machine learning. Upload a wide-format CSV of blood test results and the app identifies natural clusters — without pre-labelling them — so you can interpret what those clusters mean.
 
 Each row in the dataset is treated as one **blood test** (a single panel of marker results), not a patient-as-such.
 
