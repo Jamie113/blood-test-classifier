@@ -446,6 +446,27 @@ def test_full_parameterised_url_restores_cohort_tab_and_drawer(
     assert _is_filtered(res.text)
 
 
+def test_filter_mutation_pushes_canonical_url(demo_marker: str) -> None:
+    """Filter mutations must push the bookmarkable /?… page URL — not the bare
+    /filters/* endpoint, which renders shell-less (no CSS) on reload."""
+    res = client.get(f"/filters/set?tab=pairs&age_min=35&age_max=55&m={demo_marker}:0:9999")
+    pushed = res.headers.get("HX-Push-Url")
+    assert pushed is not None and pushed.startswith("/?tab=pairs")
+    assert "age_min=35" in pushed and f"m={demo_marker}" in pushed
+    assert "/filters/" not in pushed
+    # And that pushed URL must actually serve the full styled shell.
+    full = client.get(pushed)
+    assert "/static/styles.css" in full.text and "<html" in full.text
+
+
+def test_tab_switch_pushes_canonical_url() -> None:
+    """Switching tabs must push /?tab=… (full page), not the /tab/* fragment."""
+    res = client.get("/tab/population")
+    pushed = res.headers.get("HX-Push-Url")
+    assert pushed == "/?tab=population"
+    assert "/static/styles.css" in client.get(pushed).text
+
+
 # ── Upload ───────────────────────────────────────────────────────────────────
 
 def _csv_bytes(rows: list[dict[str, str]]) -> bytes:

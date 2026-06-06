@@ -82,7 +82,18 @@ def _filter_response(
     `cohort_open` re-renders the cohort popover expanded, so it stays open
     while the user edits a range."""
     template = "partials/full_render.html" if full else "partials/page_body.html"
-    return _page_response(request, spec, tab, template, {"cohort_open": cohort_open})
+    resp = _page_response(request, spec, tab, template, {"cohort_open": cohort_open})
+    # Push the canonical full-page URL (not this /filters/* endpoint), so a
+    # reload / bookmark / share lands on the styled page, with the cohort
+    # preserved in query params.
+    resp.headers["HX-Push-Url"] = _canonical_url(_resolve_tab(tab), spec)
+    return resp
+
+
+def _canonical_url(tab: str, spec: FilterSpec) -> str:
+    """The bookmarkable address-bar URL for a tab + cohort: `/?tab=…&m=…`."""
+    qs = spec.to_query_string()
+    return f"/?tab={tab}" + (f"&{qs}" if qs else "")
 
 
 # ── Page + tab routes ────────────────────────────────────────────────────────
@@ -107,7 +118,11 @@ def tab_partial(
     name: str,
     spec: FilterSpec = Depends(get_filter_spec),
 ) -> HTMLResponse:
-    return _page_response(request, spec, name, "partials/page_body.html")
+    resp = _page_response(request, spec, name, "partials/page_body.html")
+    # Push the canonical full-page URL so a reload of a switched tab lands on
+    # the styled page, not this bare /tab/* fragment.
+    resp.headers["HX-Push-Url"] = _canonical_url(_resolve_tab(name), spec)
+    return resp
 
 
 @app.get("/marker", response_class=HTMLResponse)
