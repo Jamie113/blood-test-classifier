@@ -8,6 +8,7 @@ the global AppState without bleeding into subsequent tests.
 from __future__ import annotations
 
 import io
+import re
 import textwrap
 
 import pytest
@@ -203,6 +204,81 @@ def test_filters_reset_clears_everything(demo_marker: str) -> None:
     )
     assert res.status_code == 200
     assert "cohort-banner" not in res.text
+
+
+def _cohort_active_count(html: str) -> int | None:
+    """Pull `n_active` out of the cohort banner ('analysing N of M blood tests')."""
+    m = re.search(r"analysing\s+(\d+)\s+of\s+(\d+)\s+blood tests", html)
+    return int(m.group(1)) if m else None
+
+
+def test_filters_add_marker_renders_editable_range_inputs(demo_marker: str) -> None:
+    """Adding a marker filter must expose lo/hi inputs, not a read-only chip."""
+    res = client.get(f"/filters/add?tab=explorer&marker={demo_marker}")
+    assert res.status_code == 200
+    assert 'name="lo"' in res.text and 'name="hi"' in res.text
+    assert "/filters/set-marker" in res.text
+
+
+def test_filters_set_marker_narrows_cohort(demo_marker: str) -> None:
+    """A tightened marker range must subset the cohort (fewer active tests)."""
+    sub = state.df_long_full[state.df_long_full["test_name"] == demo_marker]["value"]
+    lo, hi = float(sub.min()), float(sub.median())
+    n_full = state.df_long_full["patient_id"].nunique()
+    res = client.get(
+        f"/filters/set-marker?tab=explorer&marker={demo_marker}&lo={lo}&hi={hi}"
+    )
+    assert res.status_code == 200
+    assert "cohort-banner" in res.text
+    active = _cohort_active_count(res.text)
+    assert active is not None and active < n_full
+
+
+def test_filters_set_marker_full_range_keeps_everyone(demo_marker: str) -> None:
+    """The data's full range matches every test → cohort unchanged."""
+    sub = state.df_long_full[state.df_long_full["test_name"] == demo_marker]["value"]
+    lo, hi = float(sub.min()), float(sub.max())
+    n_full = state.df_long_full["patient_id"].nunique()
+    res = client.get(
+        f"/filters/set-marker?tab=explorer&marker={demo_marker}&lo={lo}&hi={hi}"
+    )
+    assert res.status_code == 200
+    assert _cohort_active_count(res.text) == n_full
+
+
+def test_filters_set_marker_swaps_inverted_bounds(demo_marker: str) -> None:
+    """lo > hi is tolerated by swapping, not by emptying the cohort."""
+    sub = state.df_long_full[state.df_long_full["test_name"] == demo_marker]["value"]
+    lo, hi = float(sub.min()), float(sub.median())
+    res = client.get(
+        f"/filters/set-marker?tab=explorer&marker={demo_marker}&lo={hi}&hi={lo}"
+    )
+    assert res.status_code == 200
+    active = _cohort_active_count(res.text)
+    assert active is not None and active > 0
+
+
+def test_filters_set_marker_preserves_other_markers(
+    demo_marker_pair: tuple[str, str],
+) -> None:
+    """Editing one marker must not drop the other active marker's filter.
+
+    `set-marker` swaps page-body only (chips aren't re-rendered), so retention
+    is verified through the cohort count: `second` stays tight, so even with
+    `first` widened to a no-op the cohort must remain a strict subset.
+    """
+    first, second = demo_marker_pair
+    f = state.df_long_full[state.df_long_full["test_name"] == first]["value"]
+    s = state.df_long_full[state.df_long_full["test_name"] == second]["value"]
+    n_full = state.df_long_full["patient_id"].nunique()
+    res = client.get(
+        f"/filters/set-marker?tab=explorer&marker={first}"
+        f"&lo={float(f.min())}&hi={float(f.max())}"          # widen `first` (no-op)
+        f"&m={second}:{float(s.min())}:{float(s.median())}"  # `second` stays tight
+    )
+    assert res.status_code == 200
+    active = _cohort_active_count(res.text)
+    assert active is not None and active < n_full
 
 
 # ── URL bookmarkability ──────────────────────────────────────────────────────

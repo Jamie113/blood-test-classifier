@@ -183,6 +183,29 @@ def add_filter_partial(
     return _filter_response(request, spec, tab, full=True)
 
 
+@app.get("/filters/set-marker", response_class=HTMLResponse)
+def set_marker_filter_partial(
+    request: Request,
+    marker: str,
+    lo: float,
+    hi: float,
+    tab: str = "explorer",
+    age_min: int | None = None,
+    age_max: int | None = None,
+    m: list[str] = Query(default_factory=list),
+) -> HTMLResponse:
+    """Update the value range of an already-active marker filter. The other
+    active markers arrive as `m`; this one's bounds arrive as `lo`/`hi`."""
+    age_min, age_max = _normalise_age(age_min, age_max)
+    if hi < lo:
+        lo, hi = hi, lo
+    new_m = [s for s in m if not s.startswith(f"{marker}:")]
+    if marker in state.df_long_full["test_name"].unique():
+        new_m.append(f"{marker}:{lo}:{hi}")
+    spec = FilterSpec.from_request(age_min, age_max, new_m)
+    return _filter_response(request, spec, tab, full=False)
+
+
 @app.get("/filters/remove", response_class=HTMLResponse)
 def remove_filter_partial(
     request: Request,

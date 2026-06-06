@@ -517,12 +517,9 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 .filter-range-sep { color: var(--ink-3); font-size: 0.85rem; }
 
 .filter-chip {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas: "name remove"
-                       "range remove";
-  align-items: center;
-  gap: 0 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
   padding: 0.55rem 0.7rem;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -533,21 +530,25 @@ details.rail-disclosure[open] summary::after { transform: rotate(90deg); }
 
 .filter-chip:hover { border-color: var(--accent-100); }
 
+.filter-chip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .filter-chip-name {
-  grid-area: name;
   font-size: 0.86rem;
   font-weight: 600;
   color: var(--ink);
 }
 
 .filter-chip-range {
-  grid-area: range;
   font-size: 0.78rem;
   color: var(--ink-3);
 }
 
 .filter-chip-remove {
-  grid-area: remove;
   font-size: 1.1rem;
   line-height: 1;
   color: var(--ink-3);
