@@ -51,6 +51,12 @@ def sort_gmm(gmm: GaussianMixture) -> tuple:
     return means, stds, weights, order
 
 
+def _weighted_pdf_gap(x: float, w0: float, m0: float, s0: float,
+                      w1: float, m1: float, s1: float) -> float:
+    """Difference of two weighted Gaussian PDFs — zero at their crossing point."""
+    return w0 * scipy_norm.pdf(x, m0, s0) - w1 * scipy_norm.pdf(x, m1, s1)
+
+
 def get_boundaries(means: np.ndarray, stds: np.ndarray, weights: np.ndarray) -> list:
     """
     Find the x-value where adjacent sorted components have equal weighted PDF.
@@ -58,12 +64,10 @@ def get_boundaries(means: np.ndarray, stds: np.ndarray, weights: np.ndarray) -> 
     """
     boundaries = []
     for i in range(len(means) - 1):
+        params = (weights[i],   means[i],   stds[i],
+                  weights[i+1], means[i+1], stds[i+1])
         try:
-            b = brentq(
-                lambda x: (weights[i]   * scipy_norm.pdf(x, means[i],   stds[i]) -
-                           weights[i+1] * scipy_norm.pdf(x, means[i+1], stds[i+1])),
-                means[i], means[i+1],
-            )
+            b = brentq(_weighted_pdf_gap, means[i], means[i+1], args=params)
         except ValueError:
             b = (means[i] + means[i+1]) / 2
         boundaries.append(b)
