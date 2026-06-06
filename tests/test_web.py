@@ -86,6 +86,39 @@ def test_index_includes_demo_banner() -> None:
     assert "80 synthetic blood tests" in res.text
 
 
+# ── Unified toolbar ──────────────────────────────────────────────────────────
+
+def test_toolbar_groups_controls_in_one_row() -> None:
+    """The per-view control, cohort chip, and help icon share one toolbar
+    between the tab strip and the body — not three stacked control bands."""
+    html = client.get("/?tab=explorer").text
+    assert html.count('class="toolbar"') == 1
+    bar = html.find('class="toolbar"')
+    assert html.find('class="tab-strip"') < bar < html.find('id="tab-body"')
+    assert 'id="marker-picker"' in html              # per-view control (left)
+    assert "cohort-summary" in html                  # cohort chip (right)
+    assert 'aria-label="How this works"' in html     # help icon (right)
+
+
+def test_outliers_tab_has_no_per_view_control() -> None:
+    """Outliers has no view-specific control, so the toolbar's left slot is
+    empty there — the cohort chip and help icon still render."""
+    html = client.get("/?tab=investigate").text
+    assert "toolbar-control" not in html
+    assert "cohort-summary" in html
+
+
+def test_cohort_popover_closed_by_default_open_while_editing() -> None:
+    open_re = r'<details class="cohort[^"]*" open>'
+    plain = client.get("/?tab=explorer").text
+    assert not re.search(open_re, plain)             # collapsed on a normal load
+    # Editing a filter re-renders the popover expanded so it stays open.
+    edited = client.get("/filters/set?tab=explorer&age_min=35&age_max=55").text
+    assert re.search(open_re, edited) and _is_filtered(edited)
+    # Reset collapses it again.
+    assert not re.search(open_re, client.get("/filters/reset?tab=explorer").text)
+
+
 # ── /tab/{name} partials ─────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("tab", ["explorer", "population", "investigate", "pairs"])

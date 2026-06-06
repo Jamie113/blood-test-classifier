@@ -1,10 +1,8 @@
 {% include "partials/tab_strip.html" %}
 
-{% include "partials/_filter_bar.html" %}
+{% include "partials/_toolbar.html" %}
 
 <div id="tab-body">
-  {% include "partials/_methodology_trigger.html" %}
-
   {% if data_error %}
     <div class="cohort-error">{{ data_error }}</div>
   {% elif active == "explorer" %}

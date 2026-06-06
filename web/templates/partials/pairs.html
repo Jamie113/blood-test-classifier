@@ -1,39 +1,5 @@
 {% set q = pair %}
 
-<div class="control-bar">
-  <label>X axis</label>
-  <select
-    name="x"
-    hx-get="/pair{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-    hx-trigger="change"
-    hx-target="#page-body"
-    hx-swap="innerHTML"
-    hx-include="closest div"
-  >
-    {% for m in q.markers %}
-      <option value="{{ m }}" {% if m == q.x %}selected{% endif %}>{{ m }}</option>
-    {% endfor %}
-  </select>
-  <label style="margin-left: 0.75rem;">Y axis</label>
-  <select
-    name="y"
-    hx-get="/pair{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-    hx-trigger="change"
-    hx-target="#page-body"
-    hx-swap="innerHTML"
-    hx-include="closest div"
-  >
-    {% for m in q.y_options %}
-      <option value="{{ m }}" {% if m == q.y %}selected{% endif %}>{{ m }}</option>
-    {% endfor %}
-  </select>
-  {% if q.r is not none %}
-    <span class="t-quiet" style="margin-left: auto;">
-      {% if q.showing_auto %}auto-picked: strongest pair &nbsp;·&nbsp; {% endif %}r = {{ "%+.2f"|format(q.r) }} · {{ q.n_overlap }} tests
-    </span>
-  {% endif %}
-</div>
-
 <div class="chart-host">
   {{ q.chart_html | safe }}
 </div>

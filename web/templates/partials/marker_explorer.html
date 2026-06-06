@@ -2,26 +2,6 @@
 {% set biggest = e.groups[0] %}
 {% set second  = e.groups[1] if e.groups|length > 1 else none %}
 
-<div class="control-bar">
-  <label for="marker-picker">Showing</label>
-  <select
-    id="marker-picker"
-    name="name"
-    hx-get="/marker{% if filter_qs %}?{{ filter_qs }}{% endif %}"
-    hx-trigger="change"
-    hx-target="#page-body"
-    hx-swap="innerHTML"
-    hx-include="this"
-  >
-    {% for m in e.available %}
-      <option value="{{ m }}" {% if m == e.marker %}selected{% endif %}>{{ m }}</option>
-    {% endfor %}
-  </select>
-  <span class="t-quiet" style="margin-left: auto;">
-    {% if e.is_auto %}auto-picked: clearest split &nbsp;·&nbsp; {% endif %}{{ e.n_components }} groups · {{ e.n_patients }} tests
-  </span>
-</div>
-
 <div class="chart-host">
   {{ e.chart_html | safe }}
 </div>

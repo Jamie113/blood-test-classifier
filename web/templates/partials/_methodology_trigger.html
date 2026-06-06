@@ -1,10 +1,11 @@
-{# "How this works" button. Re-rendered with each tab swap; data-mdr-section
+{# "How this works" help, reduced to an icon in the toolbar. data-mdr-section
    carries the current tab so the drawer scrolls to the matching section. #}
 <button type="button"
         class="methodology-trigger"
         data-mdr-action="open"
         data-mdr-section="{{ active }}"
-        aria-controls="methodology-drawer">
+        aria-controls="methodology-drawer"
+        aria-label="How this works"
+        title="How this works">
   <span class="methodology-trigger__icon" aria-hidden="true">ⓘ</span>
-  How this works
 </button>

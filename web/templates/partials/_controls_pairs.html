@@ -1,0 +1,34 @@
+{% set q = pair %}
+<div class="toolbar-control">
+  <label>X</label>
+  <select
+    name="x"
+    hx-get="/pair{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#page-body"
+    hx-swap="innerHTML"
+    hx-include="closest div"
+  >
+    {% for m in q.markers %}
+      <option value="{{ m }}" {% if m == q.x %}selected{% endif %}>{{ m }}</option>
+    {% endfor %}
+  </select>
+  <label>Y</label>
+  <select
+    name="y"
+    hx-get="/pair{% if filter_qs %}?{{ filter_qs }}{% endif %}"
+    hx-trigger="change"
+    hx-target="#page-body"
+    hx-swap="innerHTML"
+    hx-include="closest div"
+  >
+    {% for m in q.y_options %}
+      <option value="{{ m }}" {% if m == q.y %}selected{% endif %}>{{ m }}</option>
+    {% endfor %}
+  </select>
+  {% if q.r is not none %}
+    <span class="toolbar-status">
+      {% if q.showing_auto %}auto-picked: strongest pair &nbsp;·&nbsp; {% endif %}r = {{ "%+.2f"|format(q.r) }} · {{ q.n_overlap }} tests
+    </span>
+  {% endif %}
+</div>
