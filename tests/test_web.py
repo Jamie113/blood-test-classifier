@@ -129,6 +129,15 @@ def test_cohort_popover_closed_by_default_open_while_editing() -> None:
     assert not re.search(open_re, client.get("/filters/reset?tab=explorer").text)
 
 
+def test_below_evidence_floor_copy_is_honest() -> None:
+    """A cohort below the K>1 evidence floor must say only one cluster was
+    *evaluated* — not imply BIC compared candidates and chose it."""
+    # age 45-65 → 35 demo patients, below the 50-patient population floor
+    html = client.get("/?tab=population&age_min=45&age_max=65").text
+    assert "Only a single cluster was evaluated" in html
+    assert "Number of clusters selected by BIC" not in html
+
+
 # ── /tab/{name} partials ─────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("tab", ["explorer", "population", "investigate", "pairs"])

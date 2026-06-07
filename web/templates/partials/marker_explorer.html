@@ -62,12 +62,17 @@
 <details class="disclosure">
   <summary>Technical details</summary>
   <p class="t-meta">
-    Group count chosen by BIC scoring (lower = better fit):
-    {% for n, bic in e.bic_pairs %}
-      <strong>{{ n }} groups</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
-    {% endfor %}.
-    {{ e.n_components }} groups selected{% if e.delta_bic is not none %},
-      beating a single group by ΔBIC {{ "%.0f"|format(e.delta_bic) }}{% if e.tentative %}
-      — a marginal split, treat the sub-groups as tentative{% endif %}{% endif %}.
+    {% if e.bic_pairs|length == 1 %}
+      Only a single group was evaluated — too few values to test for sub-groups
+      (10+ needed). Reported as one group by default, not by BIC comparison.
+    {% else %}
+      Group count chosen by BIC scoring (lower = better fit):
+      {% for n, bic in e.bic_pairs %}
+        <strong>{{ n }} groups</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
+      {% endfor %}.
+      {{ e.n_components }} groups selected{% if e.delta_bic is not none %},
+        beating a single group by ΔBIC {{ "%.0f"|format(e.delta_bic) }}{% if e.tentative %}
+        — strong but not overwhelming evidence; treat the sub-groups as tentative{% endif %}{% endif %}.
+    {% endif %}
   </p>
 </details>

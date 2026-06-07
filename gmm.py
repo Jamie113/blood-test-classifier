@@ -11,7 +11,7 @@ def fit_optimal_gmm(values: np.ndarray, delta_bic_threshold: float = 6.0) -> tup
     """
     Fit a GMM with BIC-optimal number of components.
 
-    Tries K = 1, 2, …, up to `min(4, n // 5)` — K>1 needs an evidence floor of
+    Tries K = 1, 2, …, up to `max(1, min(4, n // 5))` — K>1 needs an evidence floor of
     ~5 points per component (K=2 needs n≥10). Below that only K=1 is tried, so a
     handful of points can't be reported as "two groups". The best K (lowest BIC)
     only "wins" over K=1 if its BIC improvement exceeds `delta_bic_threshold`

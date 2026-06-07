@@ -65,12 +65,18 @@
   <summary>Technical details</summary>
   <p class="t-meta">
     Analysis used {{ p.n_cluster_dims }} dimensions capturing {{ p.var_pct }}% of total variation.
-    Number of clusters selected by BIC (lower = better fit):
-    {% for n, bic in p.bic_pairs %}
-      <strong>{{ n }} clusters</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
-    {% endfor %}{% if p.delta_bic is not none %},
-      beating a single cluster by ΔBIC {{ "%.0f"|format(p.delta_bic) }}{% if p.tentative %}
-      — a marginal split, treat the clusters as tentative{% endif %}{% endif %}.
+    {% if p.bic_pairs|length == 1 %}
+      Only a single cluster was evaluated — {{ p.n_patients }} patients is below the
+      evidence floor (50+ needed to test for clusters). Reported as one cluster by
+      default, not by BIC comparison.
+    {% else %}
+      Number of clusters selected by BIC (lower = better fit):
+      {% for n, bic in p.bic_pairs %}
+        <strong>{{ n }} clusters</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
+      {% endfor %}{% if p.delta_bic is not none %},
+        beating a single cluster by ΔBIC {{ "%.0f"|format(p.delta_bic) }}{% if p.tentative %}
+        — strong but not overwhelming evidence; treat the clusters as tentative{% endif %}{% endif %}.
+    {% endif %}
   </p>
 </details>
 
