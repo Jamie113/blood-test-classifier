@@ -31,6 +31,18 @@ from web.state import (
 from analysis import most_separated_marker, strongest_marker_pair
 from unit_conversions import transform_for_display
 
+# How decisively a K>1 split beat the K=1 null. ΔBIC ≥ 6 is "strong evidence";
+# a margin only just past that floor is reported as tentative, not asserted.
+_DELTA_BIC_TENTATIVE = 10.0
+
+
+def _delta_bic(bic_scores: dict, n_chosen: int) -> float | None:
+    """ΔBIC of the chosen K vs the K=1 null. None when K=1 was chosen."""
+    if n_chosen <= 1 or 1 not in bic_scores or n_chosen not in bic_scores:
+        return None
+    return bic_scores[1] - bic_scores[n_chosen]
+
+
 # ── Marker explorer (Groups tab) ─────────────────────────────────────────────
 
 def _marker_context(data: dict, marker: str) -> dict | None:
@@ -79,6 +91,9 @@ def _marker_context(data: dict, marker: str) -> dict | None:
         "available":    available,
         "chart_html":   _marker_chart_html(data, marker),
         "bic_pairs":    sorted(res["bic_scores"].items()),
+        "delta_bic":    _delta_bic(res["bic_scores"], n_comp),
+        "tentative":    (d := _delta_bic(res["bic_scores"], n_comp)) is not None
+                        and d < _DELTA_BIC_TENTATIVE,
         "small_sample": res["small_sample"],
     }
 
@@ -170,6 +185,9 @@ def _population_context(data: dict, colour_by: str = "type") -> dict:
         "has_age":        has_age,
         "small_sample":   pop["small_sample"],
         "bic_pairs":      sorted(pop["bic_scores"].items()),
+        "delta_bic":      _delta_bic(pop["bic_scores"], n_clusters),
+        "tentative":      (d := _delta_bic(pop["bic_scores"], n_clusters)) is not None
+                          and d < _DELTA_BIC_TENTATIVE,
         "var_pct":        int(pop["pca_var"][:pop["n_cluster_dims"]].sum() * 100),
         "n_cluster_dims": pop["n_cluster_dims"],
     }

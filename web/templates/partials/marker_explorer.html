@@ -66,6 +66,8 @@
     {% for n, bic in e.bic_pairs %}
       <strong>{{ n }} groups</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
     {% endfor %}.
-    {{ e.n_components }} groups selected.
+    {{ e.n_components }} groups selected{% if e.delta_bic is not none %},
+      beating a single group by ΔBIC {{ "%.0f"|format(e.delta_bic) }}{% if e.tentative %}
+      — a marginal split, treat the sub-groups as tentative{% endif %}{% endif %}.
   </p>
 </details>

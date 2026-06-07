@@ -68,7 +68,9 @@
     Number of clusters selected by BIC (lower = better fit):
     {% for n, bic in p.bic_pairs %}
       <strong>{{ n }} clusters</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
-    {% endfor %}.
+    {% endfor %}{% if p.delta_bic is not none %},
+      beating a single cluster by ΔBIC {{ "%.0f"|format(p.delta_bic) }}{% if p.tentative %}
+      — a marginal split, treat the clusters as tentative{% endif %}{% endif %}.
   </p>
 </details>
 
