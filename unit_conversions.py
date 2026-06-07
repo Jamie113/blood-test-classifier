@@ -111,7 +111,9 @@ def _to_canonical(test_name: str, value: float) -> float:
     info = _INCOMING.get(test_name)
     if info is None:
         return value
-    return info["to_canon"](value) if _matches_alt(info["alt_when"], np.asarray(value)) else value
+    op, threshold = info["alt_when"]
+    is_alt = value > threshold if op == "gt" else value < threshold
+    return info["to_canon"](value) if is_alt else value
 
 
 # Detection thresholds are heuristics tuned to typical adult-male ranges (the
@@ -129,11 +131,12 @@ def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
     matching the alt-unit rule — so a column is never split across units.
 
     `ambiguous` is True when ANY value falls on the opposite side of the
-    threshold from the rest: a single rogue value (e.g. one mistyped ng/dL cell
-    in an nmol/L column) is the smoking gun for a data-entry error and is left
-    unconverted, so it must be surfaced rather than silently shipped into the
-    GMM as a fake outlier. Columns too short to trust, and exact 50/50 ties,
-    fall back to canonical (no conversion) and are flagged."""
+    threshold from the rest (a single rogue value is the smoking gun for a
+    data-entry error), OR when the column is too short to trust the majority.
+    The conversion is still applied best-effort either way — leaving a clearly
+    ng/dL solo reading unconverted ships it into the GMM ~28× wrong, which is
+    worse than converting and flagging. Exact 50/50 ties fall back to canonical
+    (no confident conversion) and are flagged."""
     info = _INCOMING.get(test_name)
     arr = np.asarray([v for v in values if v is not None and not np.isnan(v)], dtype=float)
     if info is None:
@@ -141,11 +144,11 @@ def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
         return THRESHOLDS.get(test_name, {}).get("unit", ""), False
     if arr.size == 0:
         return info["canonical"], False
-    if arr.size < _MIN_DETECT_N:
-        return info["canonical"], True  # too few values to convert confidently
     frac_alt = float(_matches_alt(info["alt_when"], arr).mean())
     detected = info["alt"] if frac_alt > 0.5 else info["canonical"]  # ties → canonical
-    ambiguous = 0.0 < frac_alt < 1.0  # any value on the wrong side of the threshold
+    # Flag a likely error (any threshold-crosser) or low confidence (tiny column)
+    # — but still convert best-effort above, so a clear solo reading isn't left raw.
+    ambiguous = (0.0 < frac_alt < 1.0) or (arr.size < _MIN_DETECT_N)
     return detected, ambiguous
 
 

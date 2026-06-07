@@ -170,10 +170,13 @@ def test_single_rogue_value_is_flagged_not_silently_kept():
     assert converted[-1] == 300.0        # left unconverted — flagged for the user
 
 
-def test_tiny_column_falls_back_to_canonical_and_flags():
-    detected, ambiguous = detect_incoming_unit("Testosterone", [346.0])  # n < 3
-    assert detected == "nmol/L"          # too few to convert confidently
-    assert ambiguous
+def test_tiny_column_converts_best_effort_but_flags():
+    """A clear solo reading (346 ng/dL) must still convert — leaving it raw
+    would ship 346 into the GMM as 346 nmol/L (~28x wrong) — but is flagged."""
+    converted, detected, ambiguous = to_canonical_column("Testosterone", [346.0])  # n < 3
+    assert detected == "ng/dL"
+    assert abs(converted[0] - 346 / 28.84) < 1e-6   # converted, not shipped raw
+    assert ambiguous                                 # but flagged: low confidence
 
 
 def test_exact_tie_falls_back_to_canonical():

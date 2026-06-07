@@ -48,9 +48,10 @@
             </div>
           {% endfor %}
           <div class="t-meta units-detected-foot">
-            Each marker's source unit is inferred from the majority of its column's
-            values. A column with any value on the other side of the unit threshold
-            is flagged <em>ambiguous</em> and left for you to check.
+            Each marker's source unit is inferred independently from the majority
+            of its own column's values (related markers aren't cross-checked). A
+            column with any value on the other side of the unit threshold is flagged
+            <em>ambiguous</em>. Check the units above match your data.
           </div>
         </div>
       </details>
