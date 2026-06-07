@@ -92,11 +92,12 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     n_cluster_dims = max(2, min(n_for_80, max_components))
     X_cluster     = X_pca[:, :n_cluster_dims]
 
-    # Sample-size-aware K cap (~25 patients per cluster minimum). Caps are
-    # max(2, min(5, n // 25)) so n=80 demo can reach at most K=3, n=125+ can
-    # reach K=5. Always include K=1 in the search so we can apply a ΔBIC=6
-    # threshold against the no-cluster null hypothesis.
-    max_k_by_size = max(2, min(5, n_patients // 25))
+    # Sample-size-aware K cap (~25 patients per cluster minimum). Evidence floor:
+    # K>1 needs n>=50 (two clusters of ~25), n>=75 for K=3, etc. Below n=50 only
+    # K=1 — too few patients to claim distinct multivariate clusters. n=80 demo
+    # reaches K=3, n=125+ reaches K=5. K=1 is always in the search for the ΔBIC=6
+    # test against the no-cluster null.
+    max_k_by_size = max(1, min(5, n_patients // 25))
     max_n = min(max_k_by_size, n_patients - 1)
     # Diagonal covariance: PCA already decorrelates the global data, so
     # within-cluster off-diagonal terms tend to be small. Diagonal cuts each

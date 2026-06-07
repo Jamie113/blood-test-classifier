@@ -263,3 +263,20 @@ def test_strongest_marker_pair_single_marker():
         for i in range(20)
     ])
     assert strongest_marker_pair(df) is None
+
+
+def test_population_evidence_floor_small_cohort_reports_one_cluster(stub_df):
+    """L2 (#58): below ~50 patients (two clusters of ~25) the population fit
+    must report a single cluster, not split a small cohort into 'distinct' ones."""
+    keep = stub_df["patient_id"].drop_duplicates().head(40)
+    small = stub_df[stub_df["patient_id"].isin(keep)]
+    res = analyse_population(small)
+    assert "error" not in res
+    assert res["n_clusters"] == 1
+    assert max(res["bic_scores"]) == 1  # K=2 not even attempted below the floor
+
+
+def test_population_full_demo_still_reaches_two_clusters(stub_df):
+    """The n=80 demo is well above the floor and still finds its two subgroups."""
+    res = analyse_population(stub_df)
+    assert res["n_clusters"] == 2

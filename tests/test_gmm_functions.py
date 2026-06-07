@@ -49,15 +49,23 @@ def test_trimodal_data_selects_3_components():
     assert n == 3
 
 
-def test_small_dataset_caps_max_k_at_2():
-    # 9 points → max_k_search = min(4, max(2, 9//5)) = 2.
-    # Random data with no real sub-structure should report K=1 thanks to the
-    # ΔBIC≥6 floor; the BIC dict still contains entries up to and including 2.
+def test_small_sample_reports_one_group_even_if_separated():
+    """Evidence floor (#58): below ~10 points, K=2 isn't even tried — a handful
+    of points can't be reported as "two groups", however clean the separation."""
     rng = np.random.default_rng(0)
-    values = rng.normal(10, 1, 9)
+    values = np.concatenate([rng.normal(10, 0.4, 4), rng.normal(30, 0.4, 4)])  # n=8
     _, n, bics = fit_optimal_gmm(values)
-    assert n in (1, 2)
-    assert max(bics) == 2
+    assert n == 1
+    assert max(bics) == 1   # K=2 not attempted below the floor
+
+
+def test_evidence_floor_allows_k2_at_n10():
+    """At n=10 (5 per component) K=2 becomes eligible and wins on clear data."""
+    rng = np.random.default_rng(0)
+    values = np.concatenate([rng.normal(10, 0.4, 5), rng.normal(30, 0.4, 5)])  # n=10
+    _, n, bics = fit_optimal_gmm(values)
+    assert 2 in bics
+    assert n == 2
 
 
 def test_uniform_data_selects_k1():
