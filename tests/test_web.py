@@ -129,6 +129,14 @@ def test_cohort_popover_closed_by_default_open_while_editing() -> None:
     assert not re.search(open_re, client.get("/filters/reset?tab=explorer").text)
 
 
+def test_no_auto_pick_claim_when_no_marker_has_a_split() -> None:
+    """A tiny cohort where every marker is K=1 must not render
+    'auto-picked: clearest of 0 markers' — there's no auto-pick to claim."""
+    html = client.get("/?tab=explorer&age_min=64&age_max=65").text  # 4 demo patients
+    assert "clearest of 0" not in html
+    assert "auto-picked" not in html
+
+
 def test_below_evidence_floor_copy_is_honest() -> None:
     """A cohort below the K>1 evidence floor must say only one cluster was
     *evaluated* — not imply BIC compared candidates and chose it."""

@@ -93,7 +93,10 @@ def _marker_context(data: dict, marker: str) -> dict | None:
     return {
         "marker":       marker,
         "auto_choice":  auto_choice,
-        "is_auto":      marker == auto_choice,
+        # Only a genuine "clearest split" pick counts as auto — when no marker
+        # has a split (pick is None) the fallback is just the first marker, not
+        # an auto-pick, so we don't claim "clearest of 0 markers".
+        "is_auto":      pick is not None and marker == pick[0],
         "n_auto_candidates": n_auto_candidates,
         "n_components": n_comp,
         "n_patients":   data["df_long"]["patient_id"].nunique(),
