@@ -194,16 +194,24 @@ def filter_long(
     return df_long[df_long["patient_id"].isin(kept_ids)].reset_index(drop=True)
 
 
+# Markers that are algebraically derived from other markers in the panel, so
+# they correlate / co-vary with their components by construction. Excluded from
+# the "strongest"/"clearest" auto-pick scans (they'd surface tautological
+# findings); still selectable manually in the dropdowns.
+DERIVED_MARKERS = frozenset({"Total Cholesterol:HDL Ratio"})
+
+
 def most_separated_marker(gmm_results: dict) -> tuple | None:
     """
     Return (marker_name, separation_score) for the marker with the
     most pronounced cluster separation. Score is the spread of cluster means
     measured in pooled-std units (Cohen's-d-style). Returns None if no marker
-    has at least two components.
+    has at least two components. Derived markers are excluded; iteration is
+    sorted so ties resolve deterministically.
     """
     best_name, best_score = None, -1.0
-    for name, res in gmm_results.items():
-        if "error" in res or res.get("n_components", 0) < 2:
+    for name, res in sorted(gmm_results.items()):
+        if name in DERIVED_MARKERS or "error" in res or res.get("n_components", 0) < 2:
             continue
         means = np.asarray(res["means"], dtype=float)
         stds  = np.asarray(res["stds"],  dtype=float)
@@ -222,11 +230,14 @@ def strongest_marker_pair(df_long: pd.DataFrame, min_overlap: int = 10) -> tuple
     """
     Return (marker_a, marker_b, r) for the pair of markers with the largest
     |Pearson r| in df_long, requiring at least `min_overlap` patients with both
-    measured. Returns None if no qualifying pair exists.
+    measured. Returns None if no qualifying pair exists. Derived markers are
+    excluded (they correlate with their components by construction); ties break
+    deterministically by marker name.
     """
     if df_long.empty:
         return None
     wide = df_long.pivot_table(index="patient_id", columns="test_name", values="value")
+    wide = wide.drop(columns=[m for m in DERIVED_MARKERS if m in wide.columns])
     if wide.shape[1] < 2:
         return None
 
@@ -239,6 +250,8 @@ def strongest_marker_pair(df_long: pd.DataFrame, min_overlap: int = 10) -> tuple
     flat = corr_no_diag.unstack().dropna()
     if flat.empty:
         return None
-    flat_abs = flat.abs().sort_values(ascending=False)
-    a, b = flat_abs.index[0]
+    # Sort by |r| desc, then by the (a, b) marker-name key so ties are stable
+    # regardless of the corr matrix's column order.
+    ranked = sorted(flat.items(), key=lambda kv: (-abs(kv[1]), kv[0]))
+    (a, b), _ = ranked[0]
     return str(a), str(b), float(corr.loc[a, b])

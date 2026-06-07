@@ -28,7 +28,7 @@
   </select>
   {% if q.r is not none %}
     <span class="toolbar-status">
-      {% if q.showing_auto %}auto-picked: strongest pair &nbsp;·&nbsp; {% endif %}r = {{ "%+.2f"|format(q.r) }} · {{ q.n_overlap }} tests
+      {% if q.showing_auto %}auto-picked: strongest of {{ q.n_pairs_searched }} pairs &nbsp;·&nbsp; {% endif %}r = {{ "%+.2f"|format(q.r) }} · {{ q.n_overlap }} tests
     </span>
   {% endif %}
 </div>

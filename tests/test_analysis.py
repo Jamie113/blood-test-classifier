@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from analysis import (
+    DERIVED_MARKERS,
     analyse_population,
     analyse_upload,
     build_labelled_df,
@@ -225,9 +226,10 @@ def test_most_separated_marker_returns_marker_with_clearest_split(stub_df):
     name, score = pick
     assert name in results
     assert score > 0
-    # All other multi-cluster markers should have score <= the picked one
+    assert name not in DERIVED_MARKERS
+    # All other multi-cluster, non-derived markers should score <= the picked one
     for _n, r in results.items():
-        if "error" in r or r.get("n_components", 0) < 2:
+        if _n in DERIVED_MARKERS or "error" in r or r.get("n_components", 0) < 2:
             continue
         pooled = float(np.mean(r["stds"]))
         if pooled <= 0:
@@ -263,6 +265,52 @@ def test_strongest_marker_pair_single_marker():
         for i in range(20)
     ])
     assert strongest_marker_pair(df) is None
+
+
+# ── Derived-marker exclusion + deterministic selection (#59) ──────────────────
+
+def _long_rows(by_marker: dict[str, list[float]]) -> pd.DataFrame:
+    rows = []
+    for marker, vals in by_marker.items():
+        for i, v in enumerate(vals):
+            rows.append({"patient_id": f"P{i}", "age": 40,
+                         "test_name": marker, "value": v, "unit": "x"})
+    return pd.DataFrame(rows)
+
+
+def test_strongest_pair_excludes_derived_even_when_it_correlates_hardest():
+    """A derived marker that perfectly tracks its component must not be the
+    headline pair — it's tautological."""
+    base = [float(i) for i in range(20)]
+    derived = next(iter(DERIVED_MARKERS))
+    df = _long_rows({
+        "Total Cholesterol": base,
+        derived:             [v * 1.0001 for v in base],   # ~perfect corr (tautology)
+        "SHBG":              [v * 0.8 + 3 for v in base],   # strong but genuine
+    })
+    a, b, _ = strongest_marker_pair(df)
+    assert derived not in (a, b)
+
+
+def test_most_separated_excludes_derived():
+    derived = next(iter(DERIVED_MARKERS))
+    results = {
+        "Albumin": {"n_components": 2, "means": np.array([1.0, 3.0]),
+                    "stds": np.array([0.5, 0.5])},
+        derived:   {"n_components": 2, "means": np.array([0.0, 99.0]),
+                    "stds": np.array([0.5, 0.5])},
+    }
+    name, _ = most_separated_marker(results)
+    assert name == "Albumin"   # the bigger-separation derived marker is skipped
+
+
+def test_strongest_pair_tiebreak_is_deterministic():
+    """When several pairs tie on |r|, the winner is a stable alphabetical key,
+    not whatever the corr-matrix / insertion order happens to be."""
+    base = [float(i) for i in range(15)]
+    df = _long_rows({"CCC": base, "AAA": list(base), "BBB": list(base)})  # all r=1.0
+    a, b, _ = strongest_marker_pair(df)
+    assert (a, b) == ("AAA", "BBB")   # alphabetical, regardless of insert order
 
 
 def test_population_evidence_floor_small_cohort_reports_one_cluster(stub_df):

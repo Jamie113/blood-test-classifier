@@ -28,7 +28,7 @@ from web.state import (
     state,
 )
 
-from analysis import most_separated_marker, strongest_marker_pair
+from analysis import DERIVED_MARKERS, most_separated_marker, strongest_marker_pair
 from unit_conversions import transform_for_display
 
 # How decisively a K>1 split beat the K=1 null. ΔBIC ≥ 6 is "strong evidence";
@@ -78,11 +78,18 @@ def _marker_context(data: dict, marker: str) -> dict | None:
 
     pick = most_separated_marker(data["gmm_results"])
     auto_choice = pick[0] if pick else available[0]
+    # How many markers the "clearest split" auto-pick ranked over (K≥2,
+    # non-derived) — so the UI can say "clearest of N", not "the clearest".
+    n_auto_candidates = sum(
+        1 for nm, r in data["gmm_results"].items()
+        if nm not in DERIVED_MARKERS and "error" not in r and r.get("n_components", 0) >= 2
+    )
 
     return {
         "marker":       marker,
         "auto_choice":  auto_choice,
         "is_auto":      marker == auto_choice,
+        "n_auto_candidates": n_auto_candidates,
         "n_components": n_comp,
         "n_patients":   data["df_long"]["patient_id"].nunique(),
         "n_markers":    data["df_long"]["test_name"].nunique(),
@@ -298,6 +305,10 @@ def _pair_context(data: dict, x: str | None, y: str | None) -> dict:
 
     showing_auto = auto_pair is not None and {x, y} == {auto_pair[0], auto_pair[1]}
     n_overlap = len(wide)
+    # Size of the search the auto-pick won, so the UI can say "strongest of N
+    # pairs" rather than presenting it as a singular discovery.
+    n_comparable = len([m for m in markers_in_data if m not in DERIVED_MARKERS])
+    n_pairs_searched = n_comparable * (n_comparable - 1) // 2
 
     if r is not None:
         strength_word = (
@@ -317,6 +328,7 @@ def _pair_context(data: dict, x: str | None, y: str | None) -> dict:
         "y_options":     [m for m in markers_in_data if m != x],
         "r":             r,
         "showing_auto":  showing_auto,
+        "n_pairs_searched": n_pairs_searched,
         "strength_word": strength_word,
         "dir_word":      dir_word,
         "track":         track,
