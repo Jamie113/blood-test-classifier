@@ -292,6 +292,21 @@ def test_strongest_pair_excludes_derived_even_when_it_correlates_hardest():
     assert derived not in (a, b)
 
 
+def test_strongest_pair_skips_structurally_correlated_lipids():
+    """Total Cholesterol ↔ LDL/HDL correlate by the additive lipid identity, so
+    a genuine (cross-system) pair must headline instead — even when the lipid
+    pair has the higher |r|."""
+    base = [float(i) for i in range(20)]
+    df = _long_rows({
+        "Total Cholesterol": base,
+        "LDL Cholesterol":   [v + 0.001 for v in base],     # ~perfect (structural)
+        "SHBG":              [v * 0.85 + 2 for v in base],   # strong, genuine
+        "Albumin":           [v * 0.85 + 1 for v in base],
+    })
+    a, b, _ = strongest_marker_pair(df)
+    assert {a, b} != {"Total Cholesterol", "LDL Cholesterol"}
+
+
 def test_most_separated_excludes_derived():
     derived = next(iter(DERIVED_MARKERS))
     results = {

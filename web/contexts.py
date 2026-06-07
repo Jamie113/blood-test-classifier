@@ -28,7 +28,12 @@ from web.state import (
     state,
 )
 
-from analysis import DERIVED_MARKERS, most_separated_marker, strongest_marker_pair
+from analysis import (
+    DERIVED_MARKERS,
+    most_separated_marker,
+    n_comparable_pairs,
+    strongest_marker_pair,
+)
 from unit_conversions import transform_for_display
 
 # How decisively a K>1 split beat the K=1 null. ΔBIC ≥ 6 is "strong evidence";
@@ -305,10 +310,10 @@ def _pair_context(data: dict, x: str | None, y: str | None) -> dict:
 
     showing_auto = auto_pair is not None and {x, y} == {auto_pair[0], auto_pair[1]}
     n_overlap = len(wide)
-    # Size of the search the auto-pick won, so the UI can say "strongest of N
-    # pairs" rather than presenting it as a singular discovery.
-    n_comparable = len([m for m in markers_in_data if m not in DERIVED_MARKERS])
-    n_pairs_searched = n_comparable * (n_comparable - 1) // 2
+    # Size of the search the auto-pick won, so the UI can frame it as the
+    # strongest of many candidate pairs rather than a singular discovery. This
+    # is the candidate count (before the min-overlap filter), labelled as such.
+    n_pairs_searched = n_comparable_pairs(markers_in_data)
 
     if r is not None:
         strength_word = (

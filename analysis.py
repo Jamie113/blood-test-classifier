@@ -200,6 +200,33 @@ def filter_long(
 # findings); still selectable manually in the dropdowns.
 DERIVED_MARKERS = frozenset({"Total Cholesterol:HDL Ratio"})
 
+# Markers bound by a structural identity, so a pair WITHIN a group correlates by
+# construction (Total Cholesterol ≈ HDL + LDL + ~0.45·Triglycerides; LDL is
+# often Friedewald-derived from the others). Such pairs are skipped by the
+# strongest-pair auto-pick — they'd be a less-obvious version of the same
+# tautology DERIVED_MARKERS guards against. (Only purely-algebraic cases; this
+# is a deliberately small, panel-specific list, not a general collinearity test.)
+_CONSTRAINT_GROUPS = (
+    frozenset({"Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol"}),
+)
+
+
+def _same_constraint_group(a: str, b: str) -> bool:
+    return any({a, b} <= group for group in _CONSTRAINT_GROUPS)
+
+
+def n_comparable_pairs(markers) -> int:
+    """Count of candidate marker pairs the strongest-pair auto-pick considers:
+    unordered pairs of non-derived markers, excluding within-constraint-group
+    pairs. Upper bound on the search (before the min-overlap filter)."""
+    ms = [m for m in markers if m not in DERIVED_MARKERS]
+    return sum(
+        1
+        for i in range(len(ms))
+        for j in range(i + 1, len(ms))
+        if not _same_constraint_group(ms[i], ms[j])
+    )
+
 
 def most_separated_marker(gmm_results: dict) -> tuple | None:
     """
@@ -251,7 +278,10 @@ def strongest_marker_pair(df_long: pd.DataFrame, min_overlap: int = 10) -> tuple
     if flat.empty:
         return None
     # Sort by |r| desc, then by the (a, b) marker-name key so ties are stable
-    # regardless of the corr matrix's column order.
+    # regardless of the corr matrix's column order. Skip within-constraint-group
+    # pairs (structurally correlated → tautological headline).
     ranked = sorted(flat.items(), key=lambda kv: (-abs(kv[1]), kv[0]))
-    (a, b), _ = ranked[0]
-    return str(a), str(b), float(corr.loc[a, b])
+    for (a, b), _ in ranked:
+        if not _same_constraint_group(str(a), str(b)):
+            return str(a), str(b), float(corr.loc[a, b])
+    return None
