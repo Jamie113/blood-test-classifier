@@ -416,6 +416,35 @@ details.disclosure > *:not(summary) { margin-top: 0.75rem; }
 /* While the upload is analysing, dim the button so the wait reads as busy. */
 form.htmx-request .upload-button { opacity: 0.5; pointer-events: none; }
 
+/* ── Detected upload units ─────────────────────────────────────────────── */
+
+.units-warn-dot { color: #c98a2e; font-size: 0.7rem; margin-left: 0.25rem; }
+
+.units-detected-body { padding: 0.4rem 0 0.2rem; }
+
+.units-detected-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  padding: 0.15rem 0;
+}
+
+.units-detected-marker { color: var(--ink-2); flex: 1 1 auto; min-width: 0; }
+.units-detected-unit { color: var(--ink-3); white-space: nowrap; }
+
+.units-detected-flag {
+  font-size: 0.68rem;
+  color: #9a6a1a;
+  background: #fdf3e0;
+  border-radius: 3px;
+  padding: 0 0.3rem;
+}
+
+.units-detected-row.is-ambiguous .units-detected-marker { color: var(--ink); font-weight: 500; }
+
+.units-detected-foot { margin-top: 0.4rem; font-size: 0.72rem; }
+
 /* ── Rail disclosure (Display units etc.) ──────────────────────────────── */
 
 details.rail-disclosure summary {

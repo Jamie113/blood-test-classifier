@@ -68,23 +68,108 @@ _DISPLAY_TRANSFORMS: dict[str, dict] = {
 }
 
 # ── Incoming conversion (upload → canonical) ─────────────────────────────────
-
-_TO_CANONICAL = {
-    "Testosterone":     lambda v: v / _TESTOSTERONE_NMOL_TO_NGDL if v > 100 else v,
-    "Free Testosterone":lambda v: v / _FREE_T_NMOL_TO_PMOL if v > 5 else v,
-    "Total Cholesterol":lambda v: v / _CHOLESTEROL_MMOL_TO_MGDL if v > 15 else v,
-    "LDL Cholesterol":  lambda v: v / _CHOLESTEROL_MMOL_TO_MGDL if v > 15 else v,
-    "HDL Cholesterol":  lambda v: v / _CHOLESTEROL_MMOL_TO_MGDL if v > 15 else v,
-    "HbA1C":            lambda v: _hba1c_pct_to_mmol(v) if v < 20 else v,
-    "Oestradiol":       lambda v: v / _OESTRADIOL_PG_TO_PMOL if v > 200 else v,
-    "Prolactin":        lambda v: v / _PROLACTIN_MIUL_TO_NGML if v < 50 else v,
+# Detection metadata for the markers that arrive in more than one unit system.
+# `alt` is the non-canonical source unit; `alt_when` is the magnitude rule that
+# signals it (`gt`/`lt` a threshold); `to_canon` converts an alt-unit value to
+# canonical. Single source of truth for both the per-value `to_canonical` and
+# the per-column `to_canonical_column`.
+_INCOMING: dict[str, dict] = {
+    "Testosterone":      {"canonical": "nmol/L",   "alt": "ng/dL",  "alt_when": ("gt", 100),
+                          "to_canon": lambda v: v / _TESTOSTERONE_NMOL_TO_NGDL},
+    "Free Testosterone": {"canonical": "nmol/L",   "alt": "pmol/L", "alt_when": ("gt", 5),
+                          "to_canon": lambda v: v / _FREE_T_NMOL_TO_PMOL},
+    "Total Cholesterol": {"canonical": "mmol/L",   "alt": "mg/dL",  "alt_when": ("gt", 15),
+                          "to_canon": lambda v: v / _CHOLESTEROL_MMOL_TO_MGDL},
+    "LDL Cholesterol":   {"canonical": "mmol/L",   "alt": "mg/dL",  "alt_when": ("gt", 15),
+                          "to_canon": lambda v: v / _CHOLESTEROL_MMOL_TO_MGDL},
+    "HDL Cholesterol":   {"canonical": "mmol/L",   "alt": "mg/dL",  "alt_when": ("gt", 15),
+                          "to_canon": lambda v: v / _CHOLESTEROL_MMOL_TO_MGDL},
+    "HbA1C":             {"canonical": "mmol/mol", "alt": "%",      "alt_when": ("lt", 20),
+                          "to_canon": _hba1c_pct_to_mmol},
+    "Oestradiol":        {"canonical": "pg/mL",    "alt": "pmol/L", "alt_when": ("gt", 200),
+                          "to_canon": lambda v: v / _OESTRADIOL_PG_TO_PMOL},
+    "Prolactin":         {"canonical": "mIU/L",    "alt": "ng/mL",  "alt_when": ("lt", 50),
+                          "to_canon": lambda v: v / _PROLACTIN_MIUL_TO_NGML},
 }
 
 
-def to_canonical(test_name: str, value: float) -> float:
-    """Convert an incoming value to canonical units (used at CSV upload time)."""
-    fn = _TO_CANONICAL.get(test_name)
-    return fn(value) if fn else value
+def has_unit_detection(test_name: str) -> bool:
+    """True if this marker can arrive in more than one unit system."""
+    return test_name in _INCOMING
+
+
+def _matches_alt(rule: tuple, arr: np.ndarray) -> np.ndarray:
+    op, threshold = rule
+    return arr > threshold if op == "gt" else arr < threshold
+
+
+def _to_canonical(test_name: str, value: float) -> float:
+    """Per-VALUE conversion by magnitude heuristic. Private: this is the
+    column-splitting behaviour the per-column path replaced — kept only as the
+    primitive the conversion-factor tests exercise. Production ingest must use
+    `to_canonical_column`, never this."""
+    info = _INCOMING.get(test_name)
+    if info is None:
+        return value
+    op, threshold = info["alt_when"]
+    is_alt = value > threshold if op == "gt" else value < threshold
+    return info["to_canon"](value) if is_alt else value
+
+
+# Detection thresholds are heuristics tuned to typical adult-male ranges (the
+# same caveat as the male-only reference ranges in thresholds.py). For markers
+# whose two unit systems overlap clinically (HbA1C, Prolactin) a whole column
+# can still be mis-detected — heuristic detection can't resolve that. The upload
+# summary surfaces every decision so the user can review and override (#62).
+
+
+def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
+    """Decide the source unit for a whole marker column.
+
+    Returns (detected_unit, ambiguous). The decision is the majority of values
+    matching the alt-unit rule, so a column is never split across units; exact
+    ties fall back to canonical. `ambiguous` flags any value on the opposite
+    side of the threshold — the likely fingerprint of a data-entry error — for
+    the user to check."""
+    info = _INCOMING.get(test_name)
+    arr = np.asarray([v for v in values if v is not None and not np.isnan(v)], dtype=float)
+    if info is None:
+        from thresholds import THRESHOLDS
+        return THRESHOLDS.get(test_name, {}).get("unit", ""), False
+    if arr.size == 0:
+        return info["canonical"], False
+    frac_alt = float(_matches_alt(info["alt_when"], arr).mean())
+    detected = info["alt"] if frac_alt > 0.5 else info["canonical"]  # ties → canonical
+    ambiguous = 0.0 < frac_alt < 1.0
+    return detected, ambiguous
+
+
+def to_canonical_column(test_name: str, values, force_unit: str | None = None) -> tuple[list, str, bool]:
+    """Convert a whole marker column to canonical units using ONE unit decided
+    for the column (per-column, not per-value).
+
+    Returns (converted_values, detected_unit, ambiguous). `force_unit` skips
+    detection (used by the override path); it must be the marker's canonical or
+    alt unit — an unrecognised value raises rather than silently shipping the
+    values raw under the wrong label."""
+    info = _INCOMING.get(test_name)
+    if info is None:
+        detected, ambiguous = detect_incoming_unit(test_name, values)
+        return list(values), detected, ambiguous
+    if force_unit is not None:
+        if force_unit not in (info["canonical"], info["alt"]):
+            raise ValueError(
+                f"Unknown source unit {force_unit!r} for {test_name} — "
+                f"expected {info['canonical']!r} or {info['alt']!r}."
+            )
+        detected, ambiguous = force_unit, False
+    else:
+        detected, ambiguous = detect_incoming_unit(test_name, values)
+    if detected == info["alt"]:
+        converted = [info["to_canon"](float(v)) for v in values]
+    else:
+        converted = list(values)
+    return converted, detected, ambiguous
 
 
 # ── Display conversion (canonical → chosen display unit) ─────────────────────
@@ -130,4 +215,22 @@ def transform_for_display(
     stds_d       = stds  * abs(scale)
     boundaries_d = [b * scale + shift for b in boundaries]
     return values_d, means_d, stds_d, boundaries_d
+
+
+def _assert_unit_config_consistent() -> None:
+    """Guard the two sources of truth: a marker's canonical unit in `_INCOMING`
+    must equal its reference unit in thresholds.py. Otherwise `to_canonical_column`
+    would convert to canonical while parsing labels the row with the other unit —
+    a silently inverted dataset with no test failure. Checked at import."""
+    from thresholds import THRESHOLDS
+    for marker, info in _INCOMING.items():
+        ref_unit = THRESHOLDS.get(marker, {}).get("unit")
+        if ref_unit != info["canonical"]:
+            raise AssertionError(
+                f"Unit config mismatch for {marker!r}: _INCOMING canonical "
+                f"{info['canonical']!r} != thresholds.py unit {ref_unit!r}."
+            )
+
+
+_assert_unit_config_consistent()
 

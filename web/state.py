@@ -41,6 +41,7 @@ class AppState:
     upload_filename: str | None = None
     unit_prefs: dict[str, str] = {}  # marker → display unit
     last_upload_error: str | None = None
+    upload_unit_report: list = []  # per-marker source-unit detection from the last upload
 
 
 state = AppState()
@@ -55,6 +56,7 @@ def _load_demo() -> None:
     state.pop_results_full = cached["pop_results"]
     state.df_labelled_full = cached["df_labelled"]
     state.is_demo          = True
+    state.upload_unit_report = []
     _filtered_data_cached.cache_clear()
 
 

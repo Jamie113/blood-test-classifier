@@ -11,10 +11,12 @@ import pandas as pd
 
 from column_map import AGE_COLUMN, COLUMN_MAP, ID_COLUMN
 from thresholds import THRESHOLDS
-from unit_conversions import to_canonical
+from unit_conversions import has_unit_detection, to_canonical_column
 
 
-def parse_csv(source: Union[str, bytes, IO]) -> tuple[pd.DataFrame, list[str], list[str]]:
+def parse_csv(
+    source: Union[str, bytes, IO],
+) -> tuple[pd.DataFrame, list[str], list[str], list[dict]]:
     """Parse a wide-format CSV into a long-format DataFrame.
 
     `source` is anything pandas.read_csv accepts: a path, bytes-like object,
@@ -27,6 +29,9 @@ def parse_csv(source: Union[str, bytes, IO]) -> tuple[pd.DataFrame, list[str], l
         recognised    CSV column names that mapped to a known test.
         unrecognised  CSV column names that were skipped (excluding the ID
                       column itself).
+        unit_report   One dict per multi-unit marker present, recording the
+                      source unit inferred for the whole column:
+                      {marker, detected, canonical, converted, ambiguous}.
     """
     df_raw = pd.read_csv(source)
     df_raw = df_raw[
@@ -37,6 +42,7 @@ def parse_csv(source: Union[str, bytes, IO]) -> tuple[pd.DataFrame, list[str], l
     has_age = AGE_COLUMN in df_raw.columns
 
     frames: list[pd.DataFrame] = []
+    unit_report: list[dict] = []
     seen_tests: set[str] = set()
     for col, mapping in COLUMN_MAP.items():
         if col not in df_raw.columns:
@@ -58,11 +64,24 @@ def parse_csv(source: Union[str, bytes, IO]) -> tuple[pd.DataFrame, list[str], l
             pd.to_numeric(sub[AGE_COLUMN], errors="coerce").astype("Int64")
             if has_age else None
         )
-        sub["value"] = sub[col].astype(float) * mapping["scale"]
-        sub["value"] = sub["value"].apply(lambda v, t=test_name: to_canonical(t, v))
+        raw = (sub[col].astype(float) * mapping["scale"]).tolist()
+        # Decide ONE source unit for the whole column, then convert uniformly —
+        # never let a column split across unit systems (the silent-corruption bug).
+        converted, detected, ambiguous = to_canonical_column(test_name, raw)
+        canonical = THRESHOLDS[test_name]["unit"]
+        sub["value"] = converted
         sub["test_name"] = test_name
-        sub["unit"] = THRESHOLDS[test_name]["unit"]
+        sub["unit"] = canonical
         frames.append(sub[["patient_id", "age", "test_name", "value", "unit"]])
+
+        if has_unit_detection(test_name):
+            unit_report.append({
+                "marker":    test_name,
+                "detected":  detected,
+                "canonical": canonical,
+                "converted": detected != canonical,
+                "ambiguous": ambiguous,
+            })
 
     if frames:
         df_long = pd.concat(frames, ignore_index=True)
@@ -71,4 +90,4 @@ def parse_csv(source: Union[str, bytes, IO]) -> tuple[pd.DataFrame, list[str], l
 
     recognised = [c for c in COLUMN_MAP if c in df_raw.columns]
     unrecognised = [c for c in df_raw.columns if c not in COLUMN_MAP and c != ID_COLUMN]
-    return df_long, recognised, unrecognised
+    return df_long, recognised, unrecognised, unit_report

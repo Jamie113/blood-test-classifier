@@ -508,6 +508,19 @@ def test_upload_happy_path_replaces_demo_state() -> None:
     assert state.df_long_full["patient_id"].nunique() == 5
 
 
+def test_upload_surfaces_detected_units() -> None:
+    """After an upload, the rail shows the inferred source unit per marker.
+    The fixture's HbA1C values (~5%) are detected as % and converted."""
+    csv = _valid_upload_csv(n_rows=5)
+    client.post("/upload", files={"file": ("u.csv", io.BytesIO(csv), "text/csv")})
+    report = {u["marker"]: u for u in state.upload_unit_report}
+    assert "HbA1C" in report and report["HbA1C"]["detected"] == "%"
+    assert report["HbA1C"]["converted"] is True
+    # And it's rendered for the user in the home page rail.
+    home = client.get("/").text
+    assert "Detected units" in home and "HbA1C" in home
+
+
 # Upload errors return 200 (not 4xx) on purpose: HTMX does not swap the body
 # of an error response, so a 4xx would show the user nothing. The error is
 # rendered inline as a .cohort-error fragment instead.
