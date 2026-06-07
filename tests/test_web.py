@@ -11,6 +11,7 @@ import io
 import re
 import textwrap
 
+import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
@@ -127,6 +128,36 @@ def test_cohort_popover_closed_by_default_open_while_editing() -> None:
     assert re.search(open_re, edited) and _is_filtered(edited)
     # Reset collapses it again.
     assert not re.search(open_re, client.get("/filters/reset?tab=explorer").text)
+
+
+def test_investigate_sets_aside_and_annotates_imputed_patients() -> None:
+    """M2: a mostly-imputed patient is set aside from flagging (and counted),
+    while a partially-imputed flagged patient is annotated with its fraction."""
+    import numpy as np
+
+    from web.contexts import _investigate_context
+
+    pop = {
+        "patient_ids":   ["P0", "P1", "P2"],
+        "labels":        np.array([0, 1, 0]),
+        # P0 would be a boundary case (0.5/0.5); P2 is too (0.6/0.4)
+        "posteriors":    np.array([[0.5, 0.5], [0.99, 0.01], [0.6, 0.4]]),
+        "mahalanobis_sq": np.array([0.1, 0.1, 0.1]),
+        "imputed_frac":  np.array([0.8, 0.0, 0.3]),   # P0 heavy, P2 partial
+        "n_clusters":    2,
+        "n_cluster_dims": 2,
+    }
+    df = pd.DataFrame([
+        {"patient_id": p, "age": 40, "test_name": "X", "value": 1.0, "unit": "u"}
+        for p in ["P0", "P1", "P2"]
+    ])
+    res = _investigate_context({"df_long": df, "pop_results": pop})
+
+    assert res["n_low_data"] == 1                       # P0 set aside
+    flagged = {r["patient"] for r in res["rows"]}
+    assert "P0" not in flagged                          # heavily-imputed → not flagged
+    p2 = next(r for r in res["rows"] if r["patient"] == "P2")
+    assert p2["imputed_pct"] == 30                      # partial imputation annotated
 
 
 def test_no_auto_pick_claim_when_no_marker_has_a_split() -> None:

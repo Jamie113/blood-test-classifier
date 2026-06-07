@@ -226,6 +226,13 @@ def _investigate_context(data: dict) -> dict:
     n_patients  = len(patient_ids)
     n_clusters  = pop["n_clusters"]
     n_cluster_dims = pop["n_cluster_dims"]
+    # Patients whose profile is mostly imputed sit near the cohort median by
+    # construction, so their cluster placement and Mahalanobis distance are
+    # unreliable — we can't honestly flag (or clear) them. Set them aside and
+    # report the count instead of shipping a misleading flag.
+    imputed_frac = pop.get("imputed_frac")
+    if imputed_frac is None:
+        imputed_frac = np.zeros(n_patients)
 
     age_lookup = (
         df.drop_duplicates("patient_id").set_index("patient_id")["age"].to_dict()
@@ -240,8 +247,13 @@ def _investigate_context(data: dict) -> dict:
     # quantile-based 5%-of-cohort rule, which always flagged some tests.
     outlier_thresh = float(chi2.ppf(0.99, df=n_cluster_dims))
 
+    HEAVY_IMPUTE = 0.5  # >half the markers imputed → can't assess reliably
+    n_low_data = int((imputed_frac > HEAVY_IMPUTE).sum())
+
     rows: list[dict] = []
     for i, pid in enumerate(patient_ids):
+        if imputed_frac[i] > HEAVY_IMPUTE:
+            continue  # too little real data to flag or clear; counted in n_low_data
         reasons: list[str] = []
         tags: list[str] = []
         is_boundary = max_post[i] < 0.7 and posts.shape[1] >= 2
@@ -268,6 +280,7 @@ def _investigate_context(data: dict) -> dict:
                 "tags":        tags,
                 "is_boundary": is_boundary,
                 "is_outlier":  is_outlier,
+                "imputed_pct": int(round(imputed_frac[i] * 100)),
             })
     rows.sort(key=lambda r: r["confidence"])
 
@@ -281,6 +294,7 @@ def _investigate_context(data: dict) -> dict:
         "n_outlier":  n_outlier,
         "n_patients": n_patients,
         "n_clusters": n_clusters,
+        "n_low_data": n_low_data,
     }
 
 

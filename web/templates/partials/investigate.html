@@ -2,10 +2,19 @@
 
 {% if i.error is defined %}
   <div class="cohort-error">{{ i.error }}</div>
-{% elif i.n_flagged == 0 %}
+{% else %}
+
+{% if i.n_low_data %}
+  <div class="finding t-quiet">
+    <strong>{{ i.n_low_data }}</strong> test{{ "s" if i.n_low_data != 1 else "" }} with mostly-missing
+    panels were set aside — too much imputed data to place or flag reliably.
+  </div>
+{% endif %}
+
+{% if i.n_flagged == 0 %}
 
   <div class="finding-empty">
-    <strong>Nothing stands out</strong> across your {{ i.n_patients }} blood tests.
+    <strong>Nothing stands out</strong> across the {{ i.n_patients }} blood tests assessed.
     Every test sits squarely inside its cluster — no boundary cases, no multivariate outliers.
     A clean cohort, or a small one.
   </div>
@@ -45,7 +54,7 @@
           </div>
           <div class="investigate-row-cluster">
             <span class="group-chip-dot" style="background: {{ r.type_colour }};"></span>{{ r.cluster }}
-            <span class="t-quiet">&nbsp;{{ r.confidence }}% confidence</span>
+            <span class="t-quiet">&nbsp;{{ r.confidence }}% confidence{% if r.imputed_pct %} · {{ r.imputed_pct }}% imputed{% endif %}</span>
           </div>
         </div>
         <div class="investigate-row-why">{{ r.why }}</div>
@@ -64,5 +73,7 @@
     {% endif %}
     <span class="t-quiet">Sorted by lowest cluster confidence first.</span>
   </div>
+
+{% endif %}
 
 {% endif %}
