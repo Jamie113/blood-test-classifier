@@ -103,16 +103,23 @@ def _matches_alt(rule: tuple, arr: np.ndarray) -> np.ndarray:
     return arr > threshold if op == "gt" else arr < threshold
 
 
-def to_canonical(test_name: str, value: float) -> float:
-    """Convert a single incoming value to canonical units by magnitude heuristic.
-
-    Per-value convenience kept for callers with one reading. Ingest should use
-    `to_canonical_column`, which decides one unit for the whole column instead
-    of letting a column split across both unit systems."""
+def _to_canonical(test_name: str, value: float) -> float:
+    """Per-VALUE conversion by magnitude heuristic. Private: this is the
+    column-splitting behaviour the per-column path replaced — kept only as the
+    primitive the conversion-factor tests exercise. Production ingest must use
+    `to_canonical_column`, never this."""
     info = _INCOMING.get(test_name)
     if info is None:
         return value
     return info["to_canon"](value) if _matches_alt(info["alt_when"], np.asarray(value)) else value
+
+
+# Detection thresholds are heuristics tuned to typical adult-male ranges (the
+# same caveat as the male-only reference ranges in thresholds.py). The `lt`
+# markers in particular (HbA1C < 20, Prolactin < 50) sit near the clinical
+# overlap between the two unit systems, so a column with an unusual case-mix can
+# be misclassified — which is why we also flag any threshold-crosser below.
+_MIN_DETECT_N = 3  # below this, the column is too short to trust the majority
 
 
 def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
@@ -120,8 +127,13 @@ def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
 
     Returns (detected_unit, ambiguous). The decision is by majority of values
     matching the alt-unit rule — so a column is never split across units.
-    `ambiguous` is True when values fall on BOTH sides of the threshold (the
-    column mixes unit systems, or sits right at the boundary)."""
+
+    `ambiguous` is True when ANY value falls on the opposite side of the
+    threshold from the rest: a single rogue value (e.g. one mistyped ng/dL cell
+    in an nmol/L column) is the smoking gun for a data-entry error and is left
+    unconverted, so it must be surfaced rather than silently shipped into the
+    GMM as a fake outlier. Columns too short to trust, and exact 50/50 ties,
+    fall back to canonical (no conversion) and are flagged."""
     info = _INCOMING.get(test_name)
     arr = np.asarray([v for v in values if v is not None and not np.isnan(v)], dtype=float)
     if info is None:
@@ -129,12 +141,11 @@ def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
         return THRESHOLDS.get(test_name, {}).get("unit", ""), False
     if arr.size == 0:
         return info["canonical"], False
+    if arr.size < _MIN_DETECT_N:
+        return info["canonical"], True  # too few values to convert confidently
     frac_alt = float(_matches_alt(info["alt_when"], arr).mean())
-    detected = info["alt"] if frac_alt >= 0.5 else info["canonical"]
-    # Ambiguous only when a substantial share sits on BOTH sides of the
-    # threshold (genuinely mixed units) — a few boundary readings in an
-    # otherwise-clear column don't warrant a warning.
-    ambiguous = min(frac_alt, 1.0 - frac_alt) >= 0.2
+    detected = info["alt"] if frac_alt > 0.5 else info["canonical"]  # ties → canonical
+    ambiguous = 0.0 < frac_alt < 1.0  # any value on the wrong side of the threshold
     return detected, ambiguous
 
 

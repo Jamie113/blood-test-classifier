@@ -48,7 +48,9 @@
             </div>
           {% endfor %}
           <div class="t-meta units-detected-foot">
-            Source units inferred per column from value ranges.
+            Each marker's source unit is inferred from the majority of its column's
+            values. A column with any value on the other side of the unit threshold
+            is flagged <em>ambiguous</em> and left for you to check.
           </div>
         </div>
       </details>

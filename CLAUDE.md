@@ -51,7 +51,7 @@ PR on both `ruff check .` and the pytest suite — keep both green.
 |------------|---------|
 | `analysis.py` | Core analysis: `analyse_upload`, `analyse_population`, `build_labelled_df`, `filter_long`, `most_separated_marker`, `strongest_marker_pair` |
 | `gmm.py` | Low-level GMM: `fit_optimal_gmm`, `sort_gmm` (returns `(means, stds, weights, order)`), `get_boundaries`, `assign_clusters` |
-| `parsing.py` | CSV parser (`parse_csv`) — wide-format upload → long DataFrame |
+| `parsing.py` | CSV parser (`parse_csv`) — wide-format upload → long DataFrame. Returns **four** values: `(df_long, recognised, unrecognised, unit_report)` |
 | `thresholds.py` | Reference ranges for 27 markers + `classify_test()` |
 | `column_map.py` | Maps CSV column headers → marker names |
 | `unit_conversions.py` | Upload-time unit auto-detection + display transforms |
@@ -160,6 +160,7 @@ Do not update it for routine changes like adding a test or tweaking a threshold 
 - Do not switch the population GMM back to `covariance_type='full'` without checking the demo still picks K=2 (full covariance over-penalises K>1 in 10-D space).
 - Do not return to the 5%-quantile log-likelihood outlier rule — it always flagged ~5% of tests by construction.
 - Reference ranges in `thresholds.py` are male-only — do not present them as universal.
+- Do not convert upload units **per value** — decide one unit per column via `to_canonical_column` (the per-value `_to_canonical` is private and only feeds conversion-factor tests). Per-value detection lets a single column split across unit systems — the silent-corruption bug fixed in #57. Detection thresholds assume typical adult-male ranges (same caveat as the reference ranges).
 
 ## Deployment
 
