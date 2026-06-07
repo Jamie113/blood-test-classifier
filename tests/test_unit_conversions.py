@@ -170,13 +170,13 @@ def test_single_rogue_value_is_flagged_not_silently_kept():
     assert converted[-1] == 300.0        # left unconverted — flagged for the user
 
 
-def test_tiny_column_converts_best_effort_but_flags():
-    """A clear solo reading (346 ng/dL) must still convert — leaving it raw
-    would ship 346 into the GMM as 346 nmol/L (~28x wrong) — but is flagged."""
-    converted, detected, ambiguous = to_canonical_column("Testosterone", [346.0])  # n < 3
+def test_single_clear_value_converts_unflagged():
+    """A unanimous solo reading (346 ng/dL) converts best-effort and is NOT
+    flagged — leaving it raw would ship 346 into the GMM as 346 nmol/L."""
+    converted, detected, ambiguous = to_canonical_column("Testosterone", [346.0])
     assert detected == "ng/dL"
     assert abs(converted[0] - 346 / 28.84) < 1e-6   # converted, not shipped raw
-    assert ambiguous                                 # but flagged: low confidence
+    assert not ambiguous                             # unanimous → no spurious flag
 
 
 def test_exact_tie_falls_back_to_canonical():
@@ -190,6 +190,19 @@ def test_force_unit_overrides_detection():
     converted, detected, _ = to_canonical_column("Testosterone", col, force_unit="nmol/L")
     assert detected == "nmol/L"
     assert converted == col                 # forced canonical → no conversion
+
+
+def test_force_unit_rejects_unknown():
+    """The override API must reject a typo'd / unknown unit, not silently ship
+    the values raw under the wrong label (the #62 contract)."""
+    with pytest.raises(ValueError):
+        to_canonical_column("Testosterone", [300.0], force_unit="ng/dl")  # wrong case
+
+
+def test_unit_config_is_self_consistent():
+    """_INCOMING canonical units must match thresholds.py (guards label inversion)."""
+    from unit_conversions import _assert_unit_config_consistent
+    _assert_unit_config_consistent()  # raises on mismatch
 
 
 def test_non_convertible_marker_passthrough_column():

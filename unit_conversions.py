@@ -117,26 +117,20 @@ def _to_canonical(test_name: str, value: float) -> float:
 
 
 # Detection thresholds are heuristics tuned to typical adult-male ranges (the
-# same caveat as the male-only reference ranges in thresholds.py). The `lt`
-# markers in particular (HbA1C < 20, Prolactin < 50) sit near the clinical
-# overlap between the two unit systems, so a column with an unusual case-mix can
-# be misclassified — which is why we also flag any threshold-crosser below.
-_MIN_DETECT_N = 3  # below this, the column is too short to trust the majority
+# same caveat as the male-only reference ranges in thresholds.py). For markers
+# whose two unit systems overlap clinically (HbA1C, Prolactin) a whole column
+# can still be mis-detected — heuristic detection can't resolve that. The upload
+# summary surfaces every decision so the user can review and override (#62).
 
 
 def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
     """Decide the source unit for a whole marker column.
 
-    Returns (detected_unit, ambiguous). The decision is by majority of values
-    matching the alt-unit rule — so a column is never split across units.
-
-    `ambiguous` is True when ANY value falls on the opposite side of the
-    threshold from the rest (a single rogue value is the smoking gun for a
-    data-entry error), OR when the column is too short to trust the majority.
-    The conversion is still applied best-effort either way — leaving a clearly
-    ng/dL solo reading unconverted ships it into the GMM ~28× wrong, which is
-    worse than converting and flagging. Exact 50/50 ties fall back to canonical
-    (no confident conversion) and are flagged."""
+    Returns (detected_unit, ambiguous). The decision is the majority of values
+    matching the alt-unit rule, so a column is never split across units; exact
+    ties fall back to canonical. `ambiguous` flags any value on the opposite
+    side of the threshold — the likely fingerprint of a data-entry error — for
+    the user to check."""
     info = _INCOMING.get(test_name)
     arr = np.asarray([v for v in values if v is not None and not np.isnan(v)], dtype=float)
     if info is None:
@@ -146,9 +140,7 @@ def detect_incoming_unit(test_name: str, values) -> tuple[str, bool]:
         return info["canonical"], False
     frac_alt = float(_matches_alt(info["alt_when"], arr).mean())
     detected = info["alt"] if frac_alt > 0.5 else info["canonical"]  # ties → canonical
-    # Flag a likely error (any threshold-crosser) or low confidence (tiny column)
-    # — but still convert best-effort above, so a clear solo reading isn't left raw.
-    ambiguous = (0.0 < frac_alt < 1.0) or (arr.size < _MIN_DETECT_N)
+    ambiguous = 0.0 < frac_alt < 1.0
     return detected, ambiguous
 
 
@@ -157,12 +149,19 @@ def to_canonical_column(test_name: str, values, force_unit: str | None = None) -
     for the column (per-column, not per-value).
 
     Returns (converted_values, detected_unit, ambiguous). `force_unit` skips
-    detection (used by the override path)."""
+    detection (used by the override path); it must be the marker's canonical or
+    alt unit — an unrecognised value raises rather than silently shipping the
+    values raw under the wrong label."""
     info = _INCOMING.get(test_name)
     if info is None:
         detected, ambiguous = detect_incoming_unit(test_name, values)
         return list(values), detected, ambiguous
     if force_unit is not None:
+        if force_unit not in (info["canonical"], info["alt"]):
+            raise ValueError(
+                f"Unknown source unit {force_unit!r} for {test_name} — "
+                f"expected {info['canonical']!r} or {info['alt']!r}."
+            )
         detected, ambiguous = force_unit, False
     else:
         detected, ambiguous = detect_incoming_unit(test_name, values)
@@ -216,4 +215,22 @@ def transform_for_display(
     stds_d       = stds  * abs(scale)
     boundaries_d = [b * scale + shift for b in boundaries]
     return values_d, means_d, stds_d, boundaries_d
+
+
+def _assert_unit_config_consistent() -> None:
+    """Guard the two sources of truth: a marker's canonical unit in `_INCOMING`
+    must equal its reference unit in thresholds.py. Otherwise `to_canonical_column`
+    would convert to canonical while parsing labels the row with the other unit —
+    a silently inverted dataset with no test failure. Checked at import."""
+    from thresholds import THRESHOLDS
+    for marker, info in _INCOMING.items():
+        ref_unit = THRESHOLDS.get(marker, {}).get("unit")
+        if ref_unit != info["canonical"]:
+            raise AssertionError(
+                f"Unit config mismatch for {marker!r}: _INCOMING canonical "
+                f"{info['canonical']!r} != thresholds.py unit {ref_unit!r}."
+            )
+
+
+_assert_unit_config_consistent()
 
