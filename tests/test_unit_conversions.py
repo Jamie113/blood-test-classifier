@@ -1,6 +1,10 @@
 import pytest
 
-from unit_conversions import to_canonical
+from unit_conversions import (
+    detect_incoming_unit,
+    to_canonical,
+    to_canonical_column,
+)
 
 # ── Testosterone (nmol/L ↔ ng/dL, threshold > 100) ────────────────────────
 
@@ -124,3 +128,45 @@ def test_free_testosterone_nmol_unchanged():
 ])
 def test_no_conversion_passthrough(test_name, value):
     assert to_canonical(test_name, value) == value
+
+
+# ── Per-column detection (the silent-corruption fix) ───────────────────────
+
+def test_column_decides_one_unit_no_split():
+    """A ng/dL Testosterone column with one low-but-valid reading must convert
+    the WHOLE column — the old per-value rule left the 90 unconverted."""
+    col = [300.0, 420.0, 250.0, 380.0, 410.0, 90.0]   # clearly ng/dL, one low reading
+    converted, detected, ambiguous = to_canonical_column("Testosterone", col)
+    assert detected == "ng/dL"
+    assert not ambiguous  # a single low reading isn't a genuine unit mix
+    # every value converted, including the 90 that per-value logic would keep
+    assert all(abs(c - raw / 28.84) < 1e-6 for c, raw in zip(converted, col, strict=True))
+    assert converted[-1] < 10  # the 90 is now ~3.1 nmol/L, not left as 90
+
+
+def test_column_canonical_left_unchanged():
+    col = [12.0, 18.0, 9.0, 25.0]          # all nmol/L
+    converted, detected, ambiguous = to_canonical_column("Testosterone", col)
+    assert detected == "nmol/L"
+    assert not ambiguous
+    assert converted == col
+
+
+def test_column_straddling_threshold_is_ambiguous():
+    """Values on both sides of the threshold flag the column as ambiguous."""
+    detected, ambiguous = detect_incoming_unit("Testosterone", [90.0, 110.0])
+    assert ambiguous
+    assert detected == "ng/dL"  # >=50% over threshold → alt unit
+
+
+def test_force_unit_overrides_detection():
+    col = [300.0, 420.0]                    # would auto-detect ng/dL
+    converted, detected, _ = to_canonical_column("Testosterone", col, force_unit="nmol/L")
+    assert detected == "nmol/L"
+    assert converted == col                 # forced canonical → no conversion
+
+
+def test_non_convertible_marker_passthrough_column():
+    converted, detected, ambiguous = to_canonical_column("TSH", [2.0, 3.0])
+    assert converted == [2.0, 3.0]
+    assert not ambiguous

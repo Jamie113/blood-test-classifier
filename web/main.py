@@ -285,7 +285,7 @@ async def upload_csv(file: UploadFile = File(...)) -> Response:
     """
     contents = await file.read()
     try:
-        df_long, _recognised, _unrecognised = parse_csv(io.BytesIO(contents))
+        df_long, _recognised, _unrecognised, unit_report = parse_csv(io.BytesIO(contents))
     except Exception as exc:  # noqa: BLE001
         return _upload_error(f"Could not read CSV: {exc}")
 
@@ -317,6 +317,7 @@ async def upload_csv(file: UploadFile = File(...)) -> Response:
     state.upload_filename  = file.filename
     state.unit_prefs       = {}
     state.last_upload_error = None
+    state.upload_unit_report = unit_report
     _filtered_data_cached.cache_clear()
 
     return Response(headers={"HX-Redirect": "/"})

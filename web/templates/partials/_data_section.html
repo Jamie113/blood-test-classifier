@@ -29,6 +29,31 @@
     <div class="t-meta" style="margin-bottom: 0.6rem;">
       {{ n_full }} blood tests · {{ n_markers }} markers
     </div>
+
+    {% if upload_unit_report %}
+      <details class="rail-disclosure units-detected">
+        <summary>
+          Detected units
+          {% set amb = upload_unit_report | selectattr("ambiguous") | list %}
+          {% if amb %}<span class="units-warn-dot" title="{{ amb | length }} marker(s) ambiguous">●</span>{% endif %}
+        </summary>
+        <div class="units-detected-body">
+          {% for u in upload_unit_report %}
+            <div class="units-detected-row{% if u.ambiguous %} is-ambiguous{% endif %}">
+              <span class="units-detected-marker">{{ u.marker }}</span>
+              <span class="units-detected-unit">
+                {{ u.detected }}{% if u.converted %} → {{ u.canonical }}{% endif %}
+              </span>
+              {% if u.ambiguous %}<span class="units-detected-flag" title="Values straddle the unit threshold — check this column">ambiguous</span>{% endif %}
+            </div>
+          {% endfor %}
+          <div class="t-meta units-detected-foot">
+            Source units inferred per column from value ranges.
+          </div>
+        </div>
+      </details>
+    {% endif %}
+
     <form hx-post="/upload/reset" hx-swap="none">
       <button type="submit" class="filter-reset" style="background: none; border: 0; padding: 0; font: inherit; cursor: pointer;">
         Use demo data instead
