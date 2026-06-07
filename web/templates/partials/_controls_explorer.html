@@ -15,6 +15,6 @@
     {% endfor %}
   </select>
   <span class="toolbar-status">
-    {% if e.is_auto %}auto-picked: clearest split &nbsp;·&nbsp; {% endif %}{{ e.n_components }} groups · {{ e.n_patients }} tests
+    {% if e.is_auto %}auto-picked: clearest of {{ e.n_auto_candidates }} markers with a split &nbsp;·&nbsp; {% endif %}{{ e.n_components }} groups · {{ e.n_patients }} tests
   </span>
 </div>

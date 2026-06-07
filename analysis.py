@@ -194,16 +194,51 @@ def filter_long(
     return df_long[df_long["patient_id"].isin(kept_ids)].reset_index(drop=True)
 
 
+# Markers that are algebraically derived from other markers in the panel, so
+# they correlate / co-vary with their components by construction. Excluded from
+# the "strongest"/"clearest" auto-pick scans (they'd surface tautological
+# findings); still selectable manually in the dropdowns.
+DERIVED_MARKERS = frozenset({"Total Cholesterol:HDL Ratio"})
+
+# Markers bound by a structural identity, so a pair WITHIN a group correlates by
+# construction (Total Cholesterol ≈ HDL + LDL + ~0.45·Triglycerides; LDL is
+# often Friedewald-derived from the others). Such pairs are skipped by the
+# strongest-pair auto-pick — they'd be a less-obvious version of the same
+# tautology DERIVED_MARKERS guards against. (Only purely-algebraic cases; this
+# is a deliberately small, panel-specific list, not a general collinearity test.)
+_CONSTRAINT_GROUPS = (
+    frozenset({"Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol"}),
+)
+
+
+def _same_constraint_group(a: str, b: str) -> bool:
+    return any({a, b} <= group for group in _CONSTRAINT_GROUPS)
+
+
+def n_comparable_pairs(markers) -> int:
+    """Count of candidate marker pairs the strongest-pair auto-pick considers:
+    unordered pairs of non-derived markers, excluding within-constraint-group
+    pairs. Upper bound on the search (before the min-overlap filter)."""
+    ms = [m for m in markers if m not in DERIVED_MARKERS]
+    return sum(
+        1
+        for i in range(len(ms))
+        for j in range(i + 1, len(ms))
+        if not _same_constraint_group(ms[i], ms[j])
+    )
+
+
 def most_separated_marker(gmm_results: dict) -> tuple | None:
     """
     Return (marker_name, separation_score) for the marker with the
     most pronounced cluster separation. Score is the spread of cluster means
     measured in pooled-std units (Cohen's-d-style). Returns None if no marker
-    has at least two components.
+    has at least two components. Derived markers are excluded; iteration is
+    sorted so ties resolve deterministically.
     """
     best_name, best_score = None, -1.0
-    for name, res in gmm_results.items():
-        if "error" in res or res.get("n_components", 0) < 2:
+    for name, res in sorted(gmm_results.items()):
+        if name in DERIVED_MARKERS or "error" in res or res.get("n_components", 0) < 2:
             continue
         means = np.asarray(res["means"], dtype=float)
         stds  = np.asarray(res["stds"],  dtype=float)
@@ -222,11 +257,14 @@ def strongest_marker_pair(df_long: pd.DataFrame, min_overlap: int = 10) -> tuple
     """
     Return (marker_a, marker_b, r) for the pair of markers with the largest
     |Pearson r| in df_long, requiring at least `min_overlap` patients with both
-    measured. Returns None if no qualifying pair exists.
+    measured. Returns None if no qualifying pair exists. Derived markers are
+    excluded (they correlate with their components by construction); ties break
+    deterministically by marker name.
     """
     if df_long.empty:
         return None
     wide = df_long.pivot_table(index="patient_id", columns="test_name", values="value")
+    wide = wide.drop(columns=[m for m in DERIVED_MARKERS if m in wide.columns])
     if wide.shape[1] < 2:
         return None
 
@@ -239,6 +277,11 @@ def strongest_marker_pair(df_long: pd.DataFrame, min_overlap: int = 10) -> tuple
     flat = corr_no_diag.unstack().dropna()
     if flat.empty:
         return None
-    flat_abs = flat.abs().sort_values(ascending=False)
-    a, b = flat_abs.index[0]
-    return str(a), str(b), float(corr.loc[a, b])
+    # Sort by |r| desc, then by the (a, b) marker-name key so ties are stable
+    # regardless of the corr matrix's column order. Skip within-constraint-group
+    # pairs (structurally correlated → tautological headline).
+    ranked = sorted(flat.items(), key=lambda kv: (-abs(kv[1]), kv[0]))
+    for (a, b), _ in ranked:
+        if not _same_constraint_group(str(a), str(b)):
+            return str(a), str(b), float(corr.loc[a, b])
+    return None
