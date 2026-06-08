@@ -65,6 +65,26 @@ def build_labelled_df(df_long: pd.DataFrame, gmm_results: dict) -> pd.DataFrame:
     return df
 
 
+def _cluster_fingerprint(z_scores: pd.DataFrame, labels, reliable) -> pd.DataFrame:
+    """Mean z-score per marker per cluster (index=markers, columns="Group N").
+
+    Each cluster is characterised from its RELIABLY-measured members only — a
+    mostly median-filled row is ~0 on its imputed markers and would drag the
+    signature toward the cohort mean. Cluster membership/counts still include
+    everyone (a patient is genuinely assigned); only this descriptive fingerprint
+    is gated. A cluster with no reliable members falls back to all its members,
+    so no column is dropped (consumers index every cluster).
+    """
+    group_of = np.array([f"Group {lbl + 1}" for lbl in labels])
+    reliable = np.asarray(reliable, dtype=bool)
+    cols = {}
+    for g in sorted(set(group_of)):
+        in_group = group_of == g
+        use = in_group & reliable
+        cols[g] = z_scores[use if use.any() else in_group].mean()
+    return pd.DataFrame(cols)
+
+
 def analyse_population(df_long: pd.DataFrame) -> dict:
     """
     Multivariate patient clustering across all markers.
@@ -156,10 +176,9 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         var = best_gmm.covariances_[label]
         mahalanobis_sq[i] = float(np.sum(diff ** 2 / var))
 
-    z_scores     = pd.DataFrame(X_scaled, index=df_wide.index, columns=df_wide.columns)
-    fingerprint  = z_scores.copy()
-    fingerprint["Group"] = [f"Group {lbl + 1}" for lbl in labels]
-    fingerprint  = fingerprint.groupby("Group").mean().T
+    z_scores = pd.DataFrame(X_scaled, index=df_wide.index, columns=df_wide.columns)
+    reliable = imputed_frac <= HEAVY_IMPUTE_FRAC
+    fingerprint = _cluster_fingerprint(z_scores, labels, reliable)
 
     return {
         "patient_ids":     list(df_wide.index),
@@ -221,6 +240,12 @@ def filter_long(
 # the "strongest"/"clearest" auto-pick scans (they'd surface tautological
 # findings); still selectable manually in the dropdowns.
 DERIVED_MARKERS = frozenset({"Total Cholesterol:HDL Ratio"})
+
+# A patient with more than this fraction of markers median-imputed sits near the
+# cohort centroid by construction, so their cluster placement and the cluster's
+# z-score fingerprint can't be trusted. Used by the population fingerprint here
+# and by the Outliers-tab set-aside in web/contexts.py (one source of truth).
+HEAVY_IMPUTE_FRAC = 0.5
 
 # Markers bound by a structural identity, so a pair WITHIN a group correlates by
 # construction (Total Cholesterol ≈ HDL + LDL + ~0.45·Triglycerides; LDL is

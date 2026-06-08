@@ -4,6 +4,7 @@ import pytest
 
 from analysis import (
     DERIVED_MARKERS,
+    _cluster_fingerprint,
     analyse_population,
     analyse_upload,
     build_labelled_df,
@@ -362,6 +363,33 @@ def test_population_drops_derived_marker_from_clustering(stub_df):
     """Derived ratio is excluded from the PCA/GMM input, not just the auto-picks."""
     res = analyse_population(stub_df)
     assert next(iter(DERIVED_MARKERS)) not in res["df_wide"].columns
+
+
+def test_fingerprint_excludes_heavily_imputed_members():
+    """A mostly-imputed member (z≈0) must not drag a cluster's fingerprint."""
+    z = pd.DataFrame(
+        {"A": [2.0, 2.0, 0.0], "B": [-1.0, -1.0, 0.0]},
+        index=["P0", "P1", "P2"],
+    )
+    labels = [0, 0, 0]                       # all one cluster
+    reliable = [True, True, False]           # P2 is heavily imputed
+    fp = _cluster_fingerprint(z, labels, reliable)
+    # mean over reliable members only (P0, P1), not the diluted (2+2+0)/3
+    assert fp["Group 1"]["A"] == 2.0
+    assert fp["Group 1"]["B"] == -1.0
+
+
+def test_fingerprint_falls_back_when_cluster_all_imputed():
+    """A cluster with no reliable members keeps a column (mean over all members)."""
+    z = pd.DataFrame(
+        {"A": [1.0, 3.0, 5.0]},
+        index=["P0", "P1", "P2"],
+    )
+    labels = [0, 1, 1]                        # cluster 1 = {P1, P2}, both imputed
+    reliable = [True, False, False]
+    fp = _cluster_fingerprint(z, labels, reliable)
+    assert "Group 2" in fp.columns           # column not dropped
+    assert fp["Group 2"]["A"] == 4.0         # fallback mean of P1, P2 = (3+5)/2
 
 
 def test_population_imputed_frac_high_for_sparse_patient():
