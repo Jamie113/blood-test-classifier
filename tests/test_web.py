@@ -160,12 +160,13 @@ def test_investigate_sets_aside_and_annotates_imputed_patients() -> None:
     assert p2["imputed_pct"] == 30                      # partial imputation annotated
 
 
-def test_no_auto_pick_claim_when_no_marker_has_a_split() -> None:
-    """A tiny cohort where every marker is K=1 must not render
-    'auto-picked: clearest of 0 markers' — there's no auto-pick to claim."""
-    html = client.get("/?tab=explorer&age_min=64&age_max=65").text  # 4 demo patients
-    assert "clearest of 0" not in html
-    assert "auto-picked" not in html
+def test_groups_toolbar_is_simplified() -> None:
+    """The Groups toolbar is just the marker picker — no 'Showing' label and no
+    'auto-picked … N groups · N tests' status text."""
+    html = client.get("/?tab=explorer").text
+    assert 'id="marker-picker"' in html          # the picker stays
+    assert "Showing" not in html                 # label removed
+    assert "auto-picked" not in html             # status text removed
 
 
 def test_below_evidence_floor_copy_is_honest() -> None:
