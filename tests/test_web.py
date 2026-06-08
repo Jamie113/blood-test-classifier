@@ -641,6 +641,31 @@ def test_upload_unit_override_reconverts_without_reupload() -> None:
     assert rep["Testosterone"]["detected"] == "ng/dL" and rep["Testosterone"]["forced"]
 
 
+def test_upload_unit_overrides_accumulate() -> None:
+    """Sequential overrides on different markers both persist and both re-convert."""
+    rows = []
+    for i in range(6):
+        rows.append({
+            "Blood Test Info Blood Test ID":               f"P{i:03d}",
+            "Current Age":                                 str(40 + i),
+            "Blood Test Info Testosterone Levels":         str(12 + i),   # nmol/L kept
+            "Blood Test Info Total Cholesterol Levels":    str(4 + i * 0.2),  # mmol/L kept
+        })
+    client.post("/upload", files={"file": ("u.csv", io.BytesIO(_csv_bytes(rows)), "text/csv")})
+    t0 = state.df_long_full.query("test_name == 'Testosterone'")["value"].max()
+    c0 = state.df_long_full.query("test_name == 'Total Cholesterol'")["value"].max()
+
+    client.post("/upload/units", data={"marker": "Testosterone", "unit": "ng/dL"})
+    client.post("/upload/units", data={"marker": "Total Cholesterol", "unit": "mg/dL"})
+
+    assert state.upload_unit_overrides == {
+        "Testosterone": "ng/dL", "Total Cholesterol": "mg/dL",
+    }
+    # both columns re-converted (divided down), proving both overrides applied
+    assert state.df_long_full.query("test_name == 'Testosterone'")["value"].max() < t0
+    assert state.df_long_full.query("test_name == 'Total Cholesterol'")["value"].max() < c0
+
+
 def test_upload_unit_override_requires_prior_upload() -> None:
     """Overriding in demo mode (no stored CSV) shows a visible error, not a 500."""
     _load_demo()
