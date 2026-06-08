@@ -9,7 +9,7 @@ from __future__ import annotations
 import io
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, File, Query, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -275,17 +275,17 @@ def _upload_error(msg: str) -> Response:
     )
 
 
-@app.post("/upload")
-async def upload_csv(file: UploadFile = File(...)) -> Response:
-    """Parse the uploaded CSV, run the full analysis, and replace the demo state.
-
-    On success returns an HX-Redirect so HTMX reloads the page cleanly. Every
-    failure mode returns a visible inline error (status 200) — never a silent
-    4xx/5xx that HTMX would drop.
-    """
-    contents = await file.read()
+def _run_upload(
+    contents: bytes, filename: str | None, overrides: dict[str, str], *, reset_prefs: bool,
+) -> Response:
+    """Parse + analyse `contents` (with optional unit overrides) and replace the
+    demo state, or return a visible inline error. Shared by the initial upload
+    and the per-marker unit-override re-parse. Every failure is a 200 error
+    fragment — never a silent 4xx/5xx that HTMX would drop."""
     try:
-        df_long, _recognised, _unrecognised, unit_report = parse_csv(io.BytesIO(contents))
+        df_long, _recognised, _unrecognised, unit_report = parse_csv(
+            io.BytesIO(contents), unit_overrides=overrides
+        )
     except Exception as exc:  # noqa: BLE001
         return _upload_error(f"Could not read CSV: {exc}")
 
@@ -314,13 +314,34 @@ async def upload_csv(file: UploadFile = File(...)) -> Response:
     state.pop_results_full = pop
     state.df_labelled_full = df_labelled
     state.is_demo          = False
-    state.upload_filename  = file.filename
-    state.unit_prefs       = {}
+    state.upload_filename  = filename
+    if reset_prefs:
+        state.unit_prefs = {}
     state.last_upload_error = None
     state.upload_unit_report = unit_report
+    state.upload_bytes = contents
+    state.upload_unit_overrides = overrides
     _filtered_data_cached.cache_clear()
 
     return Response(headers={"HX-Redirect": "/"})
+
+
+@app.post("/upload")
+async def upload_csv(file: UploadFile = File(...)) -> Response:
+    """Parse a freshly-uploaded CSV and replace the demo state."""
+    contents = await file.read()
+    return _run_upload(contents, file.filename, {}, reset_prefs=True)
+
+
+@app.post("/upload/units")
+def set_upload_unit(marker: str = Form(...), unit: str = Form(...)) -> Response:
+    """Re-interpret one marker's source unit and re-run the analysis from the
+    stored CSV — no re-upload. The override accumulates with any earlier ones."""
+    if state.is_demo or state.upload_bytes is None:
+        return _upload_error("No uploaded data to re-interpret.")
+    overrides = dict(state.upload_unit_overrides)
+    overrides[marker] = unit
+    return _run_upload(state.upload_bytes, state.upload_filename, overrides, reset_prefs=False)
 
 
 @app.post("/upload/reset")

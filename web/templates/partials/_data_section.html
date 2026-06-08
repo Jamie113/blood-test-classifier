@@ -39,19 +39,29 @@
         </summary>
         <div class="units-detected-body">
           {% for u in upload_unit_report %}
-            <div class="units-detected-row{% if u.ambiguous %} is-ambiguous{% endif %}">
+            <form class="units-detected-row{% if u.ambiguous %} is-ambiguous{% endif %}"
+                  autocomplete="off">
+              <input type="hidden" name="marker" value="{{ u.marker }}" />
               <span class="units-detected-marker">{{ u.marker }}</span>
-              <span class="units-detected-unit">
-                {{ u.detected }}{% if u.converted %} → {{ u.canonical }}{% endif %}
-              </span>
-              {% if u.ambiguous %}<span class="units-detected-flag" title="Values straddle the unit threshold — check this column">ambiguous</span>{% endif %}
-            </div>
+              <select class="units-detected-select" name="unit"
+                      hx-post="/upload/units" hx-trigger="change"
+                      hx-include="closest form"
+                      hx-target="#upload-result" hx-swap="innerHTML"
+                      hx-indicator="#units-busy">
+                {% for opt in u.units %}
+                  <option value="{{ opt }}" {% if opt == u.detected %}selected{% endif %}>{{ opt }}</option>
+                {% endfor %}
+              </select>
+              {% if u.converted %}<span class="units-detected-arrow">→ {{ u.canonical }}</span>{% endif %}
+              {% if u.forced %}<span class="units-detected-flag units-forced" title="Source unit set by you">set</span>
+              {% elif u.ambiguous %}<span class="units-detected-flag" title="Values straddle the unit threshold — check this column">ambiguous</span>{% endif %}
+            </form>
           {% endfor %}
+          <span id="units-busy" class="upload-status htmx-indicator">Re-analysing…</span>
           <div class="t-meta units-detected-foot">
-            Each marker's source unit is inferred independently from the majority
-            of its own column's values (related markers aren't cross-checked). A
-            column with any value on the other side of the unit threshold is flagged
-            <em>ambiguous</em>. Check the units above match your data.
+            Source unit is inferred per column from its values (related markers aren't
+            cross-checked). If a guess is wrong — especially an <em>ambiguous</em> one —
+            change it here to re-convert and re-run the analysis.
           </div>
         </div>
       </details>

@@ -42,6 +42,8 @@ class AppState:
     unit_prefs: dict[str, str] = {}  # marker → display unit
     last_upload_error: str | None = None
     upload_unit_report: list = []  # per-marker source-unit detection from the last upload
+    upload_bytes: bytes | None = None      # raw CSV, kept so unit overrides can re-parse
+    upload_unit_overrides: dict[str, str] = {}  # marker → forced source unit
 
 
 state = AppState()
@@ -57,6 +59,8 @@ def _load_demo() -> None:
     state.df_labelled_full = cached["df_labelled"]
     state.is_demo          = True
     state.upload_unit_report = []
+    state.upload_bytes = None
+    state.upload_unit_overrides = {}
     _filtered_data_cached.cache_clear()
 
 
