@@ -10,7 +10,13 @@
     {{ q.strength_word }} {{ q.dir_word }} correlation between
     <strong>{{ q.x }}</strong> and <strong>{{ q.y }}</strong>
     across {{ q.n_overlap }} tests.
-    {% if q.r|abs > 0.3 %}
+    {% if q.diverges %}
+      Rank correlation (ρ = {{ "%+.2f"|format(q.rho) }}) differs from Pearson —
+      likely a bivariate outlier or a non-linear shape, so r overstates the linear fit.
+    {% elif q.low_overlap %}
+      On only {{ q.n_overlap }} tests, treat even this as tentative — r from a small
+      sample has a wide confidence interval.
+    {% elif q.r|abs > 0.3 %}
       Knowing one tells you something about the other.
     {% else %}
       The two markers move largely independently in this cohort.

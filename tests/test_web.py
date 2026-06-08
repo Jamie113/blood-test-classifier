@@ -243,6 +243,48 @@ def test_population_scatter_invalid_colour_by_defaults_to_type() -> None:
     assert "Cluster 1" in garbage.text and "Age" not in garbage.text
 
 
+# ── Correlation robustness (#61) ──────────────────────────────────────────────
+
+def _pair_df(x_vals, y_vals, xm="ALT", ym="ALP"):
+    rows = []
+    for i, (xv, yv) in enumerate(zip(x_vals, y_vals, strict=True)):
+        rows.append({"patient_id": f"P{i}", "age": 40, "test_name": xm,
+                     "value": float(xv), "unit": "U/L"})
+        rows.append({"patient_id": f"P{i}", "age": 40, "test_name": ym,
+                     "value": float(yv), "unit": "U/L"})
+    return pd.DataFrame(rows)
+
+
+def test_pair_flags_pearson_spearman_divergence() -> None:
+    """A single bivariate outlier makes Pearson and Spearman disagree → flagged."""
+    from web.contexts import _pair_context
+
+    x = list(range(15))
+    y = list(range(15))
+    y[0] = 1000  # outlier: low x, huge y — wrecks Pearson, dents Spearman less
+    ctx = _pair_context({"df_long": _pair_df(x, y), "pop_results": {}}, "ALT", "ALP")
+    assert ctx["diverges"] is True
+    assert abs(ctx["r"] - ctx["rho"]) > 0.2
+
+
+def test_pair_strong_claim_requires_enough_overlap() -> None:
+    """A clean correlation on too few points is flagged low-overlap (tentative)."""
+    from web.contexts import _pair_context
+
+    x = list(range(15))                      # n=15 < the 25-point "strong" floor
+    ctx = _pair_context({"df_long": _pair_df(x, x), "pop_results": {}}, "ALT", "ALP")
+    assert ctx["low_overlap"] is True
+
+
+def test_pair_clean_large_sample_not_flagged() -> None:
+    from web.contexts import _pair_context
+
+    x = [float(i) for i in range(30)]        # perfect linear, n=30 ≥ floor
+    ctx = _pair_context({"df_long": _pair_df(x, x), "pop_results": {}}, "ALT", "ALP")
+    assert ctx["low_overlap"] is False
+    assert ctx["diverges"] is False
+
+
 # ── /pair partial ────────────────────────────────────────────────────────────
 
 def test_pair_partial_no_params_picks_strongest_pair() -> None:

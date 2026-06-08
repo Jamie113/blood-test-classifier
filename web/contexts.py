@@ -40,6 +40,12 @@ from unit_conversions import transform_for_display
 # a margin only just past that floor is reported as tentative, not asserted.
 _DELTA_BIC_TENTATIVE = 10.0
 
+# Correlation robustness (M3): |Pearson − Spearman| above this signals an
+# outlier / non-linear shape; a "strong" claim needs at least this many paired
+# points (r from ~10 points has a very wide confidence interval).
+_CORR_DIVERGENCE = 0.2
+_STRONG_MIN_OVERLAP = 25
+
 
 def _delta_bic(bic_scores: dict, n_chosen: int) -> float | None:
     """ΔBIC of the chosen K vs the K=1 null. None when K=1 was chosen."""
@@ -328,11 +334,17 @@ def _pair_context(data: dict, x: str | None, y: str | None) -> dict:
     )
     if len(wide) >= 4 and x in wide.columns and y in wide.columns:
         r = float(wide[x].corr(wide[y]))
+        rho = float(wide[x].corr(wide[y], method="spearman"))   # rank, outlier-robust
     else:
-        r = None
+        r = rho = None
 
     showing_auto = auto_pair is not None and {x, y} == {auto_pair[0], auto_pair[1]}
     n_overlap = len(wide)
+    # Robustness signals (M3): a large Pearson↔Spearman gap means a single
+    # bivariate outlier or a non-linear shape is inflating/deflating Pearson;
+    # and a "strong" claim needs more than the 10-point scan floor to be trusted.
+    diverges = r is not None and rho is not None and abs(r - rho) > _CORR_DIVERGENCE
+    low_overlap = r is not None and n_overlap < _STRONG_MIN_OVERLAP
     # Size of the search the auto-pick won, so the UI can frame it as the
     # strongest of many candidate pairs rather than a singular discovery. This
     # is the candidate count (before the min-overlap filter), labelled as such.
@@ -355,6 +367,9 @@ def _pair_context(data: dict, x: str | None, y: str | None) -> dict:
         "y":             y,
         "y_options":     [m for m in markers_in_data if m != x],
         "r":             r,
+        "rho":           rho,
+        "diverges":      diverges,
+        "low_overlap":   low_overlap,
         "showing_auto":  showing_auto,
         "n_pairs_searched": n_pairs_searched,
         "strength_word": strength_word,
