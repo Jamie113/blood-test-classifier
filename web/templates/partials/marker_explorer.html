@@ -2,20 +2,28 @@
 {% set biggest = e.groups[0] %}
 {% set second  = e.groups[1] if e.groups|length > 1 else none %}
 
-<div class="chart-host">
-  {{ e.chart_html | safe }}
-</div>
-
 <div class="finding">
   {% if e.n_components >= 2 and second %}
-    <strong>{{ e.n_components }} natural groups</strong> in {{ e.marker }}.
-    Largest ({{ "%.0f"|format(biggest.percent) }}% of tests) around
-    <strong>{{ "%.2f"|format(biggest.mean) }} {{ e.disp_unit }}</strong>;
-    next ({{ "%.0f"|format(second.percent) }}%) around
+    Your {{ e.marker }} results split into <strong>{{ e.n_components }} groups</strong>.
+    Most ({{ "%.0f"|format(biggest.percent) }}%) sit around
+    <strong>{{ "%.2f"|format(biggest.mean) }} {{ e.disp_unit }}</strong>, and
+    {{ "%.0f"|format(second.percent) }}% sit around
     <strong>{{ "%.2f"|format(second.mean) }} {{ e.disp_unit }}</strong>.
+    Each curve on the chart is one group.
+    {% if e.tentative %}
+      The split is on the weak side, so treat the groups as tentative.
+    {% endif %}
+  {% elif e.bic_pairs|length == 1 %}
+    There are too few {{ e.marker }} results here to check for separate groups,
+    so they're shown as one.
   {% else %}
-    <strong>Uniform</strong> across all tests &mdash; no clear sub-groups in {{ e.marker }}.
+    Your {{ e.marker }} results form one smooth spread. They don't separate into
+    distinct groups.
   {% endif %}
+</div>
+
+<div class="chart-host">
+  {{ e.chart_html | safe }}
 </div>
 
 <div class="group-grid">
@@ -57,22 +65,4 @@
       {% endfor %}
     </tbody>
   </table>
-</details>
-
-<details class="disclosure">
-  <summary>Technical details</summary>
-  <p class="t-meta">
-    {% if e.bic_pairs|length == 1 %}
-      Only a single group was evaluated — too few values to test for sub-groups
-      (10+ needed). Reported as one group by default, not by BIC comparison.
-    {% else %}
-      Group count chosen by BIC scoring (lower = better fit):
-      {% for n, bic in e.bic_pairs %}
-        <strong>{{ n }} groups</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
-      {% endfor %}.
-      {{ e.n_components }} groups selected{% if e.delta_bic is not none %},
-        beating a single group by ΔBIC {{ "%.0f"|format(e.delta_bic) }}{% if e.tentative %}
-        — strong but not overwhelming evidence; treat the sub-groups as tentative{% endif %}{% endif %}.
-    {% endif %}
-  </p>
 </details>
