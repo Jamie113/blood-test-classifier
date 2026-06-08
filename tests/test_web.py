@@ -611,6 +611,70 @@ def test_upload_surfaces_detected_units() -> None:
     assert "Detected units" in home and "HbA1C" in home
 
 
+def _testosterone_csv(values: list[float]) -> bytes:
+    rows = []
+    for i, v in enumerate(values):
+        rows.append({
+            "Blood Test Info Blood Test ID":        f"P{i:03d}",
+            "Current Age":                          str(40 + i),
+            "Blood Test Info Testosterone Levels":  str(v),
+            "Blood Test Info Albumin Levels":       str(42 + i),
+        })
+    return _csv_bytes(rows)
+
+
+def test_upload_unit_override_reconverts_without_reupload() -> None:
+    """Forcing a marker's source unit re-converts from the stored CSV and
+    re-runs the analysis — no re-upload."""
+    # Testosterone all < 100 → auto-detected nmol/L (kept as-is)
+    csv = _testosterone_csv([12, 15, 20, 9, 18, 11])
+    client.post("/upload", files={"file": ("u.csv", io.BytesIO(csv), "text/csv")})
+    before = state.df_long_full.query("test_name == 'Testosterone'")["value"].max()
+    assert before > 5  # kept in nmol/L
+
+    res = client.post("/upload/units", data={"marker": "Testosterone", "unit": "ng/dL"})
+    assert res.status_code == 200
+    assert res.headers.get("HX-Redirect") == "/"
+    after = state.df_long_full.query("test_name == 'Testosterone'")["value"].max()
+    assert after < before  # re-converted ng/dL → nmol/L (÷28.84)
+    rep = {u["marker"]: u for u in state.upload_unit_report}
+    assert rep["Testosterone"]["detected"] == "ng/dL" and rep["Testosterone"]["forced"]
+
+
+def test_upload_unit_overrides_accumulate() -> None:
+    """Sequential overrides on different markers both persist and both re-convert."""
+    rows = []
+    for i in range(6):
+        rows.append({
+            "Blood Test Info Blood Test ID":               f"P{i:03d}",
+            "Current Age":                                 str(40 + i),
+            "Blood Test Info Testosterone Levels":         str(12 + i),   # nmol/L kept
+            "Blood Test Info Total Cholesterol Levels":    str(4 + i * 0.2),  # mmol/L kept
+        })
+    client.post("/upload", files={"file": ("u.csv", io.BytesIO(_csv_bytes(rows)), "text/csv")})
+    t0 = state.df_long_full.query("test_name == 'Testosterone'")["value"].max()
+    c0 = state.df_long_full.query("test_name == 'Total Cholesterol'")["value"].max()
+
+    client.post("/upload/units", data={"marker": "Testosterone", "unit": "ng/dL"})
+    client.post("/upload/units", data={"marker": "Total Cholesterol", "unit": "mg/dL"})
+
+    assert state.upload_unit_overrides == {
+        "Testosterone": "ng/dL", "Total Cholesterol": "mg/dL",
+    }
+    # both columns re-converted (divided down), proving both overrides applied
+    assert state.df_long_full.query("test_name == 'Testosterone'")["value"].max() < t0
+    assert state.df_long_full.query("test_name == 'Total Cholesterol'")["value"].max() < c0
+
+
+def test_upload_unit_override_requires_prior_upload() -> None:
+    """Overriding in demo mode (no stored CSV) shows a visible error, not a 500."""
+    _load_demo()
+    res = client.post("/upload/units", data={"marker": "Testosterone", "unit": "ng/dL"})
+    assert res.status_code == 200
+    assert "cohort-error" in res.text
+    assert state.is_demo is True
+
+
 # Upload errors return 200 (not 4xx) on purpose: HTMX does not swap the body
 # of an error response, so a 4xx would show the user nothing. The error is
 # rendered inline as a .cohort-error fragment instead.

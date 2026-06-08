@@ -11,16 +11,20 @@ import pandas as pd
 
 from column_map import AGE_COLUMN, COLUMN_MAP, ID_COLUMN
 from thresholds import THRESHOLDS
-from unit_conversions import has_unit_detection, to_canonical_column
+from unit_conversions import available_units, has_unit_detection, to_canonical_column
 
 
 def parse_csv(
     source: Union[str, bytes, IO],
+    unit_overrides: dict[str, str] | None = None,
 ) -> tuple[pd.DataFrame, list[str], list[str], list[dict]]:
     """Parse a wide-format CSV into a long-format DataFrame.
 
     `source` is anything pandas.read_csv accepts: a path, bytes-like object,
     or file-like object (e.g. an UploadFile.file from FastAPI).
+
+    `unit_overrides` maps a marker name to a forced source unit, skipping
+    auto-detection for that column (used by the per-marker override UI).
 
     Returns:
         df_long       Long-format frame with columns
@@ -30,9 +34,11 @@ def parse_csv(
         unrecognised  CSV column names that were skipped (excluding the ID
                       column itself).
         unit_report   One dict per multi-unit marker present, recording the
-                      source unit inferred for the whole column:
-                      {marker, detected, canonical, converted, ambiguous}.
+                      source unit inferred (or forced) for the whole column:
+                      {marker, detected, canonical, converted, ambiguous,
+                       forced, units}.
     """
+    overrides = unit_overrides or {}
     df_raw = pd.read_csv(source)
     df_raw = df_raw[
         df_raw[ID_COLUMN].notna()
@@ -67,7 +73,11 @@ def parse_csv(
         raw = (sub[col].astype(float) * mapping["scale"]).tolist()
         # Decide ONE source unit for the whole column, then convert uniformly —
         # never let a column split across unit systems (the silent-corruption bug).
-        converted, detected, ambiguous = to_canonical_column(test_name, raw)
+        # A user override forces the source unit, skipping detection.
+        forced_unit = overrides.get(test_name)
+        converted, detected, ambiguous = to_canonical_column(
+            test_name, raw, force_unit=forced_unit
+        )
         canonical = THRESHOLDS[test_name]["unit"]
         sub["value"] = converted
         sub["test_name"] = test_name
@@ -81,6 +91,8 @@ def parse_csv(
                 "canonical": canonical,
                 "converted": detected != canonical,
                 "ambiguous": ambiguous,
+                "forced":    forced_unit is not None,
+                "units":     available_units(test_name),
             })
 
     if frames:
