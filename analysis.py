@@ -71,7 +71,17 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     Pipeline: wide pivot → median impute → StandardScaler → PCA → GMM.
     """
     df_wide = df_long.pivot_table(index="patient_id", columns="test_name", values="value")
+    # Drop algebraically-derived markers (e.g. the TC:HDL ratio): a near-collinear
+    # combination of other columns would let PCA double-weight that axis.
+    df_wide = df_wide.drop(columns=[m for m in DERIVED_MARKERS if m in df_wide.columns])
     df_wide = df_wide.dropna(thresh=int(len(df_wide) * 0.5), axis=1)
+    # Per-patient imputation fraction over the markers actually used, measured
+    # BEFORE filling — patients pulled toward the median by lots of missing data
+    # have unreliable cluster placement (see _investigate_context).
+    imputed_frac = (
+        df_wide.isna().mean(axis=1).to_numpy()
+        if df_wide.shape[1] else np.zeros(len(df_wide))
+    )
     df_wide = df_wide.fillna(df_wide.median())
 
     n_patients, n_markers = df_wide.shape
@@ -89,7 +99,13 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
 
     cumvar        = np.cumsum(pca.explained_variance_ratio_)
     n_for_80      = int(np.searchsorted(cumvar, 0.80)) + 1
-    n_cluster_dims = max(2, min(n_for_80, max_components))
+    # Cap the cluster-space dimensionality by cohort size (≈10 patients per
+    # dimension): a high-D diagonal Gaussian estimated from few points is noisy
+    # and inflates the χ² df used for outlier flagging. Floor of 2. Caveat: the
+    # ≈10/dim rule of thumb is framed for a single Gaussian; under a K-component
+    # mixture each cluster sees only ~n/K points, so effective coverage is lower
+    # as K grows (the cap is computed before K is chosen, so it can't scale by K).
+    n_cluster_dims = max(2, min(n_for_80, max_components, n_patients // 10))
     X_cluster     = X_pca[:, :n_cluster_dims]
 
     # Sample-size-aware K cap (~25 patients per cluster minimum). Evidence floor:
@@ -128,7 +144,12 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # With diagonal covariance, covariances_[k] is a 1-D variance vector, so
     # Mahalanobis² = Σ (x - μ)² / σ². Under the model this follows χ² with
     # df = n_cluster_dims, enabling a principled outlier threshold (vs the
-    # sample-quantile rule that always flagged some tests).
+    # sample-quantile rule that always flagged some tests). Caveat: distance is
+    # to the test's OWN assigned cluster mean (predict-then-measure), which
+    # biases it DOWNWARD vs a true χ² draw — yet the realised flag rate can still
+    # sit above the nominal 1% (the demo flags ~2.5%) when a cluster's PCA
+    # distribution has heavier-than-Gaussian tails. So the χ²₀.₉₉ cut is an
+    # approximate, model-based threshold, not a calibrated guarantee.
     mahalanobis_sq = np.zeros(n_patients)
     for i, label in enumerate(labels):
         diff = X_cluster[i] - best_gmm.means_[label]
@@ -145,6 +166,7 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         "labels":          labels,
         "posteriors":      posteriors,
         "mahalanobis_sq":  mahalanobis_sq,
+        "imputed_frac":    imputed_frac,
         "n_clusters":      best_n,
         "bic_scores":      bic_scores,
         "X_pca_2d":        X_pca[:, :2],

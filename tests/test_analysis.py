@@ -343,3 +343,37 @@ def test_population_full_demo_still_reaches_two_clusters(stub_df):
     """The n=80 demo is well above the floor and still finds its two subgroups."""
     res = analyse_population(stub_df)
     assert res["n_clusters"] == 2
+
+
+def test_population_cluster_dims_capped_by_cohort_size(stub_df):
+    """M1: outlier-test dimensionality is capped at ~10 patients per dim."""
+    res = analyse_population(stub_df)
+    assert 2 <= res["n_cluster_dims"] <= 80 // 10
+
+
+def test_population_imputed_frac_zero_for_complete_cohort(stub_df):
+    """M2: the complete demo has no imputation."""
+    res = analyse_population(stub_df)
+    assert "imputed_frac" in res
+    assert float(res["imputed_frac"].max()) == 0.0
+
+
+def test_population_drops_derived_marker_from_clustering(stub_df):
+    """Derived ratio is excluded from the PCA/GMM input, not just the auto-picks."""
+    res = analyse_population(stub_df)
+    assert next(iter(DERIVED_MARKERS)) not in res["df_wide"].columns
+
+
+def test_population_imputed_frac_high_for_sparse_patient():
+    """A patient missing most markers gets a high imputation fraction."""
+    rows = []
+    markers = ["Albumin", "ALT", "ALP", "TSH", "GGT"]
+    for p in range(50):
+        present = markers if p > 0 else markers[:1]   # P0 has only 1 of 5
+        for m in present:
+            rows.append({"patient_id": f"P{p:02d}", "age": 40,
+                         "test_name": m, "value": 10.0 + p, "unit": "u"})
+    res = analyse_population(pd.DataFrame(rows))
+    frac = dict(zip(res["patient_ids"], res["imputed_frac"], strict=True))
+    assert frac["P00"] >= 0.5     # mostly imputed
+    assert frac["P01"] == 0.0     # complete
