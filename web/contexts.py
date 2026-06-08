@@ -30,6 +30,7 @@ from web.state import (
 
 from analysis import (
     DERIVED_MARKERS,
+    HEAVY_IMPUTE_FRAC,
     most_separated_marker,
     n_comparable_pairs,
     strongest_marker_pair,
@@ -253,17 +254,16 @@ def _investigate_context(data: dict) -> dict:
     # quantile-based 5%-of-cohort rule, which always flagged some tests.
     outlier_thresh = float(chi2.ppf(0.99, df=n_cluster_dims))
 
-    # >half the markers fabricated by median-fill → the row is mostly noise and
-    # its placement is unreliable, so we don't flag (or clear) it. 0.5 is a
-    # communicable "majority real data" line; partially-imputed rows below it are
-    # annotated rather than gated.
-    HEAVY_IMPUTE = 0.5
-    n_low_data = int((imputed_frac > HEAVY_IMPUTE).sum())
+    # Mostly median-filled → the row is mostly noise and its placement is
+    # unreliable, so we don't flag (or clear) it. Shared threshold with the
+    # cluster fingerprint (analysis.HEAVY_IMPUTE_FRAC); partially-imputed rows
+    # below it are annotated rather than gated.
+    n_low_data = int((imputed_frac > HEAVY_IMPUTE_FRAC).sum())
     n_assessed = n_patients - n_low_data
 
     rows: list[dict] = []
     for i, pid in enumerate(patient_ids):
-        if imputed_frac[i] > HEAVY_IMPUTE:
+        if imputed_frac[i] > HEAVY_IMPUTE_FRAC:
             continue  # too little real data to flag or clear; counted in n_low_data
         reasons: list[str] = []
         tags: list[str] = []
