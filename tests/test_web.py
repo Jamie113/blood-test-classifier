@@ -598,6 +598,25 @@ def test_upload_happy_path_replaces_demo_state() -> None:
     assert state.df_long_full["patient_id"].nunique() == 5
 
 
+def test_upload_handles_thousands_separators() -> None:
+    """Values like '1,366.00' (thousands separator) must parse, not 500."""
+    rows = []
+    for i in range(5):
+        rows.append({
+            "Blood Test Info Blood Test ID":     f"P{i:03d}",
+            "Current Age":                       str(40 + i),
+            "Blood Test Info Ferritin Levels":   '"1,366.00"',
+            "Blood Test Info Albumin Levels":    str(42 + i),
+        })
+    res = client.post(
+        "/upload",
+        files={"file": ("commas.csv", io.BytesIO(_csv_bytes(rows)), "text/csv")},
+    )
+    assert res.status_code == 200
+    assert res.headers.get("HX-Redirect") == "/"   # parsed, not an inline error
+    assert state.df_long_full.query("test_name == 'Ferritin'")["value"].max() == 1366.0
+
+
 def test_upload_surfaces_detected_units() -> None:
     """After an upload, the rail shows the inferred source unit per marker.
     The fixture's HbA1C values (~5%) are detected as % and converted."""
