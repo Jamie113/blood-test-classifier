@@ -33,9 +33,9 @@
       <div class="investigate-stat-help">Unusual overall blood profile</div>
     </div>
     <div class="investigate-stat">
-      <div class="investigate-stat-num">{{ "%.0f"|format(i.n_flagged / i.n_patients * 100) }}%</div>
+      <div class="investigate-stat-num">{{ "%.0f"|format(i.n_flagged / i.n_assessed * 100) if i.n_assessed else 0 }}%</div>
       <div class="investigate-stat-label">Flagged</div>
-      <div class="investigate-stat-help">{{ i.n_flagged }} of {{ i.n_patients }} tests</div>
+      <div class="investigate-stat-help">{{ i.n_flagged }} of {{ i.n_assessed }} assessed</div>
     </div>
   </div>
 
@@ -63,7 +63,7 @@
   </div>
 
   <div class="finding">
-    <strong>{{ i.n_flagged }}</strong> of {{ i.n_patients }} tests flagged.
+    <strong>{{ i.n_flagged }}</strong> of {{ i.n_assessed }} assessed tests flagged.
     {% if i.n_boundary and i.n_outlier %}
       {{ i.n_boundary }} on the boundary between clusters; {{ i.n_outlier }} with unusual overall profiles.
     {% elif i.n_boundary %}

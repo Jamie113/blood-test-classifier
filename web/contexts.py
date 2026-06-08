@@ -247,8 +247,13 @@ def _investigate_context(data: dict) -> dict:
     # quantile-based 5%-of-cohort rule, which always flagged some tests.
     outlier_thresh = float(chi2.ppf(0.99, df=n_cluster_dims))
 
-    HEAVY_IMPUTE = 0.5  # >half the markers imputed → can't assess reliably
+    # >half the markers fabricated by median-fill → the row is mostly noise and
+    # its placement is unreliable, so we don't flag (or clear) it. 0.5 is a
+    # communicable "majority real data" line; partially-imputed rows below it are
+    # annotated rather than gated.
+    HEAVY_IMPUTE = 0.5
     n_low_data = int((imputed_frac > HEAVY_IMPUTE).sum())
+    n_assessed = n_patients - n_low_data
 
     rows: list[dict] = []
     for i, pid in enumerate(patient_ids):
@@ -293,6 +298,7 @@ def _investigate_context(data: dict) -> dict:
         "n_boundary": n_boundary,
         "n_outlier":  n_outlier,
         "n_patients": n_patients,
+        "n_assessed": n_assessed,
         "n_clusters": n_clusters,
         "n_low_data": n_low_data,
     }

@@ -101,7 +101,10 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     n_for_80      = int(np.searchsorted(cumvar, 0.80)) + 1
     # Cap the cluster-space dimensionality by cohort size (≈10 patients per
     # dimension): a high-D diagonal Gaussian estimated from few points is noisy
-    # and inflates the χ² df used for outlier flagging. Floor of 2.
+    # and inflates the χ² df used for outlier flagging. Floor of 2. Caveat: the
+    # ≈10/dim rule of thumb is framed for a single Gaussian; under a K-component
+    # mixture each cluster sees only ~n/K points, so effective coverage is lower
+    # as K grows (the cap is computed before K is chosen, so it can't scale by K).
     n_cluster_dims = max(2, min(n_for_80, max_components, n_patients // 10))
     X_cluster     = X_pca[:, :n_cluster_dims]
 
@@ -141,9 +144,12 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # With diagonal covariance, covariances_[k] is a 1-D variance vector, so
     # Mahalanobis² = Σ (x - μ)² / σ². Under the model this follows χ² with
     # df = n_cluster_dims, enabling a principled outlier threshold (vs the
-    # sample-quantile rule that always flagged some tests). Note: distance is to
-    # the test's OWN assigned cluster mean (predict-then-measure), so it is a
-    # mild under-estimate of a true χ² draw — the outlier flag is conservative.
+    # sample-quantile rule that always flagged some tests). Caveat: distance is
+    # to the test's OWN assigned cluster mean (predict-then-measure), which
+    # biases it DOWNWARD vs a true χ² draw — yet the realised flag rate can still
+    # sit above the nominal 1% (the demo flags ~2.5%) when a cluster's PCA
+    # distribution has heavier-than-Gaussian tails. So the χ²₀.₉₉ cut is an
+    # approximate, model-based threshold, not a calibrated guarantee.
     mahalanobis_sq = np.zeros(n_patients)
     for i, label in enumerate(labels):
         diff = X_cluster[i] - best_gmm.means_[label]
