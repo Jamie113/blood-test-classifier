@@ -39,7 +39,9 @@ def parse_csv(
                        forced, units}.
     """
     overrides = unit_overrides or {}
-    df_raw = pd.read_csv(source)
+    # thousands="," so values like "1,366.00" parse as 1366.0 — real-world lab
+    # exports commonly format large numbers with a thousands separator.
+    df_raw = pd.read_csv(source, thousands=",")
     df_raw = df_raw[
         df_raw[ID_COLUMN].notna()
         & (df_raw[ID_COLUMN].astype(str).str.strip() != "")
