@@ -35,9 +35,9 @@
   <li>Pivot long-format data to wide (rows = blood tests, columns = markers).</li>
   <li>Drop markers where &gt;&nbsp;50% of tests have a missing value.</li>
   <li>Median-impute the remaining missing values.</li>
-  <li>Standardise (zero mean, unit variance per marker) with <code>StandardScaler</code>.</li>
+  <li><strong>Winsorise</strong> each marker to its 1st&ndash;99th percentile, then scale with <code>RobustScaler</code> (centre on the median, divide by the inter-quartile range). Both steps stop a few extreme or erroneous values from dominating the axes &mdash; on raw <code>StandardScaler</code> one bad record could steer the whole projection and split off a one-person &ldquo;cluster&rdquo;.</li>
   <li>Reduce dimensionality with <strong>Principal Component Analysis (PCA)</strong>. We keep the smallest number of principal components whose cumulative explained variance &ge;&nbsp;80% (minimum 2).</li>
-  <li>Fit a <strong>GMM</strong> in that reduced space with K = 1, 2, …, up to a sample-size cap of <code>max(2, min(5, n // 25))</code>. Pick the K with the lowest BIC; only adopt K&thinsp;&gt;&thinsp;1 if its BIC beats K=1 by at least <strong>6 units</strong>.</li>
+  <li>Fit a <strong>GMM</strong> in that reduced space with K = 1, 2, …, up to a sample-size cap of <code>max(2, min(5, n // 25))</code>. Pick the lowest-BIC K <em>among solutions whose every cluster is well populated</em> (at least <code>max(3, n // 25)</code> members &mdash; a tiny cluster is an outlier, not a sub-population); only adopt K&thinsp;&gt;&thinsp;1 if its BIC beats K=1 by at least <strong>6 units</strong>.</li>
   <li>For each test, store the hard cluster label, the full posterior probability vector, the log-likelihood, and the squared Mahalanobis distance to the assigned cluster's mean &mdash; the last two feed the Outliers tab.</li>
 </ol>
 
@@ -95,7 +95,11 @@
   </p>
 
   <p class="t-body"><strong>4. Standardise.</strong>
-    Each column re-centred to mean 0, variance 1 (using N, not N&minus;1):
+    Each column re-centred to mean 0, variance 1 (using N, not N&minus;1).
+    <em>This walkthrough uses plain standardisation for arithmetic clarity; the
+    live pipeline first winsorises and then scales by the median/IQR
+    (<code>RobustScaler</code>, step&nbsp;4 above) so a lone extreme value can't
+    dominate &mdash; see the note below the table.</em>
   </p>
   <table class="methodology-table">
     <thead>
@@ -112,7 +116,10 @@
   </table>
   <p class="t-body">
     HDL is near-constant in the raw data, so T5's lone 1.6 standardises
-    to z = +2.236 &mdash; a sole outlier in an otherwise quiet column.
+    to z = +2.236 &mdash; a sole outlier in an otherwise quiet column. This is
+    exactly the leverage the live pipeline guards against: winsorising caps such
+    a value before scaling, so it can't single-handedly define a principal
+    component (it still surfaces on the Outliers tab via its Mahalanobis distance).
   </p>
 
   <p class="t-body"><strong>5. PCA.</strong>
@@ -214,9 +221,10 @@
   </p>
 
   <p class="t-meta methodology-example__foot">
-    All numbers above are the exact output of
-    <code>analyse_population()</code> on this toy dataset:
-    <code>StandardScaler → PCA(random_state=42) → GaussianMixture(covariance_type='diag', n_init=5, random_state=42)</code>.
+    The numbers above trace the illustrative <code>StandardScaler</code> path for
+    arithmetic clarity. The live pipeline is
+    <code>winsorise(1&ndash;99%) → RobustScaler → PCA(random_state=42) → GaussianMixture(covariance_type='diag', n_init=5, random_state=42)</code>,
+    selecting K only among solutions whose every cluster has &ge;&nbsp;<code>max(3, n // 25)</code> members.
   </p>
 </div>
 

@@ -44,7 +44,9 @@
 
 <p class="t-body"><strong>2. Multivariate outliers.</strong>
   For each test we compute the <strong>squared Mahalanobis distance</strong>
-  to its assigned cluster's mean in the PCA-reduced space:
+  to its assigned cluster's mean &mdash; measured on the <em>un-winsorised</em>
+  projection, so a record whose extreme value was capped for the clustering fit
+  is still caught here. In the PCA-reduced space:
   d² = Σ&thinsp;(xᵢ&minus;μᵢ)²&thinsp;/&thinsp;σᵢ². Under the model this
   follows a <strong>χ² distribution with df&thinsp;=&thinsp;n_cluster_dims</strong>
   degrees of freedom, so we flag tests whose d² exceeds the
