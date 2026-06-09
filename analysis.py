@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.mixture import GaussianMixture
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler, StandardScaler
 
 from gmm import fit_optimal_gmm, get_boundaries, sort_gmm
 
@@ -65,6 +65,18 @@ def build_labelled_df(df_long: pd.DataFrame, gmm_results: dict) -> pd.DataFrame:
     return df
 
 
+def _winsorize(values: np.ndarray, limit: float = 0.01) -> np.ndarray:
+    """Clip each column to its [limit, 1-limit] percentiles.
+
+    Caps the leverage any single extreme/erroneous value can exert on the PCA
+    axes (and hence on cluster geometry) without discarding the row — the record
+    is still placed and still flagged by the downstream Mahalanobis outlier test.
+    """
+    lo = np.percentile(values, limit * 100, axis=0)
+    hi = np.percentile(values, 100 - limit * 100, axis=0)
+    return np.clip(values, lo, hi)
+
+
 def _cluster_fingerprint(z_scores: pd.DataFrame, labels, reliable) -> pd.DataFrame:
     """Mean z-score per marker per cluster (index=markers, columns="Group N").
 
@@ -88,7 +100,8 @@ def _cluster_fingerprint(z_scores: pd.DataFrame, labels, reliable) -> pd.DataFra
 def analyse_population(df_long: pd.DataFrame) -> dict:
     """
     Multivariate patient clustering across all markers.
-    Pipeline: wide pivot → median impute → StandardScaler → PCA → GMM.
+    Pipeline: wide pivot → median impute → winsorise → RobustScaler → PCA → GMM,
+    selecting K only among solutions whose every cluster is well populated.
     """
     df_wide = df_long.pivot_table(index="patient_id", columns="test_name", values="value")
     # Drop algebraically-derived markers (e.g. the TC:HDL ratio): a near-collinear
@@ -110,12 +123,27 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     if n_markers < 2:
         return {"error": "Not enough markers with sufficient coverage for population clustering."}
 
-    scaler   = StandardScaler()
-    X_scaled = scaler.fit_transform(df_wide.values)
+    # Three views of the data, deliberately separate:
+    #  • X_scaled (standard) feeds ONLY the descriptive fingerprint, so the
+    #    per-cluster "what defines it" copy stays in familiar standard-deviation
+    #    units (the strength thresholds in web/contexts.py key on |z|).
+    #  • X_robust (winsorise → median/IQR) feeds PCA + clustering, so a few
+    #    extreme or erroneous values can't dominate the PCA axes. On raw
+    #    StandardScaler one bad record steered PC1 and produced unstable splits
+    #    and one-person "clusters" on real uploads — and the extreme tails
+    #    themselves inflated the apparent separation (ΔBIC 166→29 once capped).
+    #  • X_full projects the UN-winsorised data through the same axes, used only
+    #    for the Mahalanobis outlier distance below, so a capped record is still
+    #    flagged as an outlier rather than hidden inside a cluster.
+    X_scaled = StandardScaler().fit_transform(df_wide.values)
+    robust   = RobustScaler().fit(_winsorize(df_wide.values))
+    X_robust = robust.transform(_winsorize(df_wide.values))
+    X_full   = robust.transform(df_wide.values)
 
     max_components = min(n_patients - 1, n_markers)
-    pca   = PCA(n_components=max_components, random_state=42)
-    X_pca = pca.fit_transform(X_scaled)
+    pca        = PCA(n_components=max_components, random_state=42)
+    X_pca      = pca.fit_transform(X_robust)
+    X_pca_full = pca.transform(X_full)
 
     cumvar        = np.cumsum(pca.explained_variance_ratio_)
     n_for_80      = int(np.searchsorted(cumvar, 0.80)) + 1
@@ -126,7 +154,8 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # mixture each cluster sees only ~n/K points, so effective coverage is lower
     # as K grows (the cap is computed before K is chosen, so it can't scale by K).
     n_cluster_dims = max(2, min(n_for_80, max_components, n_patients // 10))
-    X_cluster     = X_pca[:, :n_cluster_dims]
+    X_cluster      = X_pca[:, :n_cluster_dims]       # winsorised — fit + labels
+    X_cluster_full = X_pca_full[:, :n_cluster_dims]  # uncapped — outlier distance
 
     # Sample-size-aware K cap (~25 patients per cluster minimum). Evidence floor:
     # K>1 needs n>=50 (two clusters of ~25), n>=75 for K=3, etc. Below n=50 only
@@ -143,6 +172,7 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # on BIC; with diagonal they win by 100+ BIC units.
     bic_scores: dict = {}
     fits: dict = {}
+    well_populated: dict = {}
     for n in range(1, max_n + 1):
         gmm = GaussianMixture(
             n_components=n, covariance_type="diag",
@@ -151,8 +181,16 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         gmm.fit(X_cluster)
         bic_scores[n] = float(gmm.bic(X_cluster))
         fits[n] = gmm
+        counts = np.bincount(gmm.predict(X_cluster), minlength=n)
+        well_populated[n] = int(counts.min()) >= MIN_CLUSTER_SIZE
 
-    best_n = min(bic_scores, key=bic_scores.get)
+    # Only consider K whose every component is well populated: a "cluster" of one
+    # or two is an outlier, not a sub-population. Disqualifying such K lets the
+    # extreme record fall into a real cluster, where the Mahalanobis χ² test then
+    # flags it on the Outliers tab. K=1 is always eligible (its single component
+    # holds everyone), so the ΔBIC≥6 floor still runs against the no-cluster null.
+    eligible = [n for n in bic_scores if well_populated[n]]
+    best_n = min(eligible, key=bic_scores.get)
     if best_n > 1 and (bic_scores[1] - bic_scores[best_n]) < 6.0:
         best_n = 1
     best_gmm = fits[best_n]
@@ -169,10 +207,12 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # biases it DOWNWARD vs a true χ² draw — yet the realised flag rate can still
     # sit above the nominal 1% (the demo flags ~2.5%) when a cluster's PCA
     # distribution has heavier-than-Gaussian tails. So the χ²₀.₉₉ cut is an
-    # approximate, model-based threshold, not a calibrated guarantee.
+    # approximate, model-based threshold, not a calibrated guarantee. Distance is
+    # measured on the UN-winsorised projection (X_cluster_full) so a record whose
+    # extreme value was capped for the fit is still flagged here.
     mahalanobis_sq = np.zeros(n_patients)
     for i, label in enumerate(labels):
-        diff = X_cluster[i] - best_gmm.means_[label]
+        diff = X_cluster_full[i] - best_gmm.means_[label]
         var = best_gmm.covariances_[label]
         mahalanobis_sq[i] = float(np.sum(diff ** 2 / var))
 
@@ -246,6 +286,12 @@ DERIVED_MARKERS = frozenset({"Total Cholesterol:HDL Ratio"})
 # z-score fingerprint can't be trusted. Used by the population fingerprint here
 # and by the Outliers-tab set-aside in web/contexts.py (one source of truth).
 HEAVY_IMPUTE_FRAC = 0.5
+
+# Minimum members for a multivariate cluster to count as a sub-population rather
+# than an outlier. A K whose smallest component falls below this is disqualified
+# during model selection (see analyse_population), so a lone extreme record can
+# never be reported as its own "cluster".
+MIN_CLUSTER_SIZE = 3
 
 # Markers bound by a structural identity, so a pair WITHIN a group correlates by
 # construction (Total Cholesterol ≈ HDL + LDL + ~0.45·Triglycerides; LDL is
