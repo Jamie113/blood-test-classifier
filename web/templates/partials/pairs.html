@@ -1,29 +1,27 @@
 {% set q = pair %}
 
-<div class="chart-host">
-  {{ q.chart_html | safe }}
-</div>
-
 <div class="finding">
   {% if q.r is not none %}
-    <strong>r = {{ "%+.2f"|format(q.r) }}</strong> &mdash;
-    {{ q.strength_word }} {{ q.dir_word }} correlation between
-    <strong>{{ q.x }}</strong> and <strong>{{ q.y }}</strong>
-    across {{ q.n_overlap }} tests.
-    {% if q.diverges %}
-      Rank correlation (ρ = {{ "%+.2f"|format(q.rho) }}) differs from Pearson —
-      likely a bivariate outlier or a non-linear shape, so r overstates the linear fit.
-    {% elif q.low_overlap %}
-      On only {{ q.n_overlap }} tests, treat even this as tentative — r from a small
-      sample has a wide confidence interval.
-    {% elif q.r|abs > 0.3 %}
-      Knowing one tells you something about the other.
+    Each dot is one blood test.
+    {% if q.r|abs > 0.3 %}
+      As {{ q.x }} goes up, {{ q.y }} tends to go {{ "up too" if q.r > 0 else "down" }}
+      ({{ q.strength_word }} link, r = {{ "%+.2f"|format(q.r) }} across {{ q.n_overlap }} tests).
     {% else %}
-      The two markers move largely independently in this cohort.
+      {{ q.x }} and {{ q.y }} don't really move together here
+      (r = {{ "%+.2f"|format(q.r) }} across {{ q.n_overlap }} tests).
+    {% endif %}
+    {% if q.diverges %}
+      A few unusual points are skewing this: a rank-based check (ρ = {{ "%+.2f"|format(q.rho) }})
+      disagrees with the straight-line r, so don't read too much into it.
+    {% elif q.low_overlap %}
+      Only {{ q.n_overlap }} tests have both measured, so take this as a rough hint.
     {% endif %}
   {% else %}
-    Pick an X and Y marker above to compare. Coupled patterns
-    (e.g. testosterone &amp; SHBG, HbA1c &amp; HDL) jump out here in a way
-    the per-marker view cannot show.
+    Pick two markers above to see how they relate. Some pairs move together
+    (like testosterone and SHBG); the per-marker view can't show that.
   {% endif %}
+</div>
+
+<div class="chart-host">
+  {{ q.chart_html | safe }}
 </div>

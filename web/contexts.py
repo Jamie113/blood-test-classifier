@@ -97,7 +97,6 @@ def _marker_context(data: dict, marker: str) -> dict | None:
         "available":    available,
         "chart_html":   _marker_chart_html(data, marker),
         "bic_pairs":    sorted(res["bic_scores"].items()),
-        "delta_bic":    _delta_bic(res["bic_scores"], n_comp),
         "tentative":    (d := _delta_bic(res["bic_scores"], n_comp)) is not None
                         and d < _DELTA_BIC_TENTATIVE,
         "small_sample": res["small_sample"],
@@ -129,7 +128,6 @@ def _population_context(data: dict, colour_by: str = "type") -> dict:
     fp = pop["fingerprint"].round(2)
 
     types: list[dict] = []
-    sub_summaries: list[str] = []
     for g in range(n_clusters):
         col = fp[f"Group {g + 1}"]
         col_sorted = col.abs().sort_values(ascending=False)
@@ -168,33 +166,18 @@ def _population_context(data: dict, colour_by: str = "type") -> dict:
             "bullets":    bullets,
         })
 
-        top_marker = col_sorted.index[0] if len(col_sorted) else None
-        if top_marker is not None:
-            top_z = float(col[top_marker])
-            top_dir = "higher" if top_z > 0 else "lower"
-            age_bit = f", median age {median_age}" if median_age is not None else ""
-            sub_summaries.append(
-                f"<strong>Cluster {g + 1}</strong> ({len(members)} tests{age_bit}) "
-                f"— most distinct in <strong>{top_marker}</strong> ({top_dir} than average)"
-            )
-
     return {
         "n_patients":     n_patients,
         "n_clusters":     n_clusters,
-        "n_markers":      pop["df_wide"].shape[1],
-        "type_word":      "cluster" if n_clusters == 1 else "distinct clusters",
         "types":          types,
-        "sub_summaries":  sub_summaries,
         "scatter_html":   _population_scatter_html(data, colour_by),
         "heatmap_html":   _heatmap_html(data),
         "colour_by":      colour_by,
         "has_age":        has_age,
         "small_sample":   pop["small_sample"],
         "bic_pairs":      sorted(pop["bic_scores"].items()),
-        "delta_bic":      _delta_bic(pop["bic_scores"], n_clusters),
         "tentative":      (d := _delta_bic(pop["bic_scores"], n_clusters)) is not None
                           and d < _DELTA_BIC_TENTATIVE,
-        "var_pct":        int(pop["pca_var"][:pop["n_cluster_dims"]].sum() * 100),
         "n_cluster_dims": pop["n_cluster_dims"],
     }
 

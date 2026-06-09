@@ -13,6 +13,5 @@
     <option value="type" {% if p.colour_by == "type" %}selected{% endif %}>Cluster</option>
     <option value="age"  {% if p.colour_by == "age"  %}selected{% endif %}>Age</option>
   </select>
-  <span class="toolbar-status">{{ p.n_patients }} blood tests · {{ p.n_markers }} markers used</span>
 </div>
 {% endif %}

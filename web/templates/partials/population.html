@@ -5,17 +5,29 @@
   </div>
 {% else %}
 
-{% include "partials/_population_scatter.html" %}
-
 <div class="finding">
-  <strong>{{ p.n_clusters }} {{ p.type_word }}</strong> across your blood tests.
-  {% for s in p.sub_summaries %}{{ s | safe }}{% if not loop.last %} &nbsp;·&nbsp; {% endif %}{% endfor %}
+  {% if p.n_clusters > 1 %}
+    Each dot is one blood test, placed so tests with similar results across all
+    markers sit close together. They fall into <strong>{{ p.n_clusters }} groups</strong>.
+    {% if p.tentative %}
+      The grouping is on the weak side, so treat it as tentative.
+    {% endif %}
+  {% elif p.bic_pairs|length == 1 %}
+    Each dot is one blood test, placed so similar tests sit close together. There
+    are too few tests here to look for separate groups.
+  {% else %}
+    Each dot is one blood test, placed so similar tests sit close together. They
+    don't split into separate groups.
+  {% endif %}
   {% if p.small_sample %}
     <div class="t-quiet" style="margin-top: 0.5rem;">
-      Small sample ({{ p.n_patients }} tests) — clusters are a starting point; results stabilise around 200+ tests.
+      This is only {{ p.n_patients }} tests, so treat the groups as a rough picture.
+      They firm up with a few hundred.
     </div>
   {% endif %}
 </div>
+
+{% include "partials/_population_scatter.html" %}
 
 <section class="section">
   <div class="t-eyebrow">What defines each cluster</div>
@@ -59,25 +71,6 @@
   <div class="chart-host">
     {{ p.heatmap_html | safe }}
   </div>
-</details>
-
-<details class="disclosure">
-  <summary>Technical details</summary>
-  <p class="t-meta">
-    Analysis used {{ p.n_cluster_dims }} dimensions capturing {{ p.var_pct }}% of total variation.
-    {% if p.bic_pairs|length == 1 %}
-      Only a single cluster was evaluated — {{ p.n_patients }} patients is below the
-      evidence floor (50+ needed to test for clusters). Reported as one cluster by
-      default, not by BIC comparison.
-    {% else %}
-      Number of clusters selected by BIC (lower = better fit):
-      {% for n, bic in p.bic_pairs %}
-        <strong>{{ n }} clusters</strong>: {{ "%d"|format(bic) }}{% if not loop.last %} · {% endif %}
-      {% endfor %}{% if p.delta_bic is not none %},
-        beating a single cluster by ΔBIC {{ "%.0f"|format(p.delta_bic) }}{% if p.tentative %}
-        — strong but not overwhelming evidence; treat the clusters as tentative{% endif %}{% endif %}.
-    {% endif %}
-  </p>
 </details>
 
 {% endif %}
