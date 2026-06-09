@@ -91,6 +91,9 @@ git add demo_cache.pkl
 
 ### Population GMM (`analyse_population` in `analysis.py`)
 
+- **Robust preprocessing for the clustering geometry**: winsorise each marker to its 1st–99th percentile, then `RobustScaler` (median/IQR) → PCA → GMM. Raw `StandardScaler` let a single extreme/erroneous record steer PC1 — on a real upload that produced an unstable split and a one-person "cluster" (116/28/**1**), and the extreme tails also inflated the apparent separation (ΔBIC 166→29 once capped). Do **not** revert to `StandardScaler` for the PCA path.
+- **Three deliberate views of the data** (see the comment block in `analyse_population`): standard-scaled *winsorised* values feed only the descriptive fingerprint (z-units the strength copy keys on); winsorised robust-scaled values feed PCA + clustering; the **un-winsorised** projection (`X_full`) feeds only the Mahalanobis distance, so a record whose value was capped for the fit is still flagged as an outlier rather than hidden in a cluster.
+- **Well-populated-cluster floor**: K is chosen only among solutions whose smallest component has ≥ `max(3, n_patients // 25)` members (`MIN_CLUSTER_SIZE_FLOOR = 3`, scaled with cohort size to match the K-cap's ~25/cluster logic). A tiny "cluster" is an outlier, not a sub-population. K=1 is always eligible, so the ΔBIC floor still runs.
 - **Diagonal covariance** (`covariance_type='diag'`) — PCA already decorrelates globally, and full covariance over-penalises K>1 in small cohorts (~5× more parameters per cluster).
 - **K range is sample-size capped**: `range(1, max(2, min(5, n_patients // 25)) + 1)`. n=80 demo can reach at most K=3; K=5 needs ~125 patients.
 - **`n_init=5`** (was 3 — bumped after a review found the multivariate fit was occasionally hitting local optima).
@@ -158,6 +161,7 @@ Do not update it for routine changes like adding a test or tweaking a threshold 
 - Do not remove `demo_cache.pkl` from git or the `.gitignore` exception.
 - Do not bypass the ΔBIC ≥ 6 floor when picking K — uniform markers should report K=1.
 - Do not switch the population GMM back to `covariance_type='full'` without checking the demo still picks K=2 (full covariance over-penalises K>1 in 10-D space).
+- Do not revert the population PCA path to plain `StandardScaler` on un-winsorised values — the winsorise → `RobustScaler` step is what stops one bad record steering the clustering (and the un-winsorised view is kept only for the Mahalanobis outlier distance). Removing it brings back the one-person-"cluster" failure on real uploads.
 - Do not return to the 5%-quantile log-likelihood outlier rule — it always flagged ~5% of tests by construction.
 - Reference ranges in `thresholds.py` are male-only — do not present them as universal.
 - Do not convert upload units **per value** — decide one unit per column via `to_canonical_column` (the per-value `_to_canonical` is private and only feeds conversion-factor tests). Per-value detection lets a single column split across unit systems — the silent-corruption bug fixed in #57. Detection thresholds assume typical adult-male ranges (same caveat as the reference ranges).

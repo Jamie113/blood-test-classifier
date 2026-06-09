@@ -4,7 +4,7 @@ import pytest
 
 from analysis import (
     DERIVED_MARKERS,
-    MIN_CLUSTER_SIZE,
+    MIN_CLUSTER_SIZE_FLOOR,
     _cluster_fingerprint,
     analyse_population,
     analyse_upload,
@@ -183,6 +183,17 @@ def _two_blob_long(rng, n_per=60, sep=8.0, n_markers=6):
     return pd.DataFrame(rows), markers
 
 
+def _planted_labels(patient_ids, boundary=60):
+    """Planted blob label per id (P0..P{boundary-1} = blob 0). patient_ids come
+    back sorted, so derive per-id rather than assuming positional order."""
+    return np.array([int(pid[1:]) >= boundary for pid in patient_ids])
+
+
+def _best_agreement(labels, planted):
+    """Cluster ids are arbitrary, so score both alignments and take the best."""
+    return max((labels == planted).mean(), (labels != planted).mean())
+
+
 def test_population_recovers_two_known_blobs():
     """Positive control: two well-separated Gaussian blobs must be recovered as
     K=2 with the assignment matching the planted labels for ≥95% of patients."""
@@ -190,27 +201,37 @@ def test_population_recovers_two_known_blobs():
     df, _ = _two_blob_long(rng)
     res = analyse_population(df)
     assert res["n_clusters"] == 2
-    labels = np.asarray(res["labels"])
-    # patient_ids come back sorted, so derive the planted label per id (P0–P59 are
-    # blob 0, P60+ blob 1) rather than assuming positional order.
-    planted = np.array([int(pid[1:]) >= 60 for pid in res["patient_ids"]])
-    # cluster ids are arbitrary, so score both alignments and take the best
-    agree = max((labels == planted).mean(), (labels != planted).mean())
+    agree = _best_agreement(np.asarray(res["labels"]), _planted_labels(res["patient_ids"]))
     assert agree >= 0.95
+
+
+def test_population_recovers_blobs_at_harder_separation():
+    """Recovery power, not just a smoke test: at a much tighter separation
+    (sep≈3σ) the engine should still recover K=2 and most of the structure."""
+    rng = np.random.default_rng(7)
+    df, _ = _two_blob_long(rng, sep=3.0)
+    res = analyse_population(df)
+    assert res["n_clusters"] == 2
+    agree = _best_agreement(np.asarray(res["labels"]), _planted_labels(res["patient_ids"]))
+    assert agree >= 0.85
 
 
 def test_population_extreme_value_does_not_create_singleton_cluster():
     """A single extreme/erroneous value must not spawn a one-person 'cluster'.
     The record is folded into a real cluster and surfaces via the Mahalanobis
-    outlier flag instead (the failure mode seen on a real upload: 116/28/1)."""
+    outlier flag instead (the failure mode seen on a real upload: 116/28/1).
+
+    The corruption (~10× the cohort median) matches the documented real-world
+    regime (Free Testosterone ~7× median), not an unrealistic 1e4 that any single
+    safeguard would trivially catch."""
     rng = np.random.default_rng(2)
     df, markers = _two_blob_long(rng)
-    # corrupt one patient's first marker with a wild value
     mask = (df["patient_id"] == "P0") & (df["test_name"] == markers[0])
-    df.loc[mask, "value"] = 1e4
+    median = df.loc[df["test_name"] == markers[0], "value"].median()
+    df.loc[mask, "value"] = median * 10
     res = analyse_population(df)
     sizes = np.bincount(np.asarray(res["labels"]))
-    assert sizes.min() >= MIN_CLUSTER_SIZE          # no singleton/doubleton cluster
+    assert sizes.min() >= MIN_CLUSTER_SIZE_FLOOR     # no singleton/doubleton cluster
     # the corrupted record is the strongest multivariate outlier
     ids = list(res["patient_ids"])
     assert ids[int(np.argmax(res["mahalanobis_sq"]))] == "P0"

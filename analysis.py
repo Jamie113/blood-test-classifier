@@ -124,9 +124,13 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         return {"error": "Not enough markers with sufficient coverage for population clustering."}
 
     # Three views of the data, deliberately separate:
-    #  • X_scaled (standard) feeds ONLY the descriptive fingerprint, so the
-    #    per-cluster "what defines it" copy stays in familiar standard-deviation
-    #    units (the strength thresholds in web/contexts.py key on |z|).
+    #  • X_scaled (standard, on WINSORISED values) feeds ONLY the descriptive
+    #    fingerprint, so the per-cluster "what defines it" copy stays in familiar
+    #    standard-deviation units (the strength thresholds in web/contexts.py key
+    #    on |z|). Winsorising first matters: a bad record now folds into a real
+    #    cluster, so without the cap one wild value would inflate that marker's
+    #    std (flattening its z toward 0 across all clusters) and drag the cluster
+    #    mean — masking real between-cluster signal in that column.
     #  • X_robust (winsorise → median/IQR) feeds PCA + clustering, so a few
     #    extreme or erroneous values can't dominate the PCA axes. On raw
     #    StandardScaler one bad record steered PC1 and produced unstable splits
@@ -135,10 +139,11 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     #  • X_full projects the UN-winsorised data through the same axes, used only
     #    for the Mahalanobis outlier distance below, so a capped record is still
     #    flagged as an outlier rather than hidden inside a cluster.
-    X_scaled = StandardScaler().fit_transform(df_wide.values)
-    robust   = RobustScaler().fit(_winsorize(df_wide.values))
-    X_robust = robust.transform(_winsorize(df_wide.values))
-    X_full   = robust.transform(df_wide.values)
+    winsorised = _winsorize(df_wide.values)
+    X_scaled   = StandardScaler().fit_transform(winsorised)
+    robust     = RobustScaler().fit(winsorised)
+    X_robust   = robust.transform(winsorised)
+    X_full     = robust.transform(df_wide.values)
 
     max_components = min(n_patients - 1, n_markers)
     pca        = PCA(n_components=max_components, random_state=42)
@@ -170,6 +175,12 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # so BIC stops over-penalising K>1 on small cohorts. Empirically: with
     # full covariance the demo's two ground-truth subgroups can't beat K=1
     # on BIC; with diagonal they win by 100+ BIC units.
+    # A component holding fewer than this is an outlier, not a sub-population.
+    # Proportional to cohort size (matching the K-cap's ~25-per-cluster evidence
+    # floor) so the guard doesn't loosen as the denominator grows: on 1000
+    # patients a 985/12/3 split is the same "outlier as its own cluster" failure
+    # as 116/28/1 on 145, just disguised. Floored at 3.
+    min_cluster_size = max(MIN_CLUSTER_SIZE_FLOOR, n_patients // 25)
     bic_scores: dict = {}
     fits: dict = {}
     well_populated: dict = {}
@@ -182,13 +193,13 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
         bic_scores[n] = float(gmm.bic(X_cluster))
         fits[n] = gmm
         counts = np.bincount(gmm.predict(X_cluster), minlength=n)
-        well_populated[n] = int(counts.min()) >= MIN_CLUSTER_SIZE
+        well_populated[n] = int(counts.min()) >= min_cluster_size
 
-    # Only consider K whose every component is well populated: a "cluster" of one
-    # or two is an outlier, not a sub-population. Disqualifying such K lets the
-    # extreme record fall into a real cluster, where the Mahalanobis χ² test then
-    # flags it on the Outliers tab. K=1 is always eligible (its single component
-    # holds everyone), so the ΔBIC≥6 floor still runs against the no-cluster null.
+    # Only consider K whose every component is well populated: a tiny "cluster"
+    # is an outlier, not a sub-population. Disqualifying such K lets the extreme
+    # record fall into a real cluster, where the Mahalanobis χ² test then flags
+    # it on the Outliers tab. K=1 is always eligible (its single component holds
+    # all n>=4 patients), so the ΔBIC≥6 floor still runs against the no-cluster null.
     eligible = [n for n in bic_scores if well_populated[n]]
     best_n = min(eligible, key=bic_scores.get)
     if best_n > 1 and (bic_scores[1] - bic_scores[best_n]) < 6.0:
@@ -204,12 +215,12 @@ def analyse_population(df_long: pd.DataFrame) -> dict:
     # df = n_cluster_dims, enabling a principled outlier threshold (vs the
     # sample-quantile rule that always flagged some tests). Caveat: distance is
     # to the test's OWN assigned cluster mean (predict-then-measure), which
-    # biases it DOWNWARD vs a true χ² draw — yet the realised flag rate can still
-    # sit above the nominal 1% (the demo flags ~2.5%) when a cluster's PCA
-    # distribution has heavier-than-Gaussian tails. So the χ²₀.₉₉ cut is an
-    # approximate, model-based threshold, not a calibrated guarantee. Distance is
-    # measured on the UN-winsorised projection (X_cluster_full) so a record whose
-    # extreme value was capped for the fit is still flagged here.
+    # biases it DOWNWARD vs a true χ² draw, while measuring distance on the
+    # UN-winsorised projection (X_cluster_full) pushes the realised rate back UP
+    # so capped records still surface. Net, the demo flags ~1.2% against a nominal
+    # 1%. So the χ²₀.₉₉ cut is an approximate, model-based threshold, not a
+    # calibrated guarantee — and a record whose extreme value was capped for the
+    # fit is still flagged here.
     mahalanobis_sq = np.zeros(n_patients)
     for i, label in enumerate(labels):
         diff = X_cluster_full[i] - best_gmm.means_[label]
@@ -287,11 +298,12 @@ DERIVED_MARKERS = frozenset({"Total Cholesterol:HDL Ratio"})
 # and by the Outliers-tab set-aside in web/contexts.py (one source of truth).
 HEAVY_IMPUTE_FRAC = 0.5
 
-# Minimum members for a multivariate cluster to count as a sub-population rather
-# than an outlier. A K whose smallest component falls below this is disqualified
-# during model selection (see analyse_population), so a lone extreme record can
-# never be reported as its own "cluster".
-MIN_CLUSTER_SIZE = 3
+# Absolute floor on members for a multivariate cluster to count as a
+# sub-population rather than an outlier. analyse_population scales the effective
+# threshold up with cohort size (max(floor, n//25)); a K whose smallest component
+# falls below it is disqualified during model selection, so a lone extreme record
+# can never be reported as its own "cluster".
+MIN_CLUSTER_SIZE_FLOOR = 3
 
 # Markers bound by a structural identity, so a pair WITHIN a group correlates by
 # construction (Total Cholesterol ≈ HDL + LDL + ~0.45·Triglycerides; LDL is
